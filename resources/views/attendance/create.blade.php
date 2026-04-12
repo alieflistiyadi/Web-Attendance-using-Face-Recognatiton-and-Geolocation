@@ -8,7 +8,7 @@
             <ion-icon name="chevron-back-outline"></ion-icon>
         </a>
     </div>
-    <div class="pageTitle">Web Attendance</div>
+    <div class="pageTitle">Web Attendance Face Recognation</div>
 </div>
 
 <style>
