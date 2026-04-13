@@ -22,4 +22,8 @@ class DashboardController extends Controller
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         return view('dashboard.dashboard', compact('attendancehariini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'rekapattendance', 'leaderboard'));
     }
+
+    public function dashboardadmin(){
+        return view('dashboard.dashboardadmin');
+    }
 }

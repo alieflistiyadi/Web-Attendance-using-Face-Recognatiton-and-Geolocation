@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DashboardController;
 
 /*a
 |--------------------------------------------------------------------------
@@ -13,10 +14,11 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+Route::get('/dashboardadmin',[DashboardController::class,'dashboardadmin']);
 Route::get('/', function () {
     return view('auth.login');
 })->name('login');
+
 
 route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 route::post('/process-login', [App\Http\Controllers\AuthController::class, 'proseslogin'])->name('process-login');
@@ -29,6 +31,12 @@ route::middleware('guest:siswa')->group(function () {
     route::post('/process-login', [App\Http\Controllers\AuthController::class, 'proseslogin'])->name('process-login');
 });
 
+route::middleware('guest:user')->group(function () {
+    route::get('/panel', function () {
+        return view('auth.loginadmin');
+    })->name('loginadmin');
+});
+
 route::middleware('auth:siswa')->group(function () {
     route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     route::get('/process-logout', [App\Http\Controllers\AuthController::class, 'proseslogout'])->name('process-logout');
@@ -39,3 +47,5 @@ route::middleware('auth:siswa')->group(function () {
     route::get('/editprofile', [App\Http\Controllers\AttendanceController::class, 'editprofile'])->name('editprofile');
     route::post('/attendance/{$nis}/updateprofile', [App\Http\Controllers\AttendanceController::class, 'updateprofile'])->name('updateprofile');
 });
+
+
