@@ -6,7 +6,7 @@
             <strong>Home</strong>
         </div>
     </a>
-    <a href="#" class="item">
+    <a href="/attendance/histori" class="item">
         <div class="col">
             <ion-icon name="document-text-outline" role="img" class="md hydrated"
                 aria-label="document text outline"></ion-icon>
@@ -32,6 +32,6 @@
             <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
             <strong>Profile</strong>
         </div>
-    </a>
+    </a>    
 </div>
 <!-- * App Bottom Menu -->
