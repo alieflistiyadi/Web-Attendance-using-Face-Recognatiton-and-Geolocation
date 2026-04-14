@@ -14,7 +14,7 @@ use App\Http\Controllers\DashboardController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/dashboardadmin',[DashboardController::class,'dashboardadmin']);
+
 Route::get('/', function () {
     return view('auth.login');
 })->name('login');
@@ -35,7 +35,10 @@ route::middleware('guest:user')->group(function () {
     route::get('/panel', function () {
         return view('auth.loginadmin');
     })->name('loginadmin');
-});
+    });
+
+    route::post('/prosesloginadmin', [App\Http\Controllers\AuthController::class, 'prosesloginadmin']);
+
 
 route::middleware('auth:siswa')->group(function () {
     route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
@@ -48,4 +51,7 @@ route::middleware('auth:siswa')->group(function () {
     route::post('/attendance/{$nis}/updateprofile', [App\Http\Controllers\AttendanceController::class, 'updateprofile'])->name('updateprofile');
 });
 
-
+Route::middleware(['auth:user'])->group(function (){
+    route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
+    Route::get('/panel/dashboardadmin',[DashboardController::class,'dashboardadmin']);
+});
