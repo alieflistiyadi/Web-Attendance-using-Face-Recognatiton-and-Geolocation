@@ -44,12 +44,17 @@ route::middleware('guest:user')->group(function () {
 route::middleware('auth:siswa')->group(function () {
     route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     route::get('/process-logout', [App\Http\Controllers\AuthController::class, 'proseslogout'])->name('process-logout');
-
+    
+    //Attendance
     route::get('/attendance/create', [App\Http\Controllers\AttendanceController::class, 'create'])->name('attendance.create');
     route::post('/attendance/store', [App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
 
+    // Edit Profile
     route::get('/editprofile', [App\Http\Controllers\AttendanceController::class, 'editprofile'])->name('editprofile');
     route::post('/attendance/{$nis}/updateprofile', [App\Http\Controllers\AttendanceController::class, 'updateprofile'])->name('updateprofile');
+
+    // Izin
+    route::get('attendance/izin', [AttendanceController::class, 'izin']);
 });
 
 Route::middleware(['auth:user'])->group(function (){

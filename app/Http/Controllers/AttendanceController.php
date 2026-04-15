@@ -146,4 +146,9 @@ class AttendanceController extends Controller
             return Redirect::back()->with(['error' => 'Gagal mengupdate profile']);
         }
     }
+
+    public function izin ()
+    {
+        return view('attendance.izin');
+    }
 }
