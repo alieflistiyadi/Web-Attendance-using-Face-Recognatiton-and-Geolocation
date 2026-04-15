@@ -52,6 +52,8 @@ route::middleware('auth:siswa')->group(function () {
     route::post('/attendance/{$nis}/updateprofile', [App\Http\Controllers\AttendanceController::class, 'updateprofile'])->name('updateprofile');
 
     route::get('/attendance/histori', [App\Http\Controllers\AttendanceController::class, 'histori'])->name('attendance.histori');
+    route::post('/gethistori', [App\Http\Controllers\AttendanceController::class, 'gethistori'])->name('gethistori');
+
 });
 
 Route::middleware(['auth:user'])->group(function (){

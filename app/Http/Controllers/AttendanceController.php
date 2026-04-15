@@ -151,5 +151,20 @@ class AttendanceController extends Controller
     {
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         return view('attendance.histori',compact('namabulan'));
+    }   
+
+    public function gethistori(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+        $nis = Auth::guard('siswa')->user()->nis;
+
+        $histori = DB::table('attendance')
+            ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
+            ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
+            ->where('nis', $nis)
+            ->orderBy('tgl_presensi')
+            ->get();
+        return view('attendance.gethistori', compact('histori'));
     }
 }

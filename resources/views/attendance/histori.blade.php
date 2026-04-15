@@ -52,23 +52,42 @@
             <div class="row">
                 <div class="col-12">
                     <div class="form-group">
-                        <button class="btn btn-primary btn-block" id="search">
+                        <button class="btn btn-primary btn-block" id="getdata">
                             <ion-icon name="search-outline"></ion-icon>
                             Search
                         </button>
-                    </div>
+                    </div>  
                 </div>
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col" id="showhistori">
 
+        </div>
+    </div>
 @endsection
 
 @push('myscript')
-
-<script>
-    $(function(){
-        $("getdata ")
-    })
-</script>
+    <script>
+        $(function () {
+            $("#getdata").click(function (e) {
+                var bulan = $("#bulan").val();
+                var tahun = $("#tahun").val();
+                $.ajax({
+                    type: 'POST'
+                    , url: '/gethistori'
+                    , data: {
+                        _token: "{{ csrf_token() }}" 
+                        , bulan: bulan
+                        , tahun: tahun
+                    }
+                    , cache: false
+                    , success: function (respond) {
+                        $("#showhistori").html(respond);
+                    }
+                });
+            });
+        });
+    </script>
 @endpush
