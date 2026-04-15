@@ -54,8 +54,9 @@ route::middleware('auth:siswa')->group(function () {
     route::post('/attendance/{$nis}/updateprofile', [App\Http\Controllers\AttendanceController::class, 'updateprofile'])->name('updateprofile');
 
     // Izin
-    route::get('attendance/izin', [App\Http\Controllers\ttendanceController::class, 'izin'])->name('izin');
+    route::get('attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])->name('izin');
     route::get('attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])->name('buatizin');
+    route::post('attendance/storeizin', [App\Http\Controllers\AttendanceController::class, 'storeizin'])->name('storeizin');
 });
 
 Route::middleware(['auth:user'])->group(function (){

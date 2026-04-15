@@ -160,10 +160,10 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
 
         $histori = DB::table('attendance')
-            ->whereRaw('MONTH(tanggal_presensi)="' . $bulan . '"')
-            ->whereRaw('YEAR(tanggal_presensi)="' . $tahun . '"')
+            ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
+            ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
             ->where('nis', $nis)
-            ->orderBy('tanggal_presensi')
+            ->orderBy('tgl_presensi')
             ->get();
         return view('attendance.gethistori', compact('histori'));
 
@@ -172,5 +172,33 @@ class AttendanceController extends Controller
     public function izin ()
     {
         return view('attendance.izin');
+    }
+
+    public function buatizin()
+    {
+        return view('attendance.buatizin');
+    }
+
+    public function storeizin(Request $request)
+    {
+        $nis = Auth::guard('siswa')->user()->nis;
+        $tanggal_izin = $request->tanggal_izin;
+        $status = $request->status;
+        $keterangan = $request->keterangan;
+
+        $data = [
+            'nis' => $nis,
+            'tanggal_izin' => $tanggal_izin,
+            'status' => $status,
+            'keterangan' => $keterangan,
+        ];
+
+        $simpan = DB::table('pengajuan_izin')->insert($data);
+
+        if($simpan){
+            return redirect('/attendance/izin')->with(['success' => 'Data Berhasil Disimpan']);
+        } else {
+            return redirect('/attendance/izin')->with(['error' => 'Data Gagal Disimpan']);
+        }
     }
 }
