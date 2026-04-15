@@ -16,7 +16,7 @@
             </div>
           </div>
         </div>
-       <div class="class page-body">
+       <div class="page-body">
         <div class="class container-xl">
           <div class="row">
             <div class="col-md-6 col-xl-3">

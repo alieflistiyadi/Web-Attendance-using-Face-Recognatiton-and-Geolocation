@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SiswaController;
 
 /*a
 |--------------------------------------------------------------------------
@@ -54,4 +55,7 @@ route::middleware('auth:siswa')->group(function () {
 Route::middleware(['auth:user'])->group(function (){
     route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
     Route::get('/panel/dashboardadmin',[DashboardController::class,'dashboardadmin']);
+
+    //Siswa
+    route::get('/siswa',[SiswaController::class, 'index']);
 });
