@@ -1,4 +1,4 @@
-
+TEST TABLER LAYOUT
 <!doctype html>
 <!--
 * Tabler - Premium and Open Source dashboard template with responsive and high quality UI.
@@ -346,7 +346,7 @@
 </header>
       <div class="page-wrapper">
         @yield('content')
-        <footer class="footer footer-transparent d-print-none">
+<footer class="footer footer-transparent d-print-none">
           <div class="container-xl">
             <div class="row text-center align-items-center flex-row-reverse">
               <div class="col-lg-auto ms-lg-auto">
