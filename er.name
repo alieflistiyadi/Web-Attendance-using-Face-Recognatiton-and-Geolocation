@@ -1,0 +1,49 @@
+[33mcommit b17cc30ddad26b28630f6bd5d0673fd8821087f7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Merge: 798702d 8623e0f
+Author: nathleen <alieflistyadi@gmail.com>
+Date:   Mon Apr 13 15:06:15 2026 +0700
+
+    Merge branch 'main' of https://github.com/alieflistiyadi/Web-Attendance-using-Face-Recognatiton-and-Geolocation
+
+[33mcommit 798702d5a29e1607b2b66fdf877daf64f30e8c6a[m
+Author: nathleen <alieflistyadi@gmail.com>
+Date:   Mon Apr 13 15:06:13 2026 +0700
+
+    progress attendance feature
+
+[33mcommit 8623e0f1f3fcb4c85600681f8fa42d4320f9f332[m[33m ([m[1;31morigin/main[m[33m)[m
+Author: nathleen <putridinam687@gmail.com>
+Date:   Mon Apr 13 13:59:41 2026 +0700
+
+    ui administrator
+
+[33mcommit dc70e214e41cb96adcbdd637fcf610575cd49fb1[m
+Author: nathleen <alieflistyadi@gmail.com>
+Date:   Mon Apr 13 10:46:11 2026 +0700
+
+    update attendance page
+
+[33mcommit 12cf580bec61e03dea7c463977faf088ecebc757[m
+Author: nathleen <putridinam687@gmail.com>
+Date:   Sun Apr 12 15:34:31 2026 +0700
+
+    test
+
+[33mcommit 2cb6998b25cf8a9a5418dbfe995c91242f1f36d9[m
+Merge: a4d849c 1aacfe1
+Author: Alief <alieflistyadi@gmail.com>
+Date:   Sun Apr 12 15:20:49 2026 +0700
+
+    merge remote repository
+
+[33mcommit a4d849c83e7c61dc4d227c7d60de769475367054[m
+Author: Alief <alieflistyadi@gmail.com>
+Date:   Sun Apr 12 15:17:27 2026 +0700
+
+    first commit
+
+[33mcommit 1aacfe12f0bc22a0958c34731450a67219555fdc[m
+Author: alieflistiyadi <alieflistyadi@gmail.com>
+Date:   Sun Apr 12 15:14:17 2026 +0700
+
+    Initial commit

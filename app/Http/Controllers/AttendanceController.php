@@ -103,7 +103,7 @@ class AttendanceController extends Controller
     public function editprofile()
     {
         $nis = Auth::guard('siswa')->user()->nis;
-        $siswa = DB::table('siswa')->where('nis',$nis )->first();
+        $siswa = DB::table('siswa')->where('nis', $nis)->first();
         return view('attendance.editprofile', compact('siswa'));
     }
 
@@ -113,9 +113,9 @@ class AttendanceController extends Controller
         $nama_lengkap = $request->nama_lengkap;
         $no_hp = $request->no_hp;
         $password = Hash::make($request->password);
-        $siswa = DB::table('siswa')->where('nis',$nis )->first();
+        $siswa = DB::table('siswa')->where('nis', $nis)->first();
         if ($request->hasFile('foto')) {
-            $foto = $nis . '_' . $request -> file('foto')->getClientOriginalExtension();
+            $foto = $nis . '_' . $request->file('foto')->getClientOriginalExtension();
         } else {
             $foto = $siswa->foto;
         }
@@ -137,7 +137,7 @@ class AttendanceController extends Controller
 
         $update = DB::table('siswa')->where('nis', $nis)->update($data);
         if ($update) {
-            if($request->hashFile('foto')){
+            if ($request->hashFile('foto')) {
                 $folderPath = 'public/uploads/siswa';
                 $request->file('foto')->storeAs($folderPath, $foto);
             }
@@ -145,6 +145,28 @@ class AttendanceController extends Controller
         } else {
             return Redirect::back()->with(['error' => 'Gagal mengupdate profile']);
         }
+    }
+
+    public function histori()
+    {
+        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        return view('attendance.histori',compact('namabulan'));
+    }   
+
+    public function gethistori(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+        $nis = Auth::guard('siswa')->user()->nis;
+
+        $histori = DB::table('attendance')
+            ->whereRaw('MONTH(tanggal_presensi)="' . $bulan . '"')
+            ->whereRaw('YEAR(tanggal_presensi)="' . $tahun . '"')
+            ->where('nis', $nis)
+            ->orderBy('tanggal_presensi')
+            ->get();
+        return view('attendance.gethistori', compact('histori'));
+
     }
 
     public function izin ()
