@@ -6,7 +6,7 @@
             <strong>Home</strong>
         </div>
     </a>
-    <a href="/attendance/histori" class="item">
+    <a href="/attendance/histori" class="item {{ request()->is('attendance/histori') ? 'active' : '' }}">
         <div class="col">
             <ion-icon name="document-text-outline" role="img" class="md hydrated"
                 aria-label="document text outline"></ion-icon>
@@ -20,13 +20,13 @@
             </div>
         </div>
     </a>
-    <a href="/attendance/izin" class="item">
+    <a href="/attendance/izin" class="item {{ request()->is('attendance/izin') ? 'active' : '' }}">
         <div class="col">
             <ion-icon name="calendar-outline"></ion-icon>
             <strong>Izin</strong>
         </div>
     </a>
-    <a href="/editprofile" class="item">
+    <a href="/editprofile" class="item {{ request()->is('editprofile') ? 'active' : '' }}">
         <div class="col">
             <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
             <strong>Profile</strong>

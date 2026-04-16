@@ -25,7 +25,7 @@
                 <div class="list-menu">
                     <div class="item-menu text-center">
                         <div class="menu-icon">
-                            <a href="" class="green" style="font-size: 40px;">
+                            <a href="/editprofile" class="green" style="font-size: 40px;">
                                 <ion-icon name="person-outline"></ion-icon>
                             </a>
                         </div>
@@ -35,7 +35,7 @@
                     </div>
                     <div class="item-menu text-center">
                         <div class="menu-icon">
-                            <a href="" class="warning" style="font-size: 40px;">
+                            <a href="/attendance/izin" class="warning" style="font-size: 40px;">
                                 <ion-icon name="calendar-number-outline"></ion-icon>
                             </a>
                         </div>
@@ -45,7 +45,7 @@
                     </div>
                     <div class="item-menu text-center">
                         <div class="menu-icon">
-                            <a href="" class="grey" style="font-size: 40px;">
+                            <a href="/attendance/histori" class="grey" style="font-size: 40px;">
                                 <ion-icon name="document-text-outline"></ion-icon>
                             </a>
                         </div>

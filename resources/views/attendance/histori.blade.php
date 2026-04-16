@@ -21,7 +21,7 @@
                 <div class="form-group">
                     <select name="bulan" id="bulan" class="form-control">
                         <option value="">Bulan</option>
-                        @for ($i = 1; $i ≤ 12; $i++)<option value="{{ $i }}" {{ date("m") = $i ? 'selected' : '' }}>{{ $namabulan
+                        @for ($i = 1; $i <= 12; $i++)<option value="{{ $i }}" {{ date("m") == $i ? 'selected' : '' }}>{{ $namabulan
                         [$i] }}</option>
                             @endfor
                     </select>
@@ -37,7 +37,7 @@
                         $tahunmulai = 2022;
                         $tahunskrg = date("Y");
                         @endphp
-                        @for ($tahun=$tahunmulai; $tahun ≤ $tahunskrg; $tahun++) <option value="{{ $tahun }}" {{ date("Y") = 
+                        @for ($tahun=$tahunmulai; $tahun <= $tahunskrg; $tahun++) <option value="{{ $tahun }}" {{ date("Y") == 
                         $tahun ? 'selected' : '' }}>{{ $tahun }}
                             </option>
                             @endfor
