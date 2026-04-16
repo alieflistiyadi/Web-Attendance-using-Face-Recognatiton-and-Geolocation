@@ -20,7 +20,8 @@ class DashboardController extends Controller
         $rekapattendance = \DB::table('attendance')->selectRaw('COUNT(nis) as jmlhadir, SUM(IF(jam_in > "07:00", 1, 0)) as jmlterlambat')->where('nis', $nis)->whereRaw('MONTH(tgl_presensi) = "' . $bulanini . '"')->whereRaw('YEAR(tgl_presensi) = "' . $tahunini . '"')->first();
         $leaderboard= \DB::table('attendance')->join('siswa', 'attendance.nis', '=', 'siswa.nis')->where('tgl_presensi', $hariini)->orderBy('jam_in')->get();
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        return view('dashboard.dashboard', compact('attendancehariini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'rekapattendance', 'leaderboard'));
+        $rekapizin = \DB::table('pengajuan_izin')->selectRaw('SUM(IF(status="i",1,0)) as jmlizin,SUM(IF(status="s",1,0)) as jmlsakit')->where('nis', $nis)->whereRaw('MONTH(tanggal_izin) = "' . $bulanini . '"')->whereRaw('YEAR(tanggal_izin) = "' . $tahunini . '"')->where('status_approved', 1)->first();
+        return view('dashboard.dashboard', compact('attendancehariini', 'historibulanini', 'namabulan', 'bulanini', 'tahunini', 'rekapattendance', 'leaderboard', 'rekapizin'));
     }
 
     public function dashboardadmin(){
