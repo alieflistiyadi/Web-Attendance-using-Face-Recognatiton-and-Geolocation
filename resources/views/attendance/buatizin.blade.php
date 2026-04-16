@@ -1,6 +1,15 @@
 @extends('layouts.attendance')
 @section('header')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css" >
+<style>
+    .datepicker-modal {
+        max-height: 430px !important;
+    }
+
+    .datepicker-date-display {
+        background-color: #0F3a7e !important;
+    }
+</style>
 <!-- * App Header -->
 
 <div class="appHeader bg-primary text-light">
@@ -49,7 +58,7 @@
             setDefaultDate: true, // agar saat klik calender tanggal, bulan, tahun udah ke isi
             maxDate: new Date(new Date().setDate(new Date().getDate() + 3)), // izin/sakit sampai 3 hari ke depan
             yearRange: [1928, 2100],
-            format: "yyyy/mm/dd"    
+            format: "dd-mm-yyyy"    
         });
 
         $("#frmIzin").submit(function() {

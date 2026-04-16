@@ -150,7 +150,7 @@ class AttendanceController extends Controller
     public function histori()
     {
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        return view('attendance.histori',compact('namabulan'));
+        return view('attendance.histori', compact('namabulan'));
     }   
 
     public function gethistori(Request $request)
@@ -170,12 +170,15 @@ class AttendanceController extends Controller
     }
 
     public function izin ()
-    {
-        return view('attendance.izin');
+    { 
+        $nis = Auth::guard('siswa')->user()->nis;
+        $dataizin = DB::table('pengajuan_izin')->where('nis', $nis)->get();
+        return view('attendance.izin', compact('dataizin'));
     }
 
     public function buatizin()
     {
+       
         return view('attendance.buatizin');
     }
 

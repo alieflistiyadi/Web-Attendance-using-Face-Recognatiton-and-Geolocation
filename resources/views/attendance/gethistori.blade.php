@@ -8,7 +8,7 @@
 @endif
 
 @foreach ($histori as $d)
-    <ui class="listview image-listview">
+    <ul class="listview image-listview">
         <li>
             <div class="item">
                 @php
@@ -27,5 +27,5 @@
                 </div>
             </div>
         </li>
-    </ui>
+    </ul>
 @endforeach
