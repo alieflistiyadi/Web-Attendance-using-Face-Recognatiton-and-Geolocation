@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+namespace App\Http\Controllers;
+
 use DB;
 use Hash;
 use Illuminate\Http\Request;
@@ -11,13 +13,15 @@ use Redirect;
 use Symfony\Component\HttpKernel\HttpCache\Store;
 
 
+
+
 class AttendanceController extends Controller
 {
     public function create()
     {
         $hari_ini = date('Y-m-d');
         $nis = Auth::guard('siswa')->user()->nis;
-        $cek = DB::table('attendance')->where('nis', $nis)->where('tgl_presensi', $hari_ini)->count();
+        $cek = \DB::table('attendance')->where('nis', $nis)->where('tgl_presensi', $hari_ini)->count();
         return view('attendance.create', compact('cek'));
     }
 
@@ -27,18 +31,16 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
-        $latitudesekolah = -6.269162438043661;
-        $longitudesekolah = 106.91730139359885;
-        ;
         $lokasi = $request->lokasi;
+        $latitudesekolah = -6.269107996706856;
+        $longitudesekolah = 106.91735464750927;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];
         $longitudeuser = $lokasiuser[1];
-
         $jarak = $this->distance($latitudesekolah, $longitudesekolah, $latitudeuser, $longitudeuser);
-        $radius = round($jarak["meters"]);
+        $radius = round($jarak['meters']);
 
-        $cek = DB::table('attendance')->where('nis', $nis)->where('tgl_presensi', $tgl_presensi)->count();
+        $cek = \DB::table('attendance')->where('nis', $nis)->where('tgl_presensi', $tgl_presensi)->count();
 
         if ($cek > 0) {
             $ket = "out";
@@ -47,51 +49,48 @@ class AttendanceController extends Controller
         }
         $image = $request->image;
         $folderPath = "public/uploads/absensi/";
-        $format_name = $nis . '-' . $tgl_presensi . '-' . $ket;
+        $format_name = $nis . '_' . $tgl_presensi . '_' . $ket . '_' . $jam;
         $image_parts = explode(";base64,", $image);
         $image_base64 = base64_decode($image_parts[1]);
         $filename = $format_name . '.png';
         $file = $folderPath . $filename;
-        Storage::put($file, $image_base64);
 
-        if ($radius > 20) {
-            echo "error|maaf anda berada diluar radius, jarak anda " . $radius . " meter dari sekolah|radius";
+        if ($radius > 10) {
+            echo "error|Anda Terlalu Jauh Dari Sekolah, Jarak Anda: " . $radius . " meter dari sekolah|";
         } else {
-
-
             if ($cek > 0) {
                 $data_pulang = [
                     'jam_out' => $jam,
                     'foto_out' => $filename,
-                    'location_out' => $lokasi,
+                    'location_out' => $lokasi
                 ];
-                $update = DB::table('attendance')->where('tgl_presensi', $tgl_presensi)->where('nis', $nis)->update($data_pulang);
+                $update = \DB::table('attendance')->where('nis', $nis)->where('tgl_presensi', $tgl_presensi)->update($data_pulang);
                 if ($update) {
-                    echo "success|Terimakasih Hati-Hati Dijalan|out";
+                    echo "success|Terimakasih, Hati-hati Di Jalan|out";
                     Storage::put($file, $image_base64);
                 } else {
-                    echo "error|Maaf Gagal Absen, Silakan Hubungi Admin|out";
+                    echo "error|Gagal melakukan presensi pulang|out";
                 }
-
             } else {
                 $data = [
                     'nis' => $nis,
                     'tgl_presensi' => $tgl_presensi,
                     'jam_in' => $jam,
                     'foto_in' => $filename,
-                    'location_in' => $lokasi,
+                    'location_in' => $lokasi
                 ];
-                $simpan = DB::table('attendance')->insert($data);
+                $simpan = \DB::table('attendance')->insert($data);
                 if ($simpan) {
-                    echo "success|Terimakasih Selamat Datang|in";
+                    echo "success|Terimakasih, Selamat Datang|in";
                     Storage::put($file, $image_base64);
                 } else {
-                    echo "error|Maaf Gagal Absen, Silakan Hubungi Admin|out";
+                    echo "error|Gagal melakukan presensi masuk|out";
                 }
             }
         }
     }
 
+    //Menghitung Jarak
     function distance($lat1, $lon1, $lat2, $lon2)
     {
         $theta = $lon1 - $lon2;
@@ -105,6 +104,7 @@ class AttendanceController extends Controller
         $meters = $kilometers * 1000;
         return compact('meters');
     }
+
     public function editprofile()
     {
         $nis = Auth::guard('siswa')->user()->nis;
@@ -176,14 +176,11 @@ class AttendanceController extends Controller
 
     public function izin()
     {
-        $nis = Auth::guard('siswa')->user()->nis;
-        $dataizin = DB::table('pengajuan_izin')->where('nis', $nis)->get();
-        return view('attendance.izin', compact('dataizin'));
+        return view('attendance.izin');
     }
 
     public function buatizin()
     {
-
         return view('attendance.buatizin');
     }
 
@@ -209,8 +206,4 @@ class AttendanceController extends Controller
             return redirect('/attendance/izin')->with(['error' => 'Data Gagal Disimpan']);
         }
     }
-
-
 }
-
-

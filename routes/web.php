@@ -36,15 +36,15 @@ route::middleware('guest:user')->group(function () {
     route::get('/panel', function () {
         return view('auth.loginadmin');
     })->name('loginadmin');
-    });
+});
 
-    route::post('/prosesloginadmin', [App\Http\Controllers\AuthController::class, 'prosesloginadmin']);
+route::post('/prosesloginadmin', [App\Http\Controllers\AuthController::class, 'prosesloginadmin']);
 
 
 route::middleware('auth:siswa')->group(function () {
     route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
     route::get('/process-logout', [App\Http\Controllers\AuthController::class, 'proseslogout'])->name('process-logout');
-    
+
     //Attendance
     route::get('/attendance/create', [App\Http\Controllers\AttendanceController::class, 'create'])->name('attendance.create');
     route::post('/attendance/store', [App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
@@ -63,10 +63,10 @@ route::middleware('auth:siswa')->group(function () {
     route::post('attendance/storeizin', [App\Http\Controllers\AttendanceController::class, 'storeizin'])->name('storeizin');
 });
 
-Route::middleware(['auth:user'])->group(function (){
+Route::middleware(['auth:user'])->group(function () {
     route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
-    Route::get('/panel/dashboardadmin',[DashboardController::class,'dashboardadmin']);
+    Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
 
     //Siswa
-    route::get('/siswa',[SiswaController::class, 'index']);
+    route::get('/siswa', [SiswaController::class, 'index']);
 });
