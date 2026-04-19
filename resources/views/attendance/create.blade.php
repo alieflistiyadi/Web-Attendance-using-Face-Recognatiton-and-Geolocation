@@ -86,186 +86,186 @@
 @endsection
 
 @push('myscript')
-<script>
-    let faceReady = false;
-    let lastDetection = null;
-    const video = document.getElementById('video');
+    <script>
+        let faceReady = false;
+        let lastDetection = null;
+        const video = document.getElementById('video');
 
-    var notifikasi_in = document.getElementById('notifikasi_in');
-    var notifikasi_out = document.getElementById('notifikasi_out');
-    var notifikasi_radius = document.getElementById('notifikasi_radius');
+        var notifikasi_in = document.getElementById('notifikasi_in');
+        var notifikasi_out = document.getElementById('notifikasi_out');
+        var notifikasi_radius = document.getElementById('notifikasi_radius');
 
-    // =====================
-    // LOAD MODEL + KAMERA
-    // =====================
-    async function loadFaceAPI() {
-        const MODEL_URL = '/models';
-        try {
-            await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-            await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-            await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-            faceReady = true;
-            console.log("✅ Face API Ready");
-        } catch (e) {
-            console.error("❌ Model gagal load:", e);
-        }
-    }
-
-    async function startCamera() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { width: 640, height: 480, facingMode: "user" },
-                audio: false
-            });
-            video.srcObject = stream;
-            video.onloadedmetadata = () => {
-                video.play();
-                console.log("✅ Kamera aktif");
-            };
-        } catch (err) {
-            console.error("❌ Kamera error:", err);
-            alert("Kamera tidak bisa diakses! Izinkan permission kamera.");
-        }
-    }
-
-    // Jalankan otomatis saat halaman load
-    window.addEventListener('load', async () => {
-        await loadFaceAPI();
-        await startCamera();
-    });
-
-    // =====================
-    // FACE DETECTION
-    // =====================
-    video.addEventListener('play', () => {
-        const canvas = faceapi.createCanvasFromMedia(video);
-        document.querySelector('.webcam-capture').append(canvas);
-
-        const displaySize = {
-            width: video.videoWidth,
-            height: video.videoHeight
-        };
-
-        canvas.width = displaySize.width;
-        canvas.height = displaySize.height;
-        faceapi.matchDimensions(canvas, displaySize);
-
-        setInterval(async () => {
-            if (!faceReady) return;
-
-            const detections = await faceapi.detectAllFaces(
-                video,
-                new faceapi.TinyFaceDetectorOptions({
-                    inputSize: 416,
-                    scoreThreshold: 0.3
-                })
-            )
-            .withFaceLandmarks()
-            .withFaceDescriptors();
-
-            const resized = faceapi.resizeResults(detections, displaySize);
-
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            faceapi.draw.drawDetections(canvas, resized);
-
-            if (resized.length > 0) {
-                lastDetection = resized[0];
+        // =====================
+        // LOAD MODEL + KAMERA
+        // =====================
+        async function loadFaceAPI() {
+            const MODEL_URL = '/models';
+            try {
+                await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+                await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+                await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+                faceReady = true;
+                console.log("✅ Face API Ready");
+            } catch (e) {
+                console.error("❌ Model gagal load:", e);
             }
-        }, 300);
-    });
-
-    // =====================
-    // GEOLOCATION
-    // =====================
-    var lokasi = document.getElementById('lokasi');
-
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
-    }
-
-    function successCallback(position) {
-        lokasi.value = position.coords.latitude + ',' + position.coords.longitude;
-
-        var map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 18);
-        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        }).addTo(map);
-
-        L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
-
-        L.circle([-6.269107996706856, 106.91735464750927], {
-            color: 'red',
-            fillColor: '#f03',
-            fillOpacity: 0.5,
-            radius: 10
-        }).addTo(map);
-    }
-
-    function errorCallback() {}
-
-    // =====================
-    // ABSEN
-    // =====================
-    $('#takeabsen').click(function () {
-        if (!faceReady) {
-            Swal.fire({ title: 'Error!', text: 'Model wajah belum siap, tunggu sebentar.', icon: 'error' });
-            return;
         }
 
-        if (!lastDetection) {
-            Swal.fire({ title: 'Error!', text: 'Wajah tidak terdeteksi!', icon: 'error' });
-            return;
-        }
-
-        // Ambil snapshot dari video
-        const snapCanvas = document.createElement('canvas');
-        snapCanvas.width = video.videoWidth;
-        snapCanvas.height = video.videoHeight;
-        const ctx = snapCanvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        const image = snapCanvas.toDataURL('image/jpeg', 0.8);
-
-        var lokasiVal = $('#lokasi').val();
-
-        $.ajax({
-            url: '/attendance/store',
-            type: 'POST',
-            data: {
-                _token: '{{ csrf_token() }}',
-                image: image,
-                lokasi: lokasiVal
-            },
-            cache: false,
-            success: function (respond) {
-                var status = respond.split("|");
-                if (status[0] == "success") {
-                    if (status[2] == "in") {
-                        notifikasi_in.play();
-                    } else {
-                        notifikasi_out.play();
-                    }
-                    Swal.fire({
-                        title: 'Success!',
-                        text: status[1],
-                        icon: 'success',
-                    });
-                    setTimeout("location.href='/dashboard'", 3000);
-                } else {
-                    if (status[2] == "radius") {
-                        notifikasi_radius.play();
-                    }
-                    Swal.fire({
-                        title: 'Error!',
-                        text: status[1],
-                        icon: 'error',
-                        confirmButtonText: 'Ok'
-                    });
-                }
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 640, height: 480, facingMode: "user" },
+                    audio: false
+                });
+                video.srcObject = stream;
+                video.onloadedmetadata = () => {
+                    video.play();
+                    console.log("✅ Kamera aktif");
+                };
+            } catch (err) {
+                console.error("❌ Kamera error:", err);
+                alert("Kamera tidak bisa diakses! Izinkan permission kamera.");
             }
+        }
+
+        // Jalankan otomatis saat halaman load
+        window.addEventListener('load', async () => {
+            await loadFaceAPI();
+            await startCamera();
         });
-    });
-</script>
+
+        // =====================
+        // FACE DETECTION
+        // =====================
+        video.addEventListener('play', () => {
+            const canvas = faceapi.createCanvasFromMedia(video);
+            document.querySelector('.webcam-capture').append(canvas);
+
+            const displaySize = {
+                width: video.videoWidth,
+                height: video.videoHeight
+            };
+
+            canvas.width = displaySize.width;
+            canvas.height = displaySize.height;
+            faceapi.matchDimensions(canvas, displaySize);
+
+            setInterval(async () => {
+                if (!faceReady) return;
+
+                const detections = await faceapi.detectAllFaces(
+                    video,
+                    new faceapi.TinyFaceDetectorOptions({
+                        inputSize: 416,
+                        scoreThreshold: 0.3
+                    })
+                )
+                    .withFaceLandmarks()
+                    .withFaceDescriptors();
+
+                const resized = faceapi.resizeResults(detections, displaySize);
+
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                faceapi.draw.drawDetections(canvas, resized);
+
+                if (resized.length > 0) {
+                    lastDetection = resized[0];
+                }
+            }, 300);
+        });
+
+        // =====================
+        // GEOLOCATION
+        // =====================
+        var lokasi = document.getElementById('lokasi');
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(successCallback, errorCallback);
+        }
+
+        function successCallback(position) {
+            lokasi.value = position.coords.latitude + ',' + position.coords.longitude;
+
+            var map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 18);
+            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }).addTo(map);
+
+            L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
+
+            L.circle([-6.269107996706856, 106.91735464750927], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 10
+            }).addTo(map);
+        }
+
+        function errorCallback() { }
+
+        // =====================
+        // ABSEN
+        // =====================
+        $('#takeabsen').click(function () {
+            if (!faceReady) {
+                Swal.fire({ title: 'Error!', text: 'Model wajah belum siap, tunggu sebentar.', icon: 'error' });
+                return;
+            }
+
+            if (!lastDetection) {
+                Swal.fire({ title: 'Error!', text: 'Wajah tidak terdeteksi!', icon: 'error' });
+                return;
+            }
+
+            // Ambil snapshot dari video
+            const snapCanvas = document.createElement('canvas');
+            snapCanvas.width = video.videoWidth;
+            snapCanvas.height = video.videoHeight;
+            const ctx = snapCanvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+            const image = snapCanvas.toDataURL('image/jpeg', 0.8);
+
+            var lokasiVal = $('#lokasi').val();
+
+            $.ajax({
+                url: '/attendance/store',
+                type: 'POST',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                    image: image,
+                    lokasi: lokasiVal
+                },
+                cache: false,
+                success: function (respond) {
+                    var status = respond.split("|");
+                    if (status[0] == "success") {
+                        if (status[2] == "in") {
+                            notifikasi_in.play();
+                        } else {
+                            notifikasi_out.play();
+                        }
+                        Swal.fire({
+                            title: 'Success!',
+                            text: status[1],
+                            icon: 'success',
+                        });
+                        setTimeout("location.href='/dashboard'", 3000);
+                    } else {
+                        if (status[2] == "radius") {
+                            notifikasi_radius.play();
+                        }
+                        Swal.fire({
+                            title: 'Error!',
+                            text: status[1],
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                }
+            });
+        });
+    </script>
 @endpush

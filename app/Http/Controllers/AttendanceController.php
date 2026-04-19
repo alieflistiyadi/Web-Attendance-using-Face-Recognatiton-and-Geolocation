@@ -151,7 +151,7 @@ class AttendanceController extends Controller
     {
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         return view('attendance.histori', compact('namabulan'));
-    }   
+    }
 
     public function gethistori(Request $request)
     {
@@ -169,8 +169,8 @@ class AttendanceController extends Controller
 
     }
 
-    public function izin ()
-    { 
+    public function izin()
+    {
         $nis = Auth::guard('siswa')->user()->nis;
         $dataizin = DB::table('pengajuan_izin')->where('nis', $nis)->get();
         return view('attendance.izin', compact('dataizin'));
@@ -178,7 +178,7 @@ class AttendanceController extends Controller
 
     public function buatizin()
     {
-       
+
         return view('attendance.buatizin');
     }
 
@@ -198,7 +198,7 @@ class AttendanceController extends Controller
 
         $simpan = DB::table('pengajuan_izin')->insert($data);
 
-        if($simpan){
+        if ($simpan) {
             return redirect('/attendance/izin')->with(['success' => 'Data Berhasil Disimpan']);
         } else {
             return redirect('/attendance/izin')->with(['error' => 'Data Gagal Disimpan']);

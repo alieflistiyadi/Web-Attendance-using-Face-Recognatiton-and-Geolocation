@@ -9,7 +9,7 @@
                     @endphp
                     <img src="{{ asset($path) }}" alt="avatar" class="imaged w48 ">
                 @else
-                    <img src="assets/img/sample/avatar/avatar1.jpg" alt="avatar" class="imaged w48 "style="height: 60px;">
+                    <img src="assets/img/sample/avatar/avatar1.jpg" alt="avatar" class="imaged w48 " style="height: 60px;">
                 @endif
             </div>
             <div id="user-info">
