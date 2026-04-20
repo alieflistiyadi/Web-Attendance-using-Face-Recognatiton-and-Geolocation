@@ -34,13 +34,23 @@
           </thead>
           <tbody>
             @foreach ($siswa as $d)
+            @php
+                $path = Storage::url('uploads/absensi/'.$d ->foto)
+            @endphp
               <tr>
                 <td>{{ $loop->iteration }}</td>
                 <td>{{ $d->nis }}</td>
                 <td>{{ $d->nama_lengkap }}</td>
                 <td>{{ $d->kelas }}</td>
                 <td>{{ $d->no_hp }}</td>
-                <td></td>
+                <td>
+                  @if (empty($d->foto))
+                      <img src="{{ asset('assets/img/nophoto.png')}}" class="avatar" alt="">
+                      @else
+                      <img src="{{ url($path)}}" class="avatar" alt="">
+                  @endif
+                 
+                </td>
                 <td>{{ $d->nama_jurusan }}</td>
                 <td></td>
               </tr>
