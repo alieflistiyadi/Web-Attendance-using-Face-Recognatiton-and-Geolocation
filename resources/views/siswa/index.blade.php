@@ -120,7 +120,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form action="#" method="POST" id="formsiswa">
+            <form action="/siswa" method="POST" id="formsiswa" enctype="multipart/form-data">
+    @csrf
               <div class="row">
                 <div class="col-12">
                   <div class="input-icon mb-3">
@@ -214,6 +215,18 @@
               alert('NIS Harus Diisi');
               $("#nis").focus();
               return false;
+            }else if(nama_lengkap == ""){
+              alert('Nama Lengkap Harus Diisi');
+              $("#nama_lengkap").focus();
+            }else if(jurusan == ""){
+              alert('Nama Lengkap Harus Diisi');
+              $("#jurusan").focus();
+            }else if(no_hp == ""){
+              alert('Nama Lengkap Harus Diisi');
+              $("#no_hp").focus();
+            }else if(kode_jurusan == ""){
+              alert('Nama Lengkap Harus Diisi');
+              $("#kode_jurusan").focus();
             }
         });
     });

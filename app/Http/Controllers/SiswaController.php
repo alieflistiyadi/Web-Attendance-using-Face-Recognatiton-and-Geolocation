@@ -26,4 +26,34 @@ class SiswaController extends Controller
         $jurusan = DB::table('jurusan')->get();
         return view('siswa.index', compact('siswa', 'jurusan'));
     }
+
+    public function store(Request $request)
+{
+    // validasi
+    $request->validate([
+        'nis' => 'required|unique:siswa,nis',
+        'nama_lengkap' => 'required',
+        'no_hp' => 'required',
+        'kode_jurusan' => 'required'
+    ]);
+
+    $foto = null;
+
+    // handle upload foto (kalau ada)
+    if($request->hasFile('foto')){
+        $foto = $request->file('foto')->store('uploads/absensi', 'public');
+    }
+
+    // simpan ke database
+    Siswa::create([
+        'nis' => $request->nis,
+        'nama_lengkap' => $request->nama_lengkap,
+        'kelas' => $request->jurusan,
+        'no_hp' => $request->no_hp,
+        'kode_jurusan' => $request->kode_jurusan,
+        'foto' => $foto
+    ]);
+
+    return redirect('/siswa')->with('success', 'Data berhasil ditambahkan');
+}
 }

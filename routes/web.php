@@ -67,7 +67,6 @@ Route::middleware(['auth:user'])->group(function () {
     route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
     Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
 
-    //Siswa
     route::get('/siswa', [SiswaController::class, 'index']);
-    
+    route::post('/siswa', [SiswaController::class, 'store']);
 });
