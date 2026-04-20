@@ -5,11 +5,11 @@
             <div class="avatar">
                 @if (!empty(Auth::guard('siswa')->user()->foto))
                     @php
-                        $path = Storage::url('/uploads/foto_siswa/' . Auth::guard('siswa')->user()->foto);
+                        $path = Storage::url('/uploads/siswa/' . Auth::guard('siswa')->user()->foto);
                     @endphp
                     <img src="{{ asset($path) }}" alt="avatar" class="imaged w48 ">
                 @else
-                    <img src="assets/img/sample/avatar/avatar1.jpg" alt="avatar" class="imaged w48 " style="height: 60px;">
+                    <img src="assets/img/sample/avatar/avatar1.jpg" alt="avatar" class="imaged w48 " style="height: 20px;">
                 @endif
             </div>
             <div id="user-info">
@@ -119,7 +119,7 @@
         </div>
 
         <div class="rekapattendence">
-            <h3>Rekap Attendance Bulan {{ $namabulan[$bulanini] }} Tahun {{ $tahunini }} </h3>
+            <h3>Rekap Attendance Bulan {{ $namabulan[$bulanini] }} Tahun {{ $tahunini }}</h3>
             <div class="row">
                 <div class="col-3">
                     <div class="card">
@@ -214,7 +214,7 @@
                                     <div class="in">
                                         <div>
                                             <b>{{ $d->nama_lengkap }}</b><br>
-                                            <small class="text-muted">{{ $d->jabatan }}</small>
+                                            <small class="text-muted">{{ $d->kelas}}</small>
                                         </div>
                                         <span class="badge {{ $d->jam_in < "07:00" ? "bg-success" : "bg-danger"}}">
                                             {{ $d->jam_in }}

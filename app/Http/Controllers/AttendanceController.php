@@ -27,9 +27,9 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
-        $latitudesekolah = -6.269162438043661;
-        $longitudesekolah = 106.91730139359885;
-        ;
+        $latitudesekolah = -6.227520962994056;
+        $longitudesekolah = 106.80732099378363;
+
         $lokasi = $request->lokasi;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];
@@ -54,7 +54,7 @@ class AttendanceController extends Controller
         $file = $folderPath . $filename;
         Storage::put($file, $image_base64);
 
-        if ($radius > 20) {
+        if ($radius > 200) {
             echo "error|maaf anda berada diluar radius, jarak anda " . $radius . " meter dari sekolah|radius";
         } else {
 
@@ -120,7 +120,7 @@ class AttendanceController extends Controller
         $password = Hash::make($request->password);
         $siswa = DB::table('siswa')->where('nis', $nis)->first();
         if ($request->hasFile('foto')) {
-            $foto = $nis . '_' . $request->file('foto')->getClientOriginalExtension();
+            $foto = $nis . '.' . $request->file('foto')->getClientOriginalExtension();
         } else {
             $foto = $siswa->foto;
         }
@@ -142,7 +142,7 @@ class AttendanceController extends Controller
 
         $update = DB::table('siswa')->where('nis', $nis)->update($data);
         if ($update) {
-            if ($request->hashFile('foto')) {
+            if ($request->hasFile('foto')) {
                 $folderPath = 'public/uploads/siswa';
                 $request->file('foto')->storeAs($folderPath, $foto);
             }

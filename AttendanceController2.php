@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-namespace App\Http\Controllers;
-
 use DB;
 use Hash;
 use Illuminate\Http\Request;
@@ -11,8 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Redirect;
 use Symfony\Component\HttpKernel\HttpCache\Store;
-
-
 
 
 class AttendanceController extends Controller
