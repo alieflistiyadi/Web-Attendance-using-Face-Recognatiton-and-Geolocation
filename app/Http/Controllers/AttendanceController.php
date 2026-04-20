@@ -23,13 +23,13 @@ class AttendanceController extends Controller
 
     public function store(Request $request)
     {
+        // Tambahkan sementara di method store(), baris pertama
 
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
-        $latitudesekolah = -6.227520962994056;
-        $longitudesekolah = 106.80732099378363;
-
+        $latitudesekolah = -6.282571020394688;
+        $longitudesekolah = 107.16674154232821;
         $lokasi = $request->lokasi;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];

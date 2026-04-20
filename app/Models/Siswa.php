@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class Siswa extends Authenticatable
 {
-     use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -19,6 +19,8 @@ class Siswa extends Authenticatable
      */
     protected $table = 'siswa';
     protected $primaryKey = 'nis';
+    public $incrementing = false;     // ← tambah
+    protected $keyType = 'string';    // ← tambah
     protected $fillable = [
         'nis',
         'nama_lengkap',
