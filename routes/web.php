@@ -69,4 +69,5 @@ Route::middleware(['auth:user'])->group(function () {
 
     //Siswa
     route::get('/siswa', [SiswaController::class, 'index']);
+    
 });
