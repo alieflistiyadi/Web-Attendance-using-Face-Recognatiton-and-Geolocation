@@ -190,7 +190,7 @@ class AttendanceController extends Controller
     public function storeizin(Request $request)
     {
         $nis = Auth::guard('siswa')->user()->nis;
-        $tanggal_izin = $request->tanggal_izin;
+        $tanggal_izin = date('Y-m-d', strtotime($request->tanggal_izin));
         $status = $request->status;
         $keterangan = $request->keterangan;
 
