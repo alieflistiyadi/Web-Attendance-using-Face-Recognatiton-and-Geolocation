@@ -70,4 +70,6 @@ Route::middleware(['auth:user'])->group(function () {
 
     route::get('/siswa', [SiswaController::class, 'index']);
     route::post('/siswa/store', [SiswaController::class, 'store']);
+    route::post('/siswa/edit', [SiswaController::class, 'edit']);
+    route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
 });

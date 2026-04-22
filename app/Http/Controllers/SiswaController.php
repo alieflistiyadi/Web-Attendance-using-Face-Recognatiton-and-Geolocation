@@ -22,7 +22,7 @@ class SiswaController extends Controller
         if(!empty($request->kode_jurusan)){
             $query->where('siswa.kode_jurusan', $request->kode_jurusan);
         }
-        $siswa = $query->paginate(2);
+        $siswa = $query->paginate(10);
 
         $jurusan = DB::table('jurusan')->get();
         return view('siswa.index', compact('siswa', 'jurusan'));
@@ -30,22 +30,68 @@ class SiswaController extends Controller
 
     public function store(Request $request)
 {
-    $nis = $request->nis;
+    // VALIDASI
+    $request->validate([
+        'nis' => 'required|unique:siswa,nis',
+        'nama_lengkap' => 'required',
+        'kelas' => 'required',
+        'no_hp' => 'required',
+        'kode_jurusan' => 'required'
+    ]);
+
+    // default password
+    $password = \Illuminate\Support\Facades\Hash::make('1234');
+
+    $foto = null;
+
+    // upload foto
+    if ($request->hasFile('foto')) {
+        $foto = $request->nis . '.' . $request->file('foto')->getClientOriginalExtension();
+        $request->file('foto')->storeAs('public/uploads/siswa', $foto);
+    }
+
+    try {
+        Siswa::create([
+            'nis' => $request->nis,
+            'nama_lengkap' => $request->nama_lengkap,
+            'kelas' => $request->kelas, // ⚠️ ini dibenerin (bukan jurusan)
+            'no_hp' => $request->no_hp,
+            'kode_jurusan' => $request->kode_jurusan,
+            'foto' => $foto,
+            'password' => $password
+        ]);
+
+        return redirect('/siswa')->with('success', 'Data berhasil ditambahkan');
+
+    } catch (\Exception $e) {
+        return redirect()->back()->with('warning', 'Data gagal disimpan');
+    }
+}
+public function edit(Request $request)
+    {
+        $nis = $request->nis;
+        $jurusan = DB::table('jurusan')->get();
+        $siswa = DB::table('siswa')->where('nis', $nis)->first();
+        return view('siswa.edit', compact('jurusan', 'siswa'));
+    }
+
+    public function update(Request $request, $nis)
+    {
     $nama_lengkap = $request->nama_lengkap;
     $kelas = $request->kelas;
     $no_hp = $request->no_hp;
     $kode_jurusan = $request->kode_jurusan;
     $password = \Illuminate\Support\Facades\Hash::make('1234');
+    $old_foto = $request->old_foto;
     
     if ($request->hasFile('foto')) {
             $foto = $nis . '.' . $request->file('foto')->getClientOriginalExtension();
         } else {
-            $foto = null;
+            $foto = $old_foto;
         }
 
         try {
             $data = [
-                'nis' => $nis,
                 'nama_lengkap' => $nama_lengkap,
                 'kelas' => $kelas,
                 'no_hp' => $no_hp,
@@ -53,17 +99,17 @@ class SiswaController extends Controller
                 'foto' => $foto,
                 'password' => $password
             ];
-            $simpan = DB::table('siswa')->insert($data);
-            if($simpan){
+            $update = DB::table('siswa')->where('nis', $nis)->update($data);
+            if($update){
                 if ($request->hasFile('foto')) {
                 $folderPath = 'public/uploads/siswa';
                 $request->file('foto')->storeAs($folderPath, $foto);
             }
-            return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
+            return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
             }
         } catch (\Exception $e){
             dd($e->getMessage());
-            //return Redirect::back()->with(['warning' => 'Data Gagal Disimpan']);
+            //return Redirect::back()->with(['warning' => 'Data Gagal Diupdate']);
         }
 }
 }

@@ -110,7 +110,11 @@
                  
                 </td>
                 <td>{{ $d->nama_jurusan }}</td>
-                <td></td>
+                <td>
+                  <a href="#" class="edit" nis="{{ $d->nis }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" /><path d="M16 5l3 3" /></svg>
+                  </a>
+                </td>
               </tr>
             @endforeach
           </tbody>
@@ -211,6 +215,21 @@
         </div>
       </div>
     </div>
+
+    {{-- Modal edit --}}
+   <div class="modal modal-blur fade" id="modal-editsiswa" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Data Siswa</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="loadeditform">
+            
+          </div>
+        </div>
+      </div>
+    </div>  
 @endsection
 
 @push('myscript')
@@ -218,6 +237,24 @@
     $(function(){
         $("#btnTambahsiswa").click(function(){
             $("#modal-inputsiswa").modal("show");
+        });
+
+        $(".edit").click(function(){
+          var nis = $(this).attr("nis");
+          $.ajax({
+            type: 'POST',
+            url:'/siswa/edit',
+            cache: false,
+            data: {
+              _token: "{{ csrf_token() }}",
+              nis: nis
+            },
+            success: function(response){
+              $("#loadeditform").html(response);
+            }
+
+          });
+            $("#modal-editsiswa").modal("show");
         });
 
         $("#formsiswa").submit(function(){
