@@ -21,6 +21,21 @@
           <div class="card-body">
             <div class="row">
               <div class="col-12">
+                @if (Session::get('success'))
+                  <div class="alert alert-success">
+                    {{ Session::get('success')}}
+                  </div>
+                @endif
+
+                @if (Session::get('warning'))
+                  <div class="alert alert-warning">
+                    {{ Session::get('warning')}}
+                  </div>
+                @endif
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
                 <a href="#" class="btn btn-primary" id="btnTambahsiswa">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
                   Tambah Data
@@ -78,7 +93,7 @@
           <tbody>
             @foreach ($siswa as $d)
             @php
-                $path = Storage::url('uploads/absensi/'.$d ->foto)
+                $path = Storage::url('uploads/siswa/'.$d ->foto)
             @endphp
               <tr>
                 <td>{{ $loop->iteration + $siswa->firstItem() -1}}</td>
@@ -120,8 +135,8 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form action="/siswa" method="POST" id="formsiswa" enctype="multipart/form-data">
-    @csrf
+            <form action="{{ url('/siswa/store') }}" method="POST" id="formsiswa" enctype="multipart/form-data">
+              @csrf
               <div class="row">
                 <div class="col-12">
                   <div class="input-icon mb-3">
@@ -151,7 +166,7 @@
                                   <!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-briefcase-2"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 9a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9" /><path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" /></svg>
                                 </span>
-                                <input type="text" value="" id="jurusan" class="form-control" name="jurusan" placeholder="Jurusan">
+                                <input type="text" value="" id="kelas" class="form-control" name="kelas" placeholder="Kelas">
                               </div>
                 </div>
               </div>
@@ -168,7 +183,7 @@
               </div>
               <div class="row mt-2">
                 <div class="col-12">
-                            <input type="file" class="form-control">
+                            <input type="file" name="foto" class="form-control">
                 </div>
               </div>
               <div class="row mt-2">
@@ -206,27 +221,71 @@
         });
 
         $("#formsiswa").submit(function(){
-            var nis = $("#nis").val();
-            var nama_lengkap = $("#nama_lengkap").val();
-            var jurusan = $("#jurusan").val();
-            var no_hp = $("#no_hp").val();
-            var kode_jurusan = $("#kode_jurusan").val();
+          var nis = $("#formsiswa").find("#nis").val();
+          var nama_lengkap = $("#formsiswa").find("#nama_lengkap").val();
+          var kelas = $("#formsiswa").find("#kelas").val();
+          var no_hp = $("#formsiswa").find("#no_hp").val();
+          var kode_jurusan = $("#formsiswa").find("#kode_jurusan").val();
             if(nis==""){
-              alert('NIS Harus Diisi');
-              $("#nis").focus();
+              //alert('NIS Harus Diisi');
+              Swal.fire({
+                title: 'Warning!',
+                text: 'NIS Harus Diisi',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              }).then((result)=> {
+                $("#nis").focus();
+              });
+              
               return false;
             }else if(nama_lengkap == ""){
-              alert('Nama Lengkap Harus Diisi');
-              $("#nama_lengkap").focus();
-            }else if(jurusan == ""){
-              alert('Nama Lengkap Harus Diisi');
-              $("#jurusan").focus();
+              //alert('Nama Lengkap Harus Diisi');
+              Swal.fire({
+                title: 'Warning!',
+                text: 'Nama Lengkap Harus Diisi',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              }).then((result) => {
+                $("#nama_lengkap").focus();
+              });
+              return false;
+              
+            }else if(kelas == ""){
+              //alert('Jurusan Harus Diisi');
+              Swal.fire({
+                title: 'Warning!',
+                text: 'Kelas Harus Diisi',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              }).then((result)=> {
+                $("#kelas").focus();
+              });
+              return false;
+
             }else if(no_hp == ""){
-              alert('Nama Lengkap Harus Diisi');
-              $("#no_hp").focus();
+              //alert('No HP Harus Diisi');
+              Swal.fire({
+                title: 'Warning!',
+                text: 'No HP Harus Diisi',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              }).then((result)=> {
+                $("#no_hp").focus();
+              });
+              return false;
+
             }else if(kode_jurusan == ""){
-              alert('Nama Lengkap Harus Diisi');
-              $("#kode_jurusan").focus();
+              //alert('Jurusan Harus Diisi');
+              Swal.fire({
+                title: 'Warning!',
+                text: 'Jurusan Harus Dipilih',
+                icon: 'warning',
+                confirmButtonText: 'OK'
+              }).then((result)=> {
+                $("#kode_jurusan").focus();
+              });
+              return false;
+
             }
         });
     });

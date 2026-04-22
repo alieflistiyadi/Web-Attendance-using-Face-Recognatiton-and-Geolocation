@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SiswaController;
+use Illuminate\Support\Facades\Hash;
 
 /*a
 |--------------------------------------------------------------------------
@@ -68,5 +69,5 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
 
     route::get('/siswa', [SiswaController::class, 'index']);
-    route::post('/siswa', [SiswaController::class, 'store']);
+    route::post('/siswa/store', [SiswaController::class, 'store']);
 });

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Siswa;
+use Illuminate\Support\Facades\Redirect;
 
 class SiswaController extends Controller
 {
@@ -29,31 +30,40 @@ class SiswaController extends Controller
 
     public function store(Request $request)
 {
-    // validasi
-    $request->validate([
-        'nis' => 'required|unique:siswa,nis',
-        'nama_lengkap' => 'required',
-        'no_hp' => 'required',
-        'kode_jurusan' => 'required'
-    ]);
+    $nis = $request->nis;
+    $nama_lengkap = $request->nama_lengkap;
+    $kelas = $request->kelas;
+    $no_hp = $request->no_hp;
+    $kode_jurusan = $request->kode_jurusan;
+    $password = \Illuminate\Support\Facades\Hash::make('1234');
+    
+    if ($request->hasFile('foto')) {
+            $foto = $nis . '.' . $request->file('foto')->getClientOriginalExtension();
+        } else {
+            $foto = null;
+        }
 
-    $foto = null;
-
-    // handle upload foto (kalau ada)
-    if($request->hasFile('foto')){
-        $foto = $request->file('foto')->store('uploads/absensi', 'public');
-    }
-
-    // simpan ke database
-    Siswa::create([
-        'nis' => $request->nis,
-        'nama_lengkap' => $request->nama_lengkap,
-        'kelas' => $request->jurusan,
-        'no_hp' => $request->no_hp,
-        'kode_jurusan' => $request->kode_jurusan,
-        'foto' => $foto
-    ]);
-
-    return redirect('/siswa')->with('success', 'Data berhasil ditambahkan');
+        try {
+            $data = [
+                'nis' => $nis,
+                'nama_lengkap' => $nama_lengkap,
+                'kelas' => $kelas,
+                'no_hp' => $no_hp,
+                'kode_jurusan' => $kode_jurusan,
+                'foto' => $foto,
+                'password' => $password
+            ];
+            $simpan = DB::table('siswa')->insert($data);
+            if($simpan){
+                if ($request->hasFile('foto')) {
+                $folderPath = 'public/uploads/siswa';
+                $request->file('foto')->storeAs($folderPath, $foto);
+            }
+            return Redirect::back()->with(['success' => 'Data Berhasil Disimpan']);
+            }
+        } catch (\Exception $e){
+            dd($e->getMessage());
+            //return Redirect::back()->with(['warning' => 'Data Gagal Disimpan']);
+        }
 }
 }
