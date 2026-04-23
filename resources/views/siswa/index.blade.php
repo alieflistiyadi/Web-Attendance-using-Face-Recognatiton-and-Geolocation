@@ -111,9 +111,19 @@
                 </td>
                 <td>{{ $d->nama_jurusan }}</td>
                 <td>
-                  <a href="#" class="edit" nis="{{ $d->nis }}">
+                  <div class="btn-group">
+                    <a href="#" class="edit btn btn-info btn-sm" nis="{{ $d->nis }}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-edit"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" /><path d="M16 5l3 3" /></svg>
                   </a>
+                  <form action="/siswa/{{ $d->nis }}/delete" method="POST" style="margin-left: 5px"">
+                    @csrf
+
+                    <button type="submit" class="btn btn-danger btn-sm delete-confirm">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-trash"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 7l16 0" /><path d="M10 11l0 6" /><path d="M14 11l0 6" /><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" /><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" /></svg>
+                    </button>
+                  </form>
+                  </div>
+                  
                 </td>
               </tr>
             @endforeach
@@ -255,6 +265,29 @@
 
           });
             $("#modal-editsiswa").modal("show");
+        });
+
+        $(".delete-confirm").click(function(e){
+          e.preventDefault();
+          var form = $(this).closest("form");
+          Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Anda tidak akan dapat mengembalikan data ini!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              form.submit();
+              Swal.fire(
+                'Terhapus!',
+                'Data siswa telah dihapus.',
+                'success'
+              )
+            }
+          });
         });
 
         $("#formsiswa").submit(function(){

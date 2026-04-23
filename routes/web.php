@@ -72,4 +72,5 @@ Route::middleware(['auth:user'])->group(function () {
     route::post('/siswa/store', [SiswaController::class, 'store']);
     route::post('/siswa/edit', [SiswaController::class, 'edit']);
     route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
+    route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
 });

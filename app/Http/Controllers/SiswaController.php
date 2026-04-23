@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Siswa;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 
 class SiswaController extends Controller
 {
@@ -103,6 +104,8 @@ public function edit(Request $request)
             if($update){
                 if ($request->hasFile('foto')) {
                 $folderPath = 'public/uploads/siswa';
+                $folderOld = 'public/uploads/siswa' .$old_foto;
+                Storage::delete($folderOld);
                 $request->file('foto')->storeAs($folderPath, $foto);
             }
             return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
@@ -112,4 +115,13 @@ public function edit(Request $request)
             //return Redirect::back()->with(['warning' => 'Data Gagal Diupdate']);
         }
 }
+public function delete($nis)
+    {
+        $delete = DB::table('siswa')->where('nis', $nis)->delete();
+        if($delete){
+            return Redirect::back()->with(['success' => 'Data Berhasil Dihapus']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Dihapus']);
+        }
+    }
 }
