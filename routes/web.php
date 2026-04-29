@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\JurusanController;
 
 /*a
 |--------------------------------------------------------------------------
@@ -73,4 +74,8 @@ Route::middleware(['auth:user'])->group(function () {
     route::post('/siswa/edit', [SiswaController::class, 'edit']);
     route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
     route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
+
+    //jurusan
+    route::get('/jurusan', [JurusanController::class, 'index']);
+    route::post('/jurusan/store', [JurusanController::class, 'store']);
 });
