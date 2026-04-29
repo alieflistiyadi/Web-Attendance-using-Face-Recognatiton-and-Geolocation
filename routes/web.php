@@ -76,6 +76,9 @@ Route::middleware(['auth:user'])->group(function () {
     route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
 
     //jurusan
-    route::get('/jurusan', [JurusanController::class, 'index']);
-    route::post('/jurusan/store', [JurusanController::class, 'store']);
+    Route::get('/jurusan', [JurusanController::class, 'index']);
+    Route::post('/jurusan/store', [JurusanController::class, 'store']);
+    Route::post('/jurusan/edit', [JurusanController::class, 'edit']);
+    Route::post('/jurusan/{kode_jurusan}/update', [JurusanController::class, 'update']);
+    Route::post('/jurusan/{kode_jurusan}/delete', [JurusanController::class, 'delete']);
 });

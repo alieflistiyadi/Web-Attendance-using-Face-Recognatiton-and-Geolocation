@@ -46,4 +46,27 @@ class JurusanController extends Controller
         $jurusan = DB::table('jurusan')->where('kode_jurusan', $kode_jurusan)->first();
         return view('jurusan.edit', compact('jurusan'));
     }
+
+    public function update(Request $request, $kode_jurusan){
+        $nama_jurusan = $request->nama_jurusan;
+        $data = [
+            'nama_jurusan' => $nama_jurusan
+        ];
+
+        $update = DB::table('jurusan')->where('kode_jurusan', $kode_jurusan)->update($data);
+        if ($update) {
+            return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Diupdate']);
+        }
+    }
+
+    public function delete($kode_jurusan){
+        $delete = DB::table('jurusan')->where('kode_jurusan', $kode_jurusan)->delete();
+        if ($delete) {
+            return Redirect::back()->with(['success' => 'Data Berhasil Dihapus']);
+        } else {
+            return Redirect::back()->with(['warning' => 'Data Gagal Dihapus']);
+        }
+    }
 }
