@@ -210,7 +210,23 @@ class AttendanceController extends Controller
         }
     }
 
+    public function monitoring()
+    {
+        return view('attendance.monitoring');
+    }
 
+    public function getattendance(Request $request)
+    {
+        $tanggal = date('Y-m-d', strtotime($request->tanggal));
+        $presensi = DB::table('attendance')
+            ->select('attendance.*', 'nama_lengkap', 'nama_jurusan')
+            ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
+            ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
+            ->where('attendance.tgl_presensi', $tanggal)
+            ->get();
+
+            return view('attendance.getattendance', compact('presensi'));
+    }
 }
 
 
