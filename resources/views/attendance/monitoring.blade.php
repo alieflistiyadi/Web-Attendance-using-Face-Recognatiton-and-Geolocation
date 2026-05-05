@@ -1,6 +1,20 @@
 @extends('layouts.admin.tabler')
 @section('content')
-
+<?php
+    function selisih($jam_masuk, $jam_keluar){
+        list($h, $m, $s) = explode(":", $jam_masuk);
+        $dtAwal = mktime($h, $m, $s, "1", "1", "1");
+        list($h, $m, $s) = explode(":", $jam_keluar);
+        $dtAkhir = mktime($h, $m, $s, "1", "1", "1");
+        $dtSelisih = $dtAkhir - $dtAwal;
+        $totalmenit = $dtSelisih / 60;
+        $jam = explode(".", $totalmenit / 60);
+        $sisamenit = ($totalmenit / 60) - $jam[0];
+        $sisamenit2 = $sisamenit * 60;
+        $jml_jam = $jam[0];
+        return $jml_jam . ":" . round($sisamenit2);
+    }
+?>
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
@@ -26,7 +40,7 @@
                                     <!-- Download SVG icon from http://tabler.io/icons/icon/user -->
                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12" /><path d="M16 3l0 4" /><path d="M8 3l0 4" /><path d="M4 11l16 0" /><path d="M8 15h2v2h-2l0 -2" /></svg>
                                 </span>
-                                <input type="text" id="tanggal" name="tanggal" value="" class="form-control" placeholder="Tanggal Attendance" autocomplete="off">
+                                <input type="text" id="tanggal" name="tanggal" value="{{ date('d-m-Y') }}" class="form-control" placeholder="Tanggal Attendance" autocomplete="off">
                               </div>
                             </div>
                         </div>
