@@ -20,6 +20,7 @@ TEST TABLER LAYOUT
     <link href="{{ asset('tabler/dist/css/tabler-payments.min.css?1674944402')}}" rel="stylesheet"/>
     <link href="{{ asset('tabler/dist/css/tabler-vendors.min.css?1674944402')}}" rel="stylesheet"/>
     <link href="{{ asset('tabler/dist/css/demo.min.css?1674944402')}}" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet"/>
     <style>
       @import url('https://rsms.me/inter/inter.css');
       :root {
@@ -60,6 +61,8 @@ TEST TABLER LAYOUT
     <script src="{{ asset('tabler/dist/js/tabler.min.js?1674944402')}}" defer></script>
     <script src="{{ asset('tabler/dist/js/demo.min.js?1674944402')}}" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
     @stack('myscript')
   </body>
 </html>
