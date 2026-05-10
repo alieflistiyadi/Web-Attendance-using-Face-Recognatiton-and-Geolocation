@@ -54,7 +54,7 @@ class AttendanceController extends Controller
         $file = $folderPath . $filename;
         Storage::put($file, $image_base64);
 
-        if ($radius > 1000) {
+        if ($radius > 500) {
             echo "error|maaf anda berada diluar radius, jarak anda " . $radius . " meter dari sekolah|radius";
         } else {
 
@@ -225,8 +225,17 @@ class AttendanceController extends Controller
             ->where('attendance.tgl_presensi', $tanggal)
             ->get();
 
-            return view('attendance.getattendance', compact('presensi'));
+        return view('attendance.getattendance', compact('presensi'));
     }
-}
+    public function tampilkanpeta(Request $request)
+    {
+        $id = $request->id;
+        $attendance = DB::table('attendance')->where('id', $id)
+            ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
+            ->first();
+        return view('attendance.showmap', compact('attendance'));
 
+    }
+
+}
 

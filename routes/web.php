@@ -68,7 +68,7 @@ route::middleware('auth:siswa')->group(function () {
 Route::middleware(['auth:user'])->group(function () {
     route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
     Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
-    
+
     //Siswa
     route::get('/siswa', [SiswaController::class, 'index']);
     route::post('/siswa/store', [SiswaController::class, 'store']);
@@ -86,4 +86,6 @@ Route::middleware(['auth:user'])->group(function () {
     //Attendance
     Route::get('/attendance/monitoring', [App\Http\Controllers\AttendanceController::class, 'monitoring'])->name('monitoring');
     Route::post('/getattendance', [App\Http\Controllers\AttendanceController::class, 'getattendance'])->name('getattendance');
+    Route::post('/tampilkanpeta', [App\Http\Controllers\AttendanceController::class, 'tampilkanpeta'])->name('tampilkanpeta');
+
 });
