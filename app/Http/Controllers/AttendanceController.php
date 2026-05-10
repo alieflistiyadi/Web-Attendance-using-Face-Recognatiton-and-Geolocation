@@ -28,8 +28,8 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
-        $latitudesekolah = -6.282571020394688;
-        $longitudesekolah = 107.16674154232821;
+        $latitudesekolah = -6.269118981923019;
+        $longitudesekolah = 106.91731038117786;
         $lokasi = $request->lokasi;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];
@@ -54,7 +54,7 @@ class AttendanceController extends Controller
         $file = $folderPath . $filename;
         Storage::put($file, $image_base64);
 
-        if ($radius > 200) {
+        if ($radius > 1000) {
             echo "error|maaf anda berada diluar radius, jarak anda " . $radius . " meter dari sekolah|radius";
         } else {
 

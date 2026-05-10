@@ -20,6 +20,23 @@
 
     <link rel="manifest" href="__manifest.json">
 </head>
+<style>
+    #user-detail {
+        display: flex;
+        align-items: center;
+    }
+
+    #user-detail .avatar img {
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    #user-info {
+        margin-left: 12px;
+    }
+</style>
 
 <body style="background-color:#e9ecef;">
 

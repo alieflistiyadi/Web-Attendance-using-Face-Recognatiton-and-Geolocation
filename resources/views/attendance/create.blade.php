@@ -196,11 +196,11 @@
 
             L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
 
-            L.circle([-6.282571020394688, 107.16674154232821], {
+            L.circle([-6.269118981923019, 106.91731038117786], {
                 color: 'red',
                 fillColor: '#f03',
                 fillOpacity: 0.5,
-                radius: 200
+                radius: 1000
             }).addTo(map);
         }
 
