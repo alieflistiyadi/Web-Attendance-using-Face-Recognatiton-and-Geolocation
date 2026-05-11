@@ -28,8 +28,8 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
-        $latitudesekolah = -6.269118981923019;
-        $longitudesekolah = 106.91731038117786;
+        $latitudesekolah = -6.31992184833979;
+        $longitudesekolah = 106.79465867539258;
         $lokasi = $request->lokasi;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];
@@ -237,5 +237,29 @@ class AttendanceController extends Controller
 
     }
 
+    public function halamanlaporan()
+    {
+        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        $siswa = DB::table('siswa')->orderBy('nama_lengkap')->get();
+        return view('attendance.laporan', compact('namabulan', 'siswa'));
+    }
+
+    public function cetaklaporan(Request $request)
+    {
+        $bulan = $request->bulan;
+        $tahun = $request->tahun;
+        $nis = $request->nis;
+        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        $siswa = DB::table('siswa')->where('nis', $nis)
+        ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
+        ->first();
+
+        $attendance = DB::table('attendance')
+            ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
+            ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
+            ->where('nis', $nis)
+            ->get();
+        return view('attendance.cetaklaporan', compact('bulan', 'tahun', 'namabulan', 'siswa', 'attendance'));
+    }
 }
 
