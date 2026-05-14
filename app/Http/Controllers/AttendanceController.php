@@ -194,22 +194,42 @@ class AttendanceController extends Controller
         $status = $request->status;
         $keterangan = $request->keterangan;
 
+        // validasi upload surat sakit
+        if ($status == "s" && !$request->hasFile('surat_sakit')) {
+            return redirect()->back()->with([
+                'error' => 'Surat sakit wajib diupload'
+            ]);
+        }
+
+        $surat_sakit = null;
+
+        if ($request->hasFile('surat_sakit')) {
+
+            $file = $request->file('surat_sakit');
+
+            $surat_sakit = time() . "_" . $file->getClientOriginalName();
+
+            $file->storeAs('public/uploads/surat_sakit', $surat_sakit);
+        }
+
         $data = [
             'nis' => $nis,
             'tanggal_izin' => $tanggal_izin,
             'status' => $status,
             'keterangan' => $keterangan,
+            'surat_sakit' => $surat_sakit
         ];
 
         $simpan = DB::table('pengajuan_izin')->insert($data);
 
         if ($simpan) {
-            return redirect('/attendance/izin')->with(['success' => 'Data Berhasil Disimpan']);
+            return redirect('/attendance/izin')
+                ->with(['success' => 'Data Berhasil Disimpan']);
         } else {
-            return redirect('/attendance/izin')->with(['error' => 'Data Gagal Disimpan']);
+            return redirect('/attendance/izin')
+                ->with(['error' => 'Data Gagal Disimpan']);
         }
     }
-
     public function monitoring()
     {
         return view('attendance.monitoring');

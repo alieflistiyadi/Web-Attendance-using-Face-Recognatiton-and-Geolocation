@@ -13,8 +13,15 @@
                 @endif
             </div>
             <div id="user-info">
-                <h2 id="user-name">{{ Auth::guard('siswa')->user()->nama_lengkap }}</h2>
-                <span id="user-role">{{ Auth::guard('siswa')->user()->kelas }}</span>
+                <h2 id="user-name">
+                    {{ Auth::guard('siswa')->user()->nama_lengkap }}
+                </h2>
+
+                <span id="user-role">
+                    {{ Auth::guard('siswa')->user()->kelas }}
+                    -
+                    {{ Auth::guard('siswa')->user()->kode_jurusan }}
+                </span>
             </div>
         </div>
     </div>
@@ -214,7 +221,11 @@
                                     <div class="in">
                                         <div>
                                             <b>{{ $d->nama_lengkap }}</b><br>
-                                            <small class="text-muted">{{ $d->kelas}}</small>
+                                            <small class="text-muted">{{ $d->kelas}}
+                                                -
+                                                {{ $d->kode_jurusan }}</small>
+                                            </small>
+
                                         </div>
                                         <span class="badge {{ $d->jam_in < "07:00" ? "bg-success" : "bg-danger"}}">
                                             {{ $d->jam_in }}

@@ -210,6 +210,8 @@
         // ABSEN
         // =====================
         $('#takeabsen').click(function () {
+            const btn = $(this);
+
             if (!faceReady) {
                 Swal.fire({ title: 'Error!', text: 'Model wajah belum siap, tunggu sebentar.', icon: 'error' });
                 return;
@@ -220,7 +222,9 @@
                 return;
             }
 
-            // Ambil snapshot dari video
+            // ✅ Disable tombol segera setelah klik pertama
+            btn.prop('disabled', true).html('<ion-icon name="hourglass-outline"></ion-icon> Memproses...');
+
             const snapCanvas = document.createElement('canvas');
             snapCanvas.width = video.videoWidth;
             snapCanvas.height = video.videoHeight;
@@ -262,9 +266,25 @@
                             text: status[1],
                             icon: 'error',
                             confirmButtonText: 'Ok'
-                        });
+                        }).then(() => {
+                            // ✅ Aktifkan kembali tombol hanya jika gagal
+                            @if($cek > 0)
+                                btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Pulang');
+                            @else
+                                btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Masuk');
+                            @endif
+                            });
                     }
-                }
+                },
+                error: function () {
+                    // ✅ Aktifkan kembali tombol jika ada error jaringan
+                    Swal.fire({ title: 'Error!', text: 'Terjadi kesalahan koneksi.', icon: 'error' });
+                    @if($cek > 0)
+                        btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Pulang');
+                    @else
+                        btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Masuk');
+                    @endif
+                    }
             });
         });
     </script>

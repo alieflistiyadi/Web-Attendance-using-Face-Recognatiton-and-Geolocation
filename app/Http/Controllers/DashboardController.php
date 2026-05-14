@@ -34,7 +34,8 @@ class DashboardController extends Controller
             ->select(
                 'attendance.jam_in',
                 'siswa.nama_lengkap',
-                'siswa.kelas'
+                'siswa.kelas',
+                'siswa.kode_jurusan'
             )
             ->whereDate('attendance.tgl_presensi', $hariini) // 🔥 ini penting
             ->orderBy('attendance.jam_in')
