@@ -202,7 +202,7 @@
                       <a class="dropdown-item" href="{{ route('attendance.laporan') }}">
                         Presensi
                       </a>
-                      <a class="dropdown-item" href="/jurusan">
+                      <a class="dropdown-item" href="{{ route('attendance.rekap') }}">
                         Rekap Presensi
                       </a>
                     </div>

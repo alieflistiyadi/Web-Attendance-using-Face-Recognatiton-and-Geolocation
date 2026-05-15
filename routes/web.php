@@ -89,5 +89,6 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/tampilkanpeta', [App\Http\Controllers\AttendanceController::class, 'tampilkanpeta'])->name('tampilkanpeta');
     Route::get('/attendance/laporan', [App\Http\Controllers\AttendanceController::class, 'halamanlaporan'])->name('attendance.laporan');
     Route::post('/attendance/cetaklaporan', [App\Http\Controllers\AttendanceController::class, 'cetaklaporan'])->name('attendance.cetaklaporan');
-
+    Route::get('/attendance/rekap', [App\Http\Controllers\AttendanceController::class, 'rekap'])->name('attendance.rekap');
+    Route::post('/attendance/cetakrekap', [App\Http\Controllers\AttendanceController::class, 'cetakrekap'])->name('attendance.cetakrekap');
 });
