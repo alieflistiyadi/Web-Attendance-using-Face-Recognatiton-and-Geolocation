@@ -177,16 +177,16 @@
     </table>
 
     <table width="100%" style="margin-top:100px">
-    <tr>
-        <td style="text-align: right">
-            Cikarang, {{ date('d-m-Y') }}
-            <br><br><br><br>
+        <tr>
+            <td style="text-align: right">
+                Cikarang, {{ date('d-m-Y') }}
+                <br><br><br><br>
 
-            <u>Nama Kepala Sekolah</u><br>
-            <i><b>Kepala Sekolah</b></i>
-        </td>
-    </tr>
-</table>
+                <u>Nama Kepala Sekolah</u><br>
+                <i><b>Kepala Sekolah</b></i>
+            </td>
+        </tr>
+    </table>
   </section>
 
 </body>

@@ -189,6 +189,11 @@
             lokasi.value = position.coords.latitude + ',' + position.coords.longitude;
 
             var map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 18);
+            var lokasi_sekolah = "{{ $lok_sekolah->lokasi_sekolah }}";
+            var lok = lokasi_sekolah.split(",");
+            var lat_sekolah = lok[0];
+            var long_sekolah = lok[1];
+            var radius = "{{ $lok_sekolah->radius }}";
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -196,11 +201,11 @@
 
             L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
 
-            L.circle([-6.269118981923019, 106.91731038117786], {
+            L.circle([lat_sekolah, long_sekolah ], {
                 color: 'red',
                 fillColor: '#f03',
                 fillOpacity: 0.5,
-                radius: 500
+                radius: radius
             }).addTo(map);
         }
 

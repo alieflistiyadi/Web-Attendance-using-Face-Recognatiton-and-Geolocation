@@ -18,7 +18,8 @@ class AttendanceController extends Controller
         $hari_ini = date('Y-m-d');
         $nis = Auth::guard('siswa')->user()->nis;
         $cek = DB::table('attendance')->where('nis', $nis)->where('tgl_presensi', $hari_ini)->count();
-        return view('attendance.create', compact('cek'));
+        $lok_sekolah = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
+        return view('attendance.create', compact('cek', 'lok_sekolah'));
     }
 
     public function store(Request $request)
@@ -28,8 +29,10 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
-        $latitudesekolah = -6.31992184833979;
-        $longitudesekolah = 106.79465867539258;
+        $lok_sekolah = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
+        $lok = explode(",", $lok_sekolah->lokasi_sekolah);
+        $latitudesekolah = $lok[0];
+        $longitudesekolah = $lok[l];
         $lokasi = $request->lokasi;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];
@@ -54,7 +57,7 @@ class AttendanceController extends Controller
         $file = $folderPath . $filename;
         Storage::put($file, $image_base64);
 
-        if ($radius > 500) {
+        if ($radius > $lok_sekolah->radius) {
             echo "error|maaf anda berada diluar radius, jarak anda " . $radius . " meter dari sekolah|radius";
         } else {
 
