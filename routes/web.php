@@ -91,6 +91,9 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/attendance/cetaklaporan', [App\Http\Controllers\AttendanceController::class, 'cetaklaporan'])->name('attendance.cetaklaporan');
     Route::get('/attendance/rekap', [App\Http\Controllers\AttendanceController::class, 'rekap'])->name('attendance.rekap');
     Route::post('/attendance/cetakrekap', [App\Http\Controllers\AttendanceController::class, 'cetakrekap'])->name('attendance.cetakrekap');
+    Route::get('/attendance/izinsakit', [App\Http\Controllers\AttendanceController::class, 'izinsakit'])->name('attendance.izinsakit');
+    Route::post('/attendance/approveizinsakit', [App\Http\Controllers\AttendanceController::class, 'approveizinsakit'])->name('attendance.approveizinsakit');
+    Route::get('/attendance/{id}/batalkanizinsakit', [App\Http\Controllers\AttendanceController::class, 'batalkanizinsakit'])->name('attendance.batalkanizinsakit');
 
     //Konfigurasi
     Route::get('/konfigurasi/lokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'lokasisekolah'])->name('konfigurasi.lokasisekolah');

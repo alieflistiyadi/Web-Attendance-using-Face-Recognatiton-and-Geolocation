@@ -32,7 +32,7 @@ class AttendanceController extends Controller
         $lok_sekolah = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
         $lok = explode(",", $lok_sekolah->lokasi_sekolah);
         $latitudesekolah = $lok[0];
-        $longitudesekolah = $lok[l];
+        $longitudesekolah = $lok[1];
         $lokasi = $request->lokasi;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];
@@ -338,5 +338,35 @@ class AttendanceController extends Controller
         return view('attendance.cetakrekap', compact('bulan', 'tahun', 'namabulan', 'rekap'));
 
     }
-}
 
+    public function izinsakit()
+    {
+        $izinsakit = DB::table('pengajuan_izin')
+            ->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis')
+            ->orderBy('tanggal_izin', 'desc')
+            ->get();
+        return view('attendance.izinsakit', compact('izinsakit'));
+    }
+
+    public function approveizinsakit(Request $request)
+    {
+        $status_approved = $request->status_approved;
+        $id_izinsakit_form = $request->id_izinsakit_form;
+        $update = DB::table('pengajuan_izin')->where('id', $id_izinsakit_form)->update(['status_approved' => $status_approved]);
+        if ($update) {
+            return redirect()->back()->with(['success' => 'Status berhasil diupdate']);
+        } else {
+            return redirect()->back()->with(['warning' => 'Status gagal diupdate']);
+        }
+    }
+
+    public function batalkanizinsakit($id)
+    {
+        $update = DB::table('pengajuan_izin')->where('id', $id)->update(['status_approved' => 0]);
+        if ($update) {
+            return redirect()->back()->with(['success' => 'Izin/sakit berhasil dibatalkan']);
+        } else {
+            return redirect()->back()->with(['warning' => 'Gagal membatalkan izin/sakit']);
+        }
+    }
+}
