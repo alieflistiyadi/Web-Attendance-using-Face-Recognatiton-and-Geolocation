@@ -17,6 +17,91 @@
         <div class="container-xl">
             <div class="row">
                 <div class="col-12">
+                    <form action="#" method="POST" autolomplete="off">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="input-icon mb-3">
+                                    <span class="input-icon-addon">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/user -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12" />
+                                            <path d="M16 3l0 4" />
+                                            <path d="M8 3l0 4" />
+                                            <path d="M4 11l16 0" />
+                                            <path d="M8 15h2v2h-2l0 -2" />
+                                        </svg>
+                                    </span>
+                                    <input type="text" value="" id="dari" class="form-control" name="dari" placeholder="Dari">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="input-icon mb-3">
+                                    <span class="input-icon-addon">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/user -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-calendar-event">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12" />
+                                            <path d="M16 3l0 4" />
+                                            <path d="M8 3l0 4" />
+                                            <path d="M4 11l16 0" />
+                                            <path d="M8 15h2v2h-2l0 -2" />
+                                        </svg>
+                                    </span>
+                                    <input type="text" value="" id="sampai" class="form-control" name="sampai" placeholder="Sampai">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-3">
+                                <div class="input-icon mb-3">
+                                    <span class="input-icon-addon">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/user -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-barcode">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M4 7v-1a2 2 0 0 1 2 -2h2" />
+                                            <path d="M4 17v1a2 2 0 0 0 2 2h2" />
+                                            <path d="M16 4h2a2 2 0 0 1 2 2v1" />
+                                            <path d="M16 20h2a2 2 0 0 0 2 -2v-1" />
+                                            <path d="M5 11h1v2h-1l0 -2" />
+                                            <path d="M10 11l0 2" />
+                                            <path d="M14 11h1v2h-1l0 -2" />
+                                            <path d="M19 11l0 2" />
+                                        </svg>
+                                        </svg>
+                                    </span>
+                                    <input type="text" value="" id="nis" class="form-control" name="nis" placeholder="NIS">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="input-icon mb-3">
+                                    <span class="input-icon-addon">
+                                                <!-- Download SVG icon from http://tabler-icons.io/i/user -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-user">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                                            <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                                        </svg>
+                                        </svg>
+                                    </span>
+                                    <input type="text" value="" id="nama_lengkap" class="form-control" name="nama_lengkap" placeholder="Nama Lengkap">
+                                </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form">
+                                    <select name="status_approved" id="status_approved" class="form-select">
+                                        <option value="">Semua Status</option>
+                                        <option value="0">Menunggu</option>
+                                        <option value="1">Disetujui</option>
+                                        <option value="2">Ditolak</option>
+                                    </select>
+                                </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
                     <table class="table table-bordered">
                         <thead>
                             <tr>
@@ -123,6 +208,14 @@
             var id_izinsakit = $(this).attr("id_izinsakit");
             $("#id_izinsakit_form").val(id_izinsakit);
             $("#modal-izinsakit").modal('show');
+        });
+
+        flatpickr("#dari", {
+            dateFormat: "d-m-Y"
+        });
+
+        flatpickr("#sampai", {
+            dateFormat: "d-m-Y"
         });
     })
 </script>
