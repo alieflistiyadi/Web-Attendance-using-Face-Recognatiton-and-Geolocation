@@ -17,7 +17,7 @@
         <div class="container-xl">
             <div class="row">
                 <div class="col-12">
-                    <form action="#" method="POST" autolomplete="off">
+                    <form action="/attendance/izinsakit" method="GET" autolomplete="off">
                         <div class="row">
                             <div class="col-6">
                                 <div class="input-icon mb-3">
@@ -32,7 +32,7 @@
                                             <path d="M8 15h2v2h-2l0 -2" />
                                         </svg>
                                     </span>
-                                    <input type="text" value="" id="dari" class="form-control" name="dari" placeholder="Dari">
+                                    <input type="text" value="{{ request('dari') }}" id="dari" class="form-control" name="dari" placeholder="Dari">
                                 </div>
                             </div>
                             <div class="col-6">
@@ -48,7 +48,7 @@
                                             <path d="M8 15h2v2h-2l0 -2" />
                                         </svg>
                                     </span>
-                                    <input type="text" value="" id="sampai" class="form-control" name="sampai" placeholder="Sampai">
+                                    <input type="text" value="{{ request('sampai') }}" id="sampai" class="form-control" name="sampai" placeholder="Sampai">
                                 </div>
                             </div>
                         </div>
@@ -70,7 +70,7 @@
                                         </svg>
                                         </svg>
                                     </span>
-                                    <input type="text" value="" id="nis" class="form-control" name="nis" placeholder="NIS">
+                                    <input type="text" value="{{ request('nis') }}" id="nis" class="form-control" name="nis" placeholder="NIS">
                                 </div>
                             </div>
                             <div class="col-3">
@@ -84,18 +84,31 @@
                                         </svg>
                                         </svg>
                                     </span>
-                                    <input type="text" value="" id="nama_lengkap" class="form-control" name="nama_lengkap" placeholder="Nama Lengkap">
+                                    <input type="text" value="{{ request('nama_lengkap') }}" id="nama_lengkap" class="form-control" name="nama_lengkap" placeholder="Nama Lengkap">
                                 </div>
                             </div>
                             <div class="col-3">
                                 <div class="form">
                                     <select name="status_approved" id="status_approved" class="form-select">
                                         <option value="">Semua Status</option>
-                                        <option value="0">Menunggu</option>
-                                        <option value="1">Disetujui</option>
-                                        <option value="2">Ditolak</option>
+                                        <option value="0" {{ request('status_approved') == '0' ? 'selected' : '' }}>Menunggu</option>
+                                        <option value="1" {{ request('status_approved') == '1' ? 'selected' : '' }}>Disetujui</option>
+                                        <option value="2" {{ request('status_approved') == '2' ? 'selected' : '' }}>Ditolak</option>
                                     </select>
                                 </div>
+                            </div>
+                            <div class="col-3">
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-search">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                                            <path d="M21 21l-6 -6" />
+                                        </svg>
+                                        Cari Data
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -153,6 +166,7 @@
                             @endforeach
                         </tbody>
                     </table>
+                    {{ $izinsakit->links('vendor.pagination.bootstrap-5') }}
                 </div>
             </div>
         </div>
@@ -217,6 +231,19 @@
         flatpickr("#sampai", {
             dateFormat: "d-m-Y"
         });
+
+         $("#tgl_izin").change(function(e){
+            var tanggal_izin = $(this).val();
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('attendance.cekpengajuanizin') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    tanggal_izin: tanggal_izin
+                },
+                cache: false,
+                success: function(respond) {
+            });
     })
 </script>
 @endpush

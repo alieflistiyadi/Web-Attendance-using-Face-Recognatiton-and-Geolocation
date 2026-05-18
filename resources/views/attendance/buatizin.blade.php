@@ -70,6 +70,32 @@
                 format: "dd-mm-yyyy"
             });
 
+             $("#tanggal_izin").change(function(e){
+                var tanggal_izin = $(this).val();
+                    $.ajax({
+                        type: "POST",
+                        url: "{{ route('attendance.cekpengajuanizin') }}",
+                        data: {
+                            _token: "{{ csrf_token() }}",
+                            tanggal_izin: tanggal_izin
+                        },
+                        cache: false,
+                        success: function (response) {
+                            alert(response);
+                            if (response > 0) {
+                                Swal.fire({
+                                    title: 'Oops !',
+                                    text: 'Anda sudah mengajukan izin/sakit pada tanggal tersebut',
+                                    icon: 'warning',
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        $("#tanggal_izin").val('');
+                                    }
+                                });
+                            }
+                    });
+
+
             $("#status").change(function () {
                 if ($(this).val() == "s") {
                     $("#formSuratSakit").show();

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pengajuanizin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -339,12 +340,28 @@ class AttendanceController extends Controller
 
     }
 
-    public function izinsakit()
+    public function izinsakit(Request $request)
     {
-        $izinsakit = DB::table('pengajuan_izin')
-            ->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis')
-            ->orderBy('tanggal_izin', 'desc')
-            ->get();
+        $query = Pengajuanizin::query();
+        $query->select('id', 'pengajuan_izin.nis', 'tanggal_izin', 'status', 'keterangan', 'status', 'status_approved', 'nama_lengkap');
+        $query->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis');
+        if(!empty($request->dari) && !empty($request->sampai)){
+            $dari = date('Y-m-d', strtotime($request->dari));
+            $sampai = date('Y-m-d', strtotime($request->sampai));
+            $query->whereBetween('tanggal_izin', [$dari, $sampai]);
+        }
+        if(!empty($request->nis)){
+            $query->where('pengajuan_izin.nis', $request->nis);
+        }
+        if(!empty($request->nama_lengkap)){
+            $query->where('nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+        }
+        if($request->status_approved == "0" || $request->status_approved == "1" || $request->status_approved == "2"){
+            $query->where('status_approved', $request->status_approved);
+        }
+        $query->orderBy('tanggal_izin', 'desc');
+        $izinsakit = $query->paginate(2);
+        $izinsakit->appends($request->all());
         return view('attendance.izinsakit', compact('izinsakit'));
     }
 
@@ -368,5 +385,13 @@ class AttendanceController extends Controller
         } else {
             return redirect()->back()->with(['warning' => 'Gagal membatalkan izin/sakit']);
         }
+    }
+
+    public function cekpengajuanizin(Request $request)
+    {
+        $tanggal_izin = date('Y-m-d', strtotime($request->tanggal_izin));
+        $nis = Auth::guard('siswa')->user()->nis;
+        $cek = DB::table('pengajuan_izin')->where('nis', $nis)->where('tanggal_izin', $tanggal_izin)->count();
+        return $cek;
     }
 }
