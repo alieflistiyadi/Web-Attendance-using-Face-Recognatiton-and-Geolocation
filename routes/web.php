@@ -63,6 +63,10 @@ route::middleware('auth:siswa')->group(function () {
     route::get('attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])->name('izin');
     route::get('attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])->name('buatizin');
     route::post('attendance/storeizin', [App\Http\Controllers\AttendanceController::class, 'storeizin'])->name('storeizin');
+
+    // Face Descriptor
+    route::post('/siswa/save-descriptor', [App\Http\Controllers\AttendanceController::class, 'saveDescriptor'])->name('siswa.saveDescriptor');
+    route::get('/siswa/face-descriptors', [App\Http\Controllers\AttendanceController::class, 'getFaceDescriptors'])->name('siswa.faceDescriptors');
 });
 
 Route::middleware(['auth:user'])->group(function () {

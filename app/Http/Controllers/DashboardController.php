@@ -1,27 +1,33 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-
-
 class DashboardController extends Controller
 {
-    //
     public function index()
     {
         $hariini = date('Y-m-d');
         $bulanini = date('m') * 1;
         $tahunini = date('Y');
         $nis = Auth::guard('siswa')->user()->nis;
-        $attendancehariini = DB::table('attendance')->where('nis', $nis)->where('tgl_presensi', $hariini)->first();
-        $historibulanini = DB::table('attendance')->whereRaw('MONTH(tgl_presensi) = "' . $bulanini . '"')
+
+        // Data attendance hari ini milik siswa ini
+        $attendancehariini = DB::table('attendance')
+            ->where('nis', $nis)
+            ->where('tgl_presensi', $hariini)
+            ->first();
+
+        // ✅ FIX 1: tambah where('nis', $nis)
+        $historibulanini = DB::table('attendance')
+            ->where('nis', $nis)
+            ->whereRaw('MONTH(tgl_presensi) = "' . $bulanini . '"')
             ->whereRaw('YEAR(tgl_presensi) = "' . $tahunini . '"')
             ->orderBy('tgl_presensi')
             ->get();
+
+        // Rekap hadir & terlambat bulan ini
         $rekapattendance = DB::table('attendance')
             ->selectRaw('COUNT(nis) as jmlhadir, SUM(IF(jam_in > "07:00", 1, 0)) as jmlterlambat')
             ->where('nis', $nis)
@@ -29,6 +35,7 @@ class DashboardController extends Controller
             ->whereRaw('YEAR(tgl_presensi) = "' . $tahunini . '"')
             ->first();
 
+        // Leaderboard: siapa yang masuk paling pagi hari ini (semua siswa, bukan filter nis)
         $leaderboard = DB::table('attendance')
             ->leftJoin('siswa', 'attendance.nis', '=', 'siswa.nis')
             ->select(
@@ -37,11 +44,35 @@ class DashboardController extends Controller
                 'siswa.kelas',
                 'siswa.kode_jurusan'
             )
-            ->whereDate('attendance.tgl_presensi', $hariini) // 🔥 ini penting
+            ->whereDate('attendance.tgl_presensi', $hariini)
             ->orderBy('attendance.jam_in')
             ->get();
-        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        $rekapizin = DB::table('pengajuan_izin')->selectRaw('SUM(IF(status="i",1,0)) as jmlizin,SUM(IF(status="s",1,0)) as jmlsakit')->where('nis', $nis)->whereRaw('MONTH(tanggal_izin) = "' . $bulanini . '"')->whereRaw('YEAR(tanggal_izin) = "' . $tahunini . '"')->where('status_approved', 1)->first();
+
+        $namabulan = [
+            "",
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember"
+        ];
+
+        // Rekap izin & sakit bulan ini
+        $rekapizin = DB::table('pengajuan_izin')
+            ->selectRaw('SUM(IF(status="i",1,0)) as jmlizin, SUM(IF(status="s",1,0)) as jmlsakit')
+            ->where('nis', $nis)
+            ->whereRaw('MONTH(tanggal_izin) = "' . $bulanini . '"')
+            ->whereRaw('YEAR(tanggal_izin) = "' . $tahunini . '"')
+            ->where('status_approved', 1)
+            ->first();
+
         return view('dashboard.dashboard', compact(
             'attendancehariini',
             'historibulanini',

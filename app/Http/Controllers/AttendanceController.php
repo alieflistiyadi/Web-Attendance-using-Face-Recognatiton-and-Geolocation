@@ -96,6 +96,36 @@ class AttendanceController extends Controller
         }
     }
 
+    // ✅ Simpan face descriptor dari halaman profil
+    public function saveDescriptor(Request $request)
+    {
+        $nis = Auth::guard('siswa')->user()->nis;
+        DB::table('siswa')->where('nis', $nis)->update([
+            'face_descriptor' => $request->descriptor // JSON string array 128 angka
+        ]);
+        return response()->json(['status' => 'success']);
+    }
+
+    // ✅ Ambil semua descriptor untuk matching di frontend
+    public function getFaceDescriptors()
+    {
+        $siswas = DB::table('siswa')
+            ->whereNotNull('face_descriptor')
+            ->where('face_descriptor', '!=', '')
+            ->select('nis', 'nama_lengkap', 'foto', 'face_descriptor')
+            ->get()
+            ->map(function ($s) {
+                return [
+                    'nis' => $s->nis,
+                    'nama' => $s->nama_lengkap,
+                    'foto' => $s->foto ? asset('storage/uploads/siswa/' . $s->foto) : null,
+                    'face_descriptor' => json_decode($s->face_descriptor), // array 128 float
+                ];
+            });
+
+        return response()->json($siswas);
+    }
+
     function distance($lat1, $lon1, $lat2, $lon2)
     {
         $theta = $lon1 - $lon2;
@@ -275,8 +305,8 @@ class AttendanceController extends Controller
         $nis = $request->nis;
         $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         $siswa = DB::table('siswa')->where('nis', $nis)
-        ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
-        ->first();
+            ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
+            ->first();
 
         $attendance = DB::table('attendance')
             ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
@@ -345,18 +375,18 @@ class AttendanceController extends Controller
         $query = Pengajuanizin::query();
         $query->select('id', 'pengajuan_izin.nis', 'tanggal_izin', 'status', 'keterangan', 'status', 'status_approved', 'nama_lengkap');
         $query->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis');
-        if(!empty($request->dari) && !empty($request->sampai)){
+        if (!empty($request->dari) && !empty($request->sampai)) {
             $dari = date('Y-m-d', strtotime($request->dari));
             $sampai = date('Y-m-d', strtotime($request->sampai));
             $query->whereBetween('tanggal_izin', [$dari, $sampai]);
         }
-        if(!empty($request->nis)){
+        if (!empty($request->nis)) {
             $query->where('pengajuan_izin.nis', $request->nis);
         }
-        if(!empty($request->nama_lengkap)){
+        if (!empty($request->nama_lengkap)) {
             $query->where('nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
         }
-        if($request->status_approved == "0" || $request->status_approved == "1" || $request->status_approved == "2"){
+        if ($request->status_approved == "0" || $request->status_approved == "1" || $request->status_approved == "2") {
             $query->where('status_approved', $request->status_approved);
         }
         $query->orderBy('tanggal_izin', 'desc');

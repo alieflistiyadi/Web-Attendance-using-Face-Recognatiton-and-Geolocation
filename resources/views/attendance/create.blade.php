@@ -36,6 +36,19 @@
         #map {
             height: 200px;
         }
+
+        /* Status wajah di pojok kiri atas webcam */
+        #face-status {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            z-index: 10;
+        }
     </style>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -50,6 +63,7 @@
             <input type="hidden" id="lokasi">
             <div class="webcam-capture">
                 <video id="video" autoplay muted playsinline></video>
+                <div id="face-status">⏳ Memuat model...</div>
             </div>
         </div>
     </div>
@@ -89,7 +103,12 @@
     <script>
         let faceReady = false;
         let lastDetection = null;
+        let labeledDescriptors = [];
+        let faceMatcher = null;
+        let detectedNis = null; // NIS siswa yang wajahnya cocok
+
         const video = document.getElementById('video');
+        const faceStatus = document.getElementById('face-status');
 
         var notifikasi_in = document.getElementById('notifikasi_in');
         var notifikasi_out = document.getElementById('notifikasi_out');
@@ -101,12 +120,16 @@
         async function loadFaceAPI() {
             const MODEL_URL = '/models';
             try {
+                faceStatus.textContent = '⏳ Memuat model...';
                 await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
                 await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
                 await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
                 faceReady = true;
+                faceStatus.textContent = '✅ Model siap';
                 console.log("✅ Face API Ready");
+                await loadSiswaDescriptors(); // load data siswa setelah model siap
             } catch (e) {
+                faceStatus.textContent = '❌ Gagal load model';
                 console.error("❌ Model gagal load:", e);
             }
         }
@@ -128,14 +151,45 @@
             }
         }
 
-        // Jalankan otomatis saat halaman load
         window.addEventListener('load', async () => {
             await loadFaceAPI();
             await startCamera();
         });
 
         // =====================
-        // FACE DETECTION
+        // LOAD DESCRIPTOR SISWA DARI DB
+        // =====================
+        async function loadSiswaDescriptors() {
+            try {
+                const res = await fetch('/siswa/face-descriptors');
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    faceStatus.textContent = '⚠️ Belum ada wajah terdaftar';
+                    console.warn("⚠️ Belum ada siswa yang mendaftarkan wajah");
+                    return;
+                }
+
+                labeledDescriptors = data.map(siswa => {
+                    const descriptorArray = new Float32Array(siswa.face_descriptor);
+                    return new faceapi.LabeledFaceDescriptors(
+                        siswa.nama + '|' + siswa.nis, // label format: "NamaLengkap|NIS"
+                        [descriptorArray]
+                    );
+                });
+
+                // threshold 0.5 = toleransi pencocokan, makin kecil makin ketat
+                faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.5);
+                faceStatus.textContent = `✅ ${data.length} wajah terdaftar`;
+                console.log(`✅ ${data.length} wajah siswa berhasil dimuat`);
+            } catch (e) {
+                faceStatus.textContent = '❌ Gagal load data wajah';
+                console.error("❌ Gagal load descriptor siswa:", e);
+            }
+        }
+
+        // =====================
+        // FACE DETECTION + LABEL NAMA
         // =====================
         video.addEventListener('play', () => {
             const canvas = faceapi.createCanvasFromMedia(video);
@@ -153,26 +207,77 @@
             setInterval(async () => {
                 if (!faceReady) return;
 
-                const detections = await faceapi.detectAllFaces(
-                    video,
-                    new faceapi.TinyFaceDetectorOptions({
+                const detections = await faceapi
+                    .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions({
                         inputSize: 416,
                         scoreThreshold: 0.3
-                    })
-                )
+                    }))
                     .withFaceLandmarks()
                     .withFaceDescriptors();
 
                 const resized = faceapi.resizeResults(detections, displaySize);
-
                 const ctx = canvas.getContext('2d');
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                faceapi.draw.drawDetections(canvas, resized);
+                // Reset detectedNis setiap frame
+                detectedNis = null;
+                lastDetection = null;
 
-                if (resized.length > 0) {
-                    lastDetection = resized[0];
-                }
+                resized.forEach(detection => {
+                    const box = detection.detection.box;
+
+                    if (faceMatcher) {
+                        // ✅ Ada data wajah di DB, lakukan pencocokan
+                        const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+                        const isUnknown = bestMatch.label === 'unknown';
+                        const parts = bestMatch.label.split('|'); // ["NamaLengkap", "NIS"]
+
+                        const namaLabel = isUnknown ? '❓ Tidak Dikenal' : `✅ ${parts[0]}`;
+                        const color = isUnknown ? '#ff3333' : '#00cc44';
+                        const score = ((1 - bestMatch.distance) * 100).toFixed(0);
+
+                        if (!isUnknown) {
+                            detectedNis = parts[1]; // simpan NIS untuk validasi absen
+                            lastDetection = detection;
+                        }
+
+                        // Gambar bounding box
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+                        // Background label nama
+                        ctx.fillStyle = color;
+                        ctx.fillRect(box.x, box.y - 30, box.width, 30);
+
+                        // Teks nama
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 14px Arial';
+                        ctx.fillText(namaLabel, box.x + 6, box.y - 10);
+
+                        // Teks kecocokan (di bawah box)
+                        if (!isUnknown) {
+                            ctx.fillStyle = color;
+                            ctx.font = '11px Arial';
+                            ctx.fillText(`Kecocokan: ${score}%`, box.x + 6, box.y + box.height + 15);
+                        }
+
+                    } else {
+                        // ⚠️ Belum ada faceMatcher (tidak ada siswa daftar wajah)
+                        // Tetap tampilkan bounding box kuning biasa
+                        ctx.strokeStyle = '#ffaa00';
+                        ctx.lineWidth = 2;
+                        ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+                        ctx.fillStyle = '#ffaa00';
+                        ctx.fillRect(box.x, box.y - 26, box.width, 26);
+                        ctx.fillStyle = '#000000';
+                        ctx.font = 'bold 12px Arial';
+                        ctx.fillText('⚠️ Belum ada data wajah', box.x + 5, box.y - 8);
+
+                        lastDetection = detection; // izinkan absen meski belum ada matcher
+                    }
+                });
             }, 300);
         });
 
@@ -201,7 +306,7 @@
 
             L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
 
-            L.circle([lat_sekolah, long_sekolah ], {
+            L.circle([lat_sekolah, long_sekolah], {
                 color: 'red',
                 fillColor: '#f03',
                 fillOpacity: 0.5,
@@ -222,12 +327,22 @@
                 return;
             }
 
-            if (!lastDetection) {
-                Swal.fire({ title: 'Error!', text: 'Wajah tidak terdeteksi!', icon: 'error' });
+            // ✅ Jika ada faceMatcher, wajah WAJIB cocok dengan data siswa
+            if (faceMatcher && !detectedNis) {
+                Swal.fire({
+                    title: 'Wajah Tidak Dikenal!',
+                    text: 'Wajah Anda tidak cocok dengan data siswa. Pastikan wajah terlihat jelas atau hubungi admin untuk mendaftarkan wajah.',
+                    icon: 'error'
+                });
                 return;
             }
 
-            // ✅ Disable tombol segera setelah klik pertama
+            if (!lastDetection) {
+                Swal.fire({ title: 'Error!', text: 'Wajah tidak terdeteksi! Pastikan wajah terlihat jelas di kamera.', icon: 'error' });
+                return;
+            }
+
+            // Disable tombol segera setelah klik
             btn.prop('disabled', true).html('<ion-icon name="hourglass-outline"></ion-icon> Memproses...');
 
             const snapCanvas = document.createElement('canvas');
@@ -245,7 +360,8 @@
                 data: {
                     _token: '{{ csrf_token() }}',
                     image: image,
-                    lokasi: lokasiVal
+                    lokasi: lokasiVal,
+                    detected_nis: detectedNis // ✅ Kirim NIS yang terdeteksi ke backend
                 },
                 cache: false,
                 success: function (respond) {
@@ -272,24 +388,22 @@
                             icon: 'error',
                             confirmButtonText: 'Ok'
                         }).then(() => {
-                            // ✅ Aktifkan kembali tombol hanya jika gagal
                             @if($cek > 0)
                                 btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Pulang');
                             @else
                                 btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Masuk');
                             @endif
-                            });
+                                                });
                     }
                 },
                 error: function () {
-                    // ✅ Aktifkan kembali tombol jika ada error jaringan
                     Swal.fire({ title: 'Error!', text: 'Terjadi kesalahan koneksi.', icon: 'error' });
                     @if($cek > 0)
                         btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Pulang');
                     @else
                         btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Masuk');
                     @endif
-                    }
+                                        }
             });
         });
     </script>
