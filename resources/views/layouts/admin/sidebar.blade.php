@@ -5,7 +5,11 @@
           </button>
           <h1 class="navbar-brand navbar-brand-autodark">
             <a href=".">
-              <img src="{{ asset('tabler/static/logo-white.svg')}}" width="110" height="32" alt="Tabler" class="navbar-brand-image">
+              <img src="{{ asset('assets/img/login/smart-logo.png') }}"
+              width="110"
+              height="32"
+              alt="Logo"
+              class="navbar-brand-image">
             </a>
           </h1>
           <div class="navbar-nav flex-row d-lg-none">

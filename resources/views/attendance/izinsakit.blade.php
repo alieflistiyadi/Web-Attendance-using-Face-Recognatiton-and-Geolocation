@@ -217,10 +217,14 @@
 @push('myscript')
 <script>
     $(function(){
+
         $(".approved").click(function(e){
             e.preventDefault();
+
             var id_izinsakit = $(this).attr("id_izinsakit");
+
             $("#id_izinsakit_form").val(id_izinsakit);
+
             $("#modal-izinsakit").modal('show');
         });
 
@@ -232,8 +236,10 @@
             dateFormat: "d-m-Y"
         });
 
-         $("#tgl_izin").change(function(e){
+        $("#tgl_izin").change(function(e){
+
             var tanggal_izin = $(this).val();
+
             $.ajax({
                 type: 'POST',
                 url: "{{ route('attendance.cekpengajuanizin') }}",
@@ -242,8 +248,13 @@
                     tanggal_izin: tanggal_izin
                 },
                 cache: false,
-                success: function(respond) {
+                success: function(respond){
+                    console.log(respond);
+                }
             });
-    })
+
+        });
+
+    });
 </script>
 @endpush
