@@ -373,7 +373,18 @@ class AttendanceController extends Controller
     public function izinsakit(Request $request)
     {
         $query = Pengajuanizin::query();
-        $query->select('id', 'pengajuan_izin.nis', 'tanggal_izin', 'status', 'keterangan', 'status', 'status_approved', 'nama_lengkap');
+        $query->select(
+            'id',
+            'pengajuan_izin.nis',
+            'tanggal_izin',
+            'status',
+            'keterangan',
+            'status_approved',
+            'nama_lengkap',
+            'kelas',
+            'kode_jurusan',
+            'surat_sakit'
+        );
         $query->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis');
         if (!empty($request->dari) && !empty($request->sampai)) {
             $dari = date('Y-m-d', strtotime($request->dari));
