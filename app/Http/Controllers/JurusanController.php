@@ -10,18 +10,18 @@ use Illuminate\Support\Facades\Redirect;
 class JurusanController extends Controller
 {
     public function index(Request $request)
-{
-    $nama_jurusan = $request->nama_jurusan;
-    $query = Jurusan::query();
-    $query->select('*');
-    if(!empty($nama_jurusan)){
-        $query->where('nama_jurusan','like','%'.$nama_jurusan . '%');
-    }
-    $jurusan = $query->get();
-    // $jurusan = DB::table('jurusan')->orderBy('kode_jurusan')->get();
+    {
+        $nama_jurusan = $request->nama_jurusan;
+        $query = Jurusan::query();
+        $query->select('*');
+        if (!empty($nama_jurusan)) {
+            $query->where('nama_jurusan', 'like', '%' . $nama_jurusan . '%');
+        }
+        $jurusan = $query->get();
+        // $jurusan = DB::table('jurusan')->orderBy('kode_jurusan')->get();
 
-    return view('jurusan.index', compact('jurusan'));
-}
+        return view('jurusan.index', compact('jurusan'));
+    }
 
     public function store(Request $request)
     {
@@ -47,7 +47,8 @@ class JurusanController extends Controller
         return view('jurusan.edit', compact('jurusan'));
     }
 
-    public function update(Request $request, $kode_jurusan){
+    public function update(Request $request, $kode_jurusan)
+    {
         $nama_jurusan = $request->nama_jurusan;
         $data = [
             'nama_jurusan' => $nama_jurusan
@@ -61,7 +62,8 @@ class JurusanController extends Controller
         }
     }
 
-    public function delete($kode_jurusan){
+    public function delete($kode_jurusan)
+    {
         $delete = DB::table('jurusan')->where('kode_jurusan', $kode_jurusan)->delete();
         if ($delete) {
             return Redirect::back()->with(['success' => 'Data Berhasil Dihapus']);

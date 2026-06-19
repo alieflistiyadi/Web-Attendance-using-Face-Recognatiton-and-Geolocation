@@ -19,15 +19,15 @@ class KonfigurasiController extends Controller
         $lokasi_sekolah = $request->lokasi_sekolah;
         $radius = $request->radius;
 
-        $update = DB::table('konfigurasi_lokasi')->where('id',1)->update([
+        $update = DB::table('konfigurasi_lokasi')->where('id', 1)->update([
             'lokasi_sekolah' => $lokasi_sekolah,
             'radius' => $radius
         ]);
 
-        if($update) {
+        if ($update) {
             return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
         } else {
-            return Redirect::back()->with(['warning' => 'Data Gagal Diupdate']); 
+            return Redirect::back()->with(['warning' => 'Data Gagal Diupdate']);
         }
     }
 }

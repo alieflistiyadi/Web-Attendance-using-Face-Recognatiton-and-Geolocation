@@ -199,7 +199,7 @@ class AttendanceController extends Controller
         if ($simpan) {
             return redirect('/attendance/izin')->with(['success' => 'Data Berhasil Disimpan']);
         } else {
-            return redirect('/attendance/izin')->with(['error' => 'Data Gagal Disimpan']);
+            return redirect('/attendance/izin')->with(['error' => '']);
         }
     }
 }

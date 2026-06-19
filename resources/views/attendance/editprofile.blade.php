@@ -675,6 +675,14 @@
         </button>
     </div>
 
+    @if(Auth::guard('siswa')->user()->is_default_password == 1)
+
+        <div class="alert alert-warning">
+            Password Anda masih menggunakan password default.
+            Silakan ganti password terlebih dahulu.
+        </div>
+
+    @endif
     {{-- ══════════════════════════════ --}}
     {{-- TAB 1 : INFORMASI AKUN --}}
     {{-- ══════════════════════════════ --}}
@@ -695,6 +703,7 @@
                 </div>
 
                 <div class="field-group">
+
                     <div class="field-label">
                         <ion-icon name="call-outline"></ion-icon> No. HP / WhatsApp
                     </div>
@@ -704,17 +713,58 @@
             </div>
 
             <div class="profile-card">
-                <div class="card-section-label">Keamanan</div>
+                <div class="card-section-label">Keamanan Akun</div>
 
-                <div class="field-group" style="margin-bottom:0;">
-                    <div class="field-label">
-                        <ion-icon name="lock-closed-outline"></ion-icon> Password Baru
+                @if(Auth::guard('siswa')->user()->is_default_password == 1)
+                    <div class="alert alert-warning">
+                        Password Anda masih menggunakan password default.
+                        Silakan ganti password.
                     </div>
-                    <input type="password" class="field-input" name="password" placeholder="Kosongkan jika tidak diubah"
-                        autocomplete="new-password">
+                @endif
+
+                <div class="field-group">
+                    <div class="field-label">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                        Password Lama
+                    </div>
+                    <input type="password" class="field-input" name="password_lama" placeholder="Masukkan password lama">
+
+                    @error('password_lama')
+                        <div style="color:red;font-size:12px;margin-top:5px;">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="field-group">
+                    <div class="field-label">
+                        <ion-icon name="key-outline"></ion-icon>
+                        Password Baru
+                    </div>
+                    <input type="password" class="field-input" name="password_baru" placeholder="Masukkan password baru">
+
+                    @error('password_baru')
+                        <div style="color:red;font-size:12px;margin-top:5px;">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="field-group">
+                    <div class="field-label">
+                        <ion-icon name="shield-checkmark-outline"></ion-icon>
+                        Konfirmasi Password Baru
+                    </div>
+                    <input type="password" class="field-input" name="password_baru_confirmation"
+                        placeholder="Konfirmasi password baru">
+
+                    @error('password_baru_confirmation')
+                        <div style="color:red;font-size:12px;margin-top:5px;">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
             </div>
-
             <div class="profile-card">
                 <div class="card-section-label">Foto Profil</div>
 
@@ -748,6 +798,8 @@
         </form>
 
     </div>{{-- /panelInfo --}}
+
+
 
     {{-- ══════════════════════════════ --}}
     {{-- TAB 2 : DATA WAJAH --}}
@@ -1015,21 +1067,21 @@
 
                     // Update status pill → registered
                     document.getElementById('faceStatusPill').innerHTML = `
-                                            <div class="pill-icon registered">
-                                                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                                            </div>
-                                            <div>
-                                                <div class="pill-text-main">Wajah Sudah Terdaftar</div>
-                                                <div class="pill-text-sub">Data wajah berhasil disimpan. Anda siap absensi!</div>
-                                            </div>
-                                        `;
+                                                                                    <div class="pill-icon registered">
+                                                                                        <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                                                                    </div>
+                                                                                    <div>
+                                                                                        <div class="pill-text-main">Wajah Sudah Terdaftar</div>
+                                                                                        <div class="pill-text-sub">Data wajah berhasil disimpan. Anda siap absensi!</div>
+                                                                                    </div>
+                                                                                `;
 
                     btnScan.disabled = false;
                     btnScanIcon.setAttribute('name', 'refresh-outline');
                     btnScanText.textContent = 'Perbarui Data Wajah';
 
                     Swal.fire({
-                        title: 'Berhasil! 🎉',
+                        title: 'Berhasil! ',
                         text: 'Data wajah berhasil didaftarkan. Sekarang Anda bisa absensi menggunakan face recognition.',
                         icon: 'success',
                         confirmButtonText: 'Siap Absen!',

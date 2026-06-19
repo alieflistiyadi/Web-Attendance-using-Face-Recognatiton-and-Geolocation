@@ -393,7 +393,7 @@
                             @else
                                 btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Masuk');
                             @endif
-                                                });
+                                                        });
                     }
                 },
                 error: function () {
@@ -403,7 +403,7 @@
                     @else
                         btn.prop('disabled', false).html('<ion-icon name="camera-outline"></ion-icon> Absen Masuk');
                     @endif
-                                        }
+                                                }
             });
         });
     </script>

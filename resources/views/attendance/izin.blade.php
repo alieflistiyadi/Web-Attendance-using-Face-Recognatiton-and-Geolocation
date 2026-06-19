@@ -2,7 +2,7 @@
 
 @section('header')
     <div class="appHeader text-light" style="background: linear-gradient(135deg,#1a73e8 0%,#0d47a1 100%);
-            box-shadow:0 2px 16px rgba(26,115,232,.18);">
+                box-shadow:0 2px 16px rgba(26,115,232,.18);">
 
         <div class="left">
             <a href="javascript:;" class="headerButton goBack" style="color:#fff;">
@@ -361,17 +361,17 @@
                     {{-- STATUS --}}
                     @if ($d->status_approved == 0)
                         <div class="status-badge status-wait">
-                            Waiting
+                            Menunggu
                         </div>
 
                     @elseif ($d->status_approved == 1)
                         <div class="status-badge status-approved">
-                            Approved
+                            Disetujui
                         </div>
 
                     @elseif ($d->status_approved == 2)
                         <div class="status-badge status-declined">
-                            Declined
+                            Ditolak
                         </div>
                     @endif
 
