@@ -13,7 +13,6 @@
     </div>
   </div>
 
-<<<<<<< HEAD
 <div class="page-body">
   <div class="container-xl"> 
     <div class="row">
@@ -53,43 +52,6 @@
             <div class="row mt-2">
               <div class="col-12">
                 <form action="/siswa" method="GET">
-=======
-  <div class="page-body">
-    <div class="container-xl">
-      <div class="row">
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body">
->>>>>>> 59116c6bf4857787f45d94c2d000ad8f90efd425
-              <div class="row">
-                <div class="col-12">
-                  @if (Session::get('success'))
-                    <div class="alert alert-success">
-                      {{ Session::get('success')}}
-                    </div>
-                  @endif
-
-                  @if (Session::get('warning'))
-                    <div class="alert alert-warning">
-                      {{ Session::get('warning')}}
-                    </div>
-                  @endif
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-12">
-                  <a href="#" class="btn btn-primary" id="btnTambahsiswa">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                      class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                      <path d="M12 5l0 14" />
-                      <path d="M5 12l14 0" />
-                    </svg>
-                    Tambah Data
-                  </a>
-                </div>
-              </div>
               <div class="row mt-2">
                 <div class="col-12">
                   <form action="/siswa" method="GET">
@@ -212,28 +174,6 @@
       </div>
     </div>
   </div>
-<<<<<<< HEAD
-</div>
- <div class="modal modal-blur fade" id="modal-inputsiswa" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Tambah Data Siswa</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form action="{{ url('/siswa/store') }}" method="POST" id="formsiswa" enctype="multipart/form-data">
-              @csrf
-              <div class="row">
-                <div class="col-12">
-                  <div class="input-icon mb-3">
-                      <span class="input-icon-addon">
-                                  <!-- Download SVG icon from http://tabler-icons.io/i/user -->
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-id-badge-2"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M7 12h3v4h-3l0 -4" /><path d="M10 6h-6a1 1 0 0 0 -1 1v12a1 1 0 0 0 1 1h16a1 1 0 0 0 1 -1v-12a1 1 0 0 0 -1 -1h-6" /><path d="M10 4a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v3a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -3" /><path d="M14 16h2" /><path d="M14 12h4" /></svg>
-                      </span>
-                      <input type="text" value="" id="nis" class="form-control" name="nis" placeholder="NIS">
-                  </div>
-=======
   <div class="modal modal-blur fade" id="modal-inputsiswa" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
@@ -261,7 +201,6 @@
                     </svg>
                   </span>
                   <input type="text" value="" id="nis" class="form-control" name="nis" placeholder="NIS">
->>>>>>> 59116c6bf4857787f45d94c2d000ad8f90efd425
                 </div>
               </div>
             </div>

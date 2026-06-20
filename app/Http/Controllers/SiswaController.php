@@ -29,26 +29,21 @@ class SiswaController extends Controller
         return view('siswa.index', compact('siswa', 'jurusan'));
     }
 
-    public function store(Request $request)
-<<<<<<< HEAD
-{
-    // VALIDASI
+    public function store(Request $request){
     $request->validate([
-    'nis' => 'required|unique:siswa,nis',
-    'nama_lengkap' => 'required',
-    'kelas' => 'required',
-    'no_hp' => 'required',
-    'kode_jurusan' => 'required'
+        'nis' => 'required|unique:siswa,nis',
+        'nama_lengkap' => 'required',
+        'kelas' => 'required',
+        'no_hp' => 'required',
+        'kode_jurusan' => 'required'
     ], [
         'nis.unique' => 'NIS sudah terdaftar, tidak bisa ditambahkan!'
     ]);
 
-    // default password
-    $password = \Illuminate\Support\Facades\Hash::make('1234');
+    $password = \Illuminate\Support\Facades\Hash::make('12345678');
 
     $foto = null;
 
-    // upload foto
     if ($request->hasFile('foto')) {
         $foto = $request->nis . '.' . $request->file('foto')->getClientOriginalExtension();
         $request->file('foto')->storeAs('public/uploads/siswa', $foto);
@@ -58,52 +53,19 @@ class SiswaController extends Controller
         Siswa::create([
             'nis' => $request->nis,
             'nama_lengkap' => $request->nama_lengkap,
-            'kelas' => $request->kelas, // ⚠️ ini dibenerin (bukan jurusan)
+            'kelas' => $request->kelas,
             'no_hp' => $request->no_hp,
             'kode_jurusan' => $request->kode_jurusan,
             'foto' => $foto,
-            'password' => $password
-            , 'is_default_password' => 1
-=======
-    {
-        // VALIDASI
-        $request->validate([
-            'nis' => 'required|unique:siswa,nis',
-            'nama_lengkap' => 'required',
-            'kelas' => 'required',
-            'no_hp' => 'required',
-            'kode_jurusan' => 'required'
->>>>>>> 59116c6bf4857787f45d94c2d000ad8f90efd425
+            'password' => $password,
+            'is_default_password' => 1
         ]);
 
-        // default password
-        $password = \Illuminate\Support\Facades\Hash::make('12345678');
+        return redirect('/siswa')->with('success', 'Data berhasil ditambahkan');
 
-        $foto = null;
-
-        // upload foto
-        if ($request->hasFile('foto')) {
-            $foto = $request->nis . '.' . $request->file('foto')->getClientOriginalExtension();
-            $request->file('foto')->storeAs('public/uploads/siswa', $foto);
-        }
-
-        try {
-            Siswa::create([
-                'nis' => $request->nis,
-                'nama_lengkap' => $request->nama_lengkap,
-                'kelas' => $request->kelas,
-                'no_hp' => $request->no_hp,
-                'kode_jurusan' => $request->kode_jurusan,
-                'foto' => $foto,
-                'password' => $password,
-                'is_default_password' => 1
-            ]);
-
-            return redirect('/siswa')->with('success', 'Data berhasil ditambahkan');
-
-        } catch (\Exception $e) {
-            dd($e->getMessage());
-        }
+    } catch (\Exception $e) {
+        dd($e->getMessage());
+    }
     }
     public function edit(Request $request)
     {
@@ -139,23 +101,17 @@ class SiswaController extends Controller
             if ($update) {
                 if ($request->hasFile('foto')) {
                     $folderPath = 'public/uploads/siswa';
-<<<<<<< HEAD
                     $folderOld = $folderPath . '/' . $old_foto;
-                    Storage::delete($folderOld);
+                    if (Storage::exists($folderOld)) {
+                        Storage::delete($folderOld);
+                    }
                     $request->file('foto')->storeAs($folderPath, $foto);
                 }
             return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
             }
+            
         } catch (\Exception $e){
-=======
-                    $folderOld = 'public/uploads/siswa' . $old_foto;
-                    Storage::delete($folderOld);
-                    $request->file('foto')->storeAs($folderPath, $foto);
-                }
-                return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
-            }
-        } catch (\Exception $e) {
->>>>>>> 59116c6bf4857787f45d94c2d000ad8f90efd425
+
             dd($e->getMessage());
             //return Redirect::back()->with(['warning' => 'Data Gagal Diupdate']);
         }

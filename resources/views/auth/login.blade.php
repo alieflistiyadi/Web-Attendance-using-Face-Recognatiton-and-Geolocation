@@ -43,15 +43,9 @@
                 @endphp
 
                 @if (session::get('warning'))
-<<<<<<< HEAD
-                <div class="alert alert-outline-warning">
-                    {{ $messagewarning }}
-                </div>
-=======
                     <div class="alert alert-outline-warning">
                         {{ $messagewarning }}
                     </div>
->>>>>>> 59116c6bf4857787f45d94c2d000ad8f90efd425
                 @endif
                 <form action="/process-login" method="POST">
                     @csrf

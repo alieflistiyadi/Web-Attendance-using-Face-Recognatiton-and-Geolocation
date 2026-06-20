@@ -81,33 +81,28 @@ route::middleware('auth:siswa')->group(function () {
         ->name('gethistori');
 
     // Izin
-<<<<<<< HEAD
-    route::get('attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])->name('izin');
-    route::get('attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])->name('buatizin');
-    route::post('attendance/storeizin', [App\Http\Controllers\AttendanceController::class, 'storeizin'])->name('storeizin');
-    Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])->name('attendance.cekpengajuanizin');
-=======
-    route::get('attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])
+    route::get('/attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])
         ->name('izin');
 
-    route::get('attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])
+    route::get('/attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])
         ->name('buatizin');
 
-    route::post('attendance/storeizin', [App\Http\Controllers\AttendanceController::class, 'storeizin'])
+    route::post('/attendance/storeizin', [App\Http\Controllers\AttendanceController::class, 'storeizin'])
         ->name('storeizin');
 
-    // Face Descriptor
+    Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])
+        ->name('attendance.cekpengajuanizin');
+
     route::post('/siswa/save-descriptor', [App\Http\Controllers\AttendanceController::class, 'saveDescriptor'])
         ->name('siswa.saveDescriptor');
 
     route::get('/siswa/face-descriptors', [App\Http\Controllers\AttendanceController::class, 'getFaceDescriptors'])
         ->name('siswa.faceDescriptors');
->>>>>>> 922b592 (Update attendance feature and ui)
-});
+    });
 
-Route::middleware(['auth:user'])->group(function () {
-    route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
-    Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
+    Route::middleware(['auth:user'])->group(function () {
+        route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
+        Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
 
     //Siswa
     route::get('/siswa', [SiswaController::class, 'index']);
@@ -134,12 +129,7 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/attendance/izinsakit', [App\Http\Controllers\AttendanceController::class, 'izinsakit'])->name('attendance.izinsakit');
     Route::post('/attendance/approveizinsakit', [App\Http\Controllers\AttendanceController::class, 'approveizinsakit'])->name('attendance.approveizinsakit');
     Route::get('/attendance/{id}/batalkanizinsakit', [App\Http\Controllers\AttendanceController::class, 'batalkanizinsakit'])->name('attendance.batalkanizinsakit');
-<<<<<<< HEAD
-=======
-    Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])->name('attendance.cekpengajuanizin');
     Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
->>>>>>> 922b592 (Update attendance feature and ui)
-
     //Konfigurasi
     Route::get('/konfigurasi/lokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'lokasisekolah'])->name('konfigurasi.lokasisekolah');
     Route::post('/konfigurasi/updatelokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'updatelokasisekolah'])->name('konfigurasi.updatelokasisekolah');
