@@ -149,41 +149,100 @@ class AttendanceController extends Controller
     public function updateprofile(Request $request)
     {
         $nis = Auth::guard('siswa')->user()->nis;
+
+        $siswa = DB::table('siswa')
+            ->where('nis', $nis)
+            ->first();
+
+        // =========================
+        // VALIDASI GANTI PASSWORD
+        // =========================
+        if (!empty($request->password_baru)) {
+
+            $request->validate([
+                'password_lama' => 'required',
+                'password_baru' => 'required|min:6|same:password_baru_confirmation',
+                'password_baru_confirmation' => 'required'
+            ], [
+                'password_lama.required' => 'Password lama wajib diisi.',
+                'password_baru.required' => 'Password baru wajib diisi.',
+                'password_baru.min' => 'Password baru minimal 6 karakter.',
+                'password_baru.same' => 'Konfirmasi password baru tidak sesuai.',
+                'password_baru_confirmation.required' => 'Konfirmasi password wajib diisi.'
+            ]);
+
+            // CEK PASSWORD LAMA
+            if (!Hash::check($request->password_lama, $siswa->password)) {
+
+                return Redirect::back()->with([
+                    'error' => 'Password lama yang Anda masukkan tidak sesuai.'
+                ]);
+            }
+        }
+
         $nama_lengkap = $request->nama_lengkap;
         $no_hp = $request->no_hp;
-        $password = Hash::make($request->password);
-        $siswa = DB::table('siswa')->where('nis', $nis)->first();
+
         if ($request->hasFile('foto')) {
-            $foto = $nis . '.' . $request->file('foto')->getClientOriginalExtension();
+
+            $foto = $nis . '.' .
+                $request->file('foto')->getClientOriginalExtension();
+
         } else {
+
             $foto = $siswa->foto;
         }
-        if (empty($request->password)) {
-            $data = [
-                'nama_lengkap' => $nama_lengkap,
-                'no_hp' => $no_hp,
-                'foto' => $foto,
 
-            ];
-        } else {
-            $data = [
-                'nama_lengkap' => $nama_lengkap,
-                'no_hp' => $no_hp,
-                'password' => $password,
-                'foto' => $foto
-            ];
+        // =========================
+        // DATA UPDATE
+        // =========================
+        $data = [
+            'nama_lengkap' => $nama_lengkap,
+            'no_hp' => $no_hp,
+            'foto' => $foto
+        ];
+
+        // Jika password baru diisi dan password lama benar
+        if (!empty($request->password_baru)) {
+
+            $data['password'] = Hash::make($request->password_baru);
+            $data['is_default_password'] = 0;
         }
 
-        $update = DB::table('siswa')->where('nis', $nis)->update($data);
-        if ($update) {
-            if ($request->hasFile('foto')) {
-                $folderPath = 'public/uploads/siswa';
-                $request->file('foto')->storeAs($folderPath, $foto);
-            }
-            return Redirect::back()->with(['success' => 'Profile berhasil diupdate']);
-        } else {
-            return Redirect::back()->with(['error' => 'Gagal mengupdate profile']);
+        DB::table('siswa')
+            ->where('nis', $nis)
+            ->update($data);
+
+        if ($request->hasFile('foto')) {
+
+            $folderPath = 'public/uploads/siswa';
+
+            $request->file('foto')
+                ->storeAs($folderPath, $foto);
         }
+
+        return Redirect::back()->with([
+            'success' => 'Profil berhasil diupdate'
+        ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'password_baru' => 'required|min:8|confirmed'
+        ]);
+
+        $siswa = Auth::guard('siswa')->user();
+
+        DB::table('siswa')
+            ->where('nis', $siswa->nis)
+            ->update([
+                'password' => Hash::make($request->password_baru),
+                'is_default_password' => 0
+            ]);
+
+        return redirect('/dashboard')
+            ->with('success', 'Password berhasil diubah');
     }
 
     public function histori()

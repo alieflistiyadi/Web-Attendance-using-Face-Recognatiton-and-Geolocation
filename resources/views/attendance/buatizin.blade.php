@@ -388,32 +388,6 @@
                 format: "dd-mm-yyyy"
             });
 
-             $("#tanggal_izin").change(function(e){
-                var tanggal_izin = $(this).val();
-                    $.ajax({
-                        type: "POST",
-                        url: "{{ route('attendance.cekpengajuanizin') }}",
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            tanggal_izin: tanggal_izin
-                        },
-                        cache: false,
-                        success: function (response) {
-                            alert(response);
-                            if (response > 0) {
-                                Swal.fire({
-                                    title: 'Oops !',
-                                    text: 'Anda sudah mengajukan izin/sakit pada tanggal tersebut',
-                                    icon: 'warning',
-                                }).then((result) => {
-                                    if (result.isConfirmed) {
-                                        $("#tanggal_izin").val('');
-                                    }
-                                });
-                            }
-                    });
-
-
             $("#status").change(function () {
 
                 if ($(this).val() == "s") {
@@ -438,7 +412,7 @@
                     Swal.fire({
                         title: 'Oops!',
                         text: 'Tanggal harus diisi',
-                        icon: 'warning',
+                        icon: 'Peringatan',
                     });
 
                     return false;
@@ -448,7 +422,7 @@
                     Swal.fire({
                         title: 'Oops!',
                         text: 'Status harus dipilih',
-                        icon: 'warning',
+                        icon: 'Peringatan',
                     });
 
                     return false;
@@ -458,7 +432,7 @@
                     Swal.fire({
                         title: 'Oops!',
                         text: 'Upload surat sakit wajib diisi',
-                        icon: 'warning',
+                        icon: 'Peringatan',
                     });
 
                     return false;
@@ -468,7 +442,7 @@
                     Swal.fire({
                         title: 'Oops!',
                         text: 'Keterangan harus diisi',
-                        icon: 'warning',
+                        icon: 'Peringatan',
                     });
 
                     return false;

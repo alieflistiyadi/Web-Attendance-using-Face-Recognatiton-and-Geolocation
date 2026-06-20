@@ -8,14 +8,19 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    //
-    public function proseslogin(Request $request)
+
+    public function prosesLogin(Request $request)
     {
-        if (Auth::guard('siswa')->attempt(['nis' => $request->nis, 'password' => $request->password])) {
-            return redirect()->intended('/dashboard');
-        } else {
-            return redirect('/')->with(['warning' => 'NIS atau Password salah!']);
+        $credentials = [
+            'nis' => $request->nis,
+            'password' => $request->password
+        ];
+
+        if (Auth::guard('siswa')->attempt($credentials)) {
+            return redirect('/dashboard');
         }
+
+        return back()->with('error', 'NIS atau Password salah');
     }
     public function proseslogout()
     {
@@ -23,7 +28,7 @@ class AuthController extends Controller
             Auth::guard('siswa')->logout();
             return redirect('/');
         }
-        
+
     }
 
     public function proseslogoutadmin()
@@ -32,7 +37,7 @@ class AuthController extends Controller
             Auth::guard('user')->logout();
             return redirect('/panel');
         }
-        
+
     }
 
     public function prosesloginadmin(Request $request)
@@ -44,6 +49,6 @@ class AuthController extends Controller
         }
     }
 
-    
+
 }
 

@@ -20,8 +20,14 @@ class Siswa extends Authenticatable
     protected $table = 'siswa';
     protected $primaryKey = 'nis';
     public $incrementing = false;     // ← tambah
+<<<<<<< HEAD
     protected $keyType = 'string';   // ← tambah
     public $timestamps = false;    
+=======
+    protected $keyType = 'string';    // ← tambah
+
+    public $timestamps = false; // <-- TAMBAHKAN INI
+>>>>>>> 59116c6bf4857787f45d94c2d000ad8f90efd425
     protected $fillable = [
         'nis',
         'nama_lengkap',
@@ -30,6 +36,7 @@ class Siswa extends Authenticatable
         'kode_jurusan',
         'foto',
         'password',
+        'is_default_password'
     ];
 
     /**

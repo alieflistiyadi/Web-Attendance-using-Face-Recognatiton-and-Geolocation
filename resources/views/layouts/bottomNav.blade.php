@@ -3,7 +3,7 @@
     <a href="/dashboard" class="item {{ request()->is('dashboard') ? 'active' : '' }}">
         <div class="col">
             <ion-icon name="home-outline"></ion-icon>
-            <strong>Home</strong>
+            <strong>Beranda</strong>
         </div>
     </a>
     <a href="/attendance/histori" class="item {{ request()->is('attendance/histori') ? 'active' : '' }}">
@@ -31,6 +31,6 @@
             <ion-icon name="people-outline" role="img" class="md hydrated" aria-label="people outline"></ion-icon>
             <strong>Profile</strong>
         </div>
-    </a>    
+    </a>
 </div>
 <!-- * App Bottom Menu -->

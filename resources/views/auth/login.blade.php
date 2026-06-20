@@ -13,7 +13,7 @@
     <meta name="keywords" content="bootstrap 4, mobile template, cordova, phonegap, mobile, html" />
     <link rel="icon" type="image/png" href=" {{ asset('assets/img/favicon.png') }}" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href={{ asset('assets/img/icon/192x192.png') }}>
-    <link rel="stylesheet" href= {{ asset('assets/css/style.css') }}>
+    <link rel="stylesheet" href={{ asset('assets/css/style.css') }}>
     <link rel="manifest" href="__manifest.json">
 </head>
 
@@ -39,13 +39,19 @@
             </div>
             <div class="section mt-1 mb-5">
                 @php
-                $messagewarning= Session::get('warning');
+                    $messagewarning = Session::get('warning');
                 @endphp
 
                 @if (session::get('warning'))
+<<<<<<< HEAD
                 <div class="alert alert-outline-warning">
                     {{ $messagewarning }}
                 </div>
+=======
+                    <div class="alert alert-outline-warning">
+                        {{ $messagewarning }}
+                    </div>
+>>>>>>> 59116c6bf4857787f45d94c2d000ad8f90efd425
                 @endif
                 <form action="/process-login" method="POST">
                     @csrf
@@ -60,7 +66,8 @@
 
                     <div class="form-group boxed">
                         <div class="input-wrapper">
-                            <input type="password" name="password" class="form-control" id="password" placeholder="Password">
+                            <input type="password" name="password" class="form-control" id="password"
+                                placeholder="Password">
                             <i class="clear-input">
                                 <ion-icon name="close-circle"></ion-icon>
                             </i>
