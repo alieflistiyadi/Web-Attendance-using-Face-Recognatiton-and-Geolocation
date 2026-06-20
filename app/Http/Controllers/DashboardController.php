@@ -73,6 +73,30 @@ class DashboardController extends Controller
             ->where('status_approved', 1)
             ->first();
 
+            $jumlahHariSekolah = 0;
+
+        for ($i = 1; $i <= date('d'); $i++) {
+
+            $tanggal = date('Y-m-') . str_pad($i, 2, '0', STR_PAD_LEFT);
+
+            $hari = date('N', strtotime($tanggal));
+
+            // Senin(1) - Jumat(5)
+            if ($hari <= 5) {
+                $jumlahHariSekolah++;
+            }
+        }
+
+        $jmlhadir = $rekapattendance->jmlhadir ?? 0;
+        $jmlizin = $rekapizin->jmlizin ?? 0;
+        $jmlsakit = $rekapizin->jmlsakit ?? 0;
+
+        $alpa = $jumlahHariSekolah - ($jmlhadir + $jmlizin + $jmlsakit);
+
+        if ($alpa < 0) {
+            $alpa = 0;
+        }
+
         return view('dashboard.dashboard', compact(
             'attendancehariini',
             'historibulanini',
@@ -81,17 +105,88 @@ class DashboardController extends Controller
             'tahunini',
             'rekapattendance',
             'rekapizin',
-            'leaderboard'
+            'leaderboard',
+            'alpa'
         ));
     }
 
     public function dashboardadmin()
     {
-        $hariini = date("Y-m-d");
-        $rekapattendance = DB::table('attendance')
-            ->selectRaw('COUNT(nis) as jmlhadir, SUM(IF(jam_in > "07:00", 1, 0)) as jmlterlambat')
-            ->where('tgl_presensi', $hariini)
-            ->first();
-        return view('dashboard.dashboardadmin', compact('rekapattendance'));
+        $jurusan = [
+            ['kode' => 'TJKT', 'nama' => 'Teknik Jaringan Komputer dan Telekomunikasi'],
+            ['kode' => 'MP', 'nama' => 'Manajemen Perkantoran'],
+            ['kode' => 'TM', 'nama' => 'Teknik Mesin'],
+        ];
+
+        return view('layouts.admin.jurusan', compact('jurusan'));
+    }
+
+    public function kelas($kode)
+    {
+        $kelas = DB::table('siswa')
+            ->where('kode_jurusan', $kode)
+            ->select('kelas')
+            ->groupBy('kelas')
+            ->get();
+
+        return view('layouts.admin.kelas', compact('kelas', 'kode'));
+    }
+
+    public function rekapBulanan($bulan, $tahun, $kelas)
+    {
+        $siswa = DB::table('siswa')
+            ->where('kelas', $kelas)
+            ->get();
+
+        $data = [];
+
+        foreach ($siswa as $s) {
+
+            $row = [
+                'nama' => $s->nama_lengkap
+            ];
+
+            for ($i = 1; $i <= 31; $i++) {
+
+                if (!checkdate($bulan, $i, $tahun)) {
+                    $row[$i] = null;
+                    continue;
+                }
+
+                $tanggal = $tahun . '-' . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
+
+                // 🔥 CEK HARI (Sabtu/Minggu)
+                $hari = date('N', strtotime($tanggal)); 
+                // 6 = Sabtu, 7 = Minggu
+
+                if ($hari == 6 || $hari == 7) {
+                    $row[$i] = '-'; // LIBUR
+                    continue;
+                }
+
+                $absen = DB::table('attendance')
+                    ->where('nis', $s->nis)
+                    ->whereDate('tgl_presensi', $tanggal)
+                    ->first();
+
+                $izin = DB::table('pengajuan_izin')
+                    ->where('nis', $s->nis)
+                    ->where('tanggal_izin', $tanggal)
+                    ->where('status_approved', 1)
+                    ->first();
+
+                if ($absen) {
+                    $row[$i] = 'H';
+                } elseif ($izin) {
+                    $row[$i] = $izin->status == 'i' ? 'I' : 'S';
+                } else {
+                    $row[$i] = 'A';
+                }
+            }
+
+            $data[] = $row;
+        }
+
+        return view('layouts.admin.rekap_bulanan', compact('data', 'bulan', 'tahun', 'kelas'));
     }
 }

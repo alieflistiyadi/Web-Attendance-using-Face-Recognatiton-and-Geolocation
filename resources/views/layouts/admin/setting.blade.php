@@ -1,0 +1,43 @@
+@extends('layouts.admin.tabler')
+
+@section('content')
+
+<div class="container-xl mt-3">
+
+    <h2>Setting Akun Admin</h2>
+
+    <div class="card mt-3">
+        <div class="card-body">
+
+            <form action="/panel/setting/update" method="POST">
+                @csrf
+
+                <div class="mb-3">
+                    <label>Nama</label>
+                    <input type="text" name="name" class="form-control"
+                        value="{{ $admin->name }}">
+                </div>
+
+                <div class="mb-3">
+                    <label>Email</label>
+                    <input type="email" name="email" class="form-control"
+                        value="{{ $admin->email }}">
+                </div>
+
+                <div class="mb-3">
+                    <label>Password (Jikalau ingin diubah)</label>
+                    <input type="password" name="password" class="form-control">
+                </div>
+
+                <button class="btn btn-primary">
+                    Simpan
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+@endsection

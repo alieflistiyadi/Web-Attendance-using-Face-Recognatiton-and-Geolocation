@@ -30,7 +30,7 @@
                       </div>
                       <div class="col">
                         <div class="font-weight-medium">
-                          123
+                          {{ $rekapattendance->jmlhadir ?? 0 }}
                         </div>
                         <div class="text-muted">
                           Siswa Hadir
@@ -51,7 +51,7 @@
                       </div>
                       <div class="col">
                         <div class="font-weight-medium">
-                          123
+                          {{ $jmlizin ?? 0 }}
                         </div>
                         <div class="text-muted">
                           Siswa Izin
@@ -105,6 +105,34 @@
               </div>
           </div>
         </div>
+        <div class="col-md-6 col-xl-3">
+    <div class="card card-sm">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <span class="bg-danger text-white avatar">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="icon icon-tabler icon-tabler-user-x">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                            <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                        </svg>
+                    </span>
+                </div>
+                <div class="col">
+                    <div class="font-weight-medium">
+                        {{ $alpa ?? 0 }}
+                    </div>
+                    <div class="text-muted">
+                        Siswa Alpa
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
         
  </div> 
 @endsection

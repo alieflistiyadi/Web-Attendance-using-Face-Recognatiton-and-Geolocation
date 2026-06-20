@@ -634,6 +634,25 @@
 
             </div>
 
+            {{-- ALPA --}}
+            <div class="rekap-card">
+
+                <div class="rekap-top">
+                    <div class="rekap-icon icon-success">
+                        <ion-icon name="close-circle-outline"></ion-icon>
+                    </div>
+
+                    <div class="rekap-number">
+                        {{ $alpa }}
+                    </div>
+                </div>
+
+                <div class="rekap-label">
+                    Alpa
+                </div>
+
+            </div>
+
         </div>
         {{-- TABS --}}
         <div class="mt-4">

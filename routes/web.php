@@ -100,9 +100,12 @@ route::middleware('auth:siswa')->group(function () {
         ->name('siswa.faceDescriptors');
     });
 
+    //admin
     Route::middleware(['auth:user'])->group(function () {
         route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
-        Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
+        Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']) ->name('dashboardadmin');
+        Route::get('/panel/jurusan/{kode}', [DashboardController::class, 'kelas']);
+        Route::get('/panel/rekap/{bulan}/{tahun}/{kelas}', [DashboardController::class, 'rekapBulanan']);
 
     //Siswa
     route::get('/siswa', [SiswaController::class, 'index']);
@@ -134,4 +137,7 @@ route::middleware('auth:siswa')->group(function () {
     Route::get('/konfigurasi/lokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'lokasisekolah'])->name('konfigurasi.lokasisekolah');
     Route::post('/konfigurasi/updatelokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'updatelokasisekolah'])->name('konfigurasi.updatelokasisekolah');
 
+    //settingadmin
+    Route::get('/panel/setting', [App\Http\Controllers\AdminController::class, 'setting']);
+    Route::post('/panel/setting/update', [App\Http\Controllers\AdminController::class, 'updateSetting']);
 });
