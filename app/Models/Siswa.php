@@ -20,7 +20,8 @@ class Siswa extends Authenticatable
     protected $table = 'siswa';
     protected $primaryKey = 'nis';
     public $incrementing = false;     // ← tambah
-    protected $keyType = 'string';    // ← tambah
+    protected $keyType = 'string';   // ← tambah
+    public $timestamps = false;    
     protected $fillable = [
         'nis',
         'nama_lengkap',

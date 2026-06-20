@@ -42,7 +42,7 @@
                 $messagewarning= Session::get('warning');
                 @endphp
 
-                @if (session::get('warning'));
+                @if (session::get('warning'))
                 <div class="alert alert-outline-warning">
                     {{ $messagewarning }}
                 </div>

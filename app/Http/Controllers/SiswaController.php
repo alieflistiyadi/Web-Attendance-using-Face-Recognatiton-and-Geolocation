@@ -33,11 +33,13 @@ class SiswaController extends Controller
 {
     // VALIDASI
     $request->validate([
-        'nis' => 'required|unique:siswa,nis',
-        'nama_lengkap' => 'required',
-        'kelas' => 'required',
-        'no_hp' => 'required',
-        'kode_jurusan' => 'required'
+    'nis' => 'required|unique:siswa,nis',
+    'nama_lengkap' => 'required',
+    'kelas' => 'required',
+    'no_hp' => 'required',
+    'kode_jurusan' => 'required'
+    ], [
+        'nis.unique' => 'NIS sudah terdaftar, tidak bisa ditambahkan!'
     ]);
 
     // default password
@@ -60,6 +62,7 @@ class SiswaController extends Controller
             'kode_jurusan' => $request->kode_jurusan,
             'foto' => $foto,
             'password' => $password
+            , 'is_default_password' => 1
         ]);
 
         return redirect('/siswa')->with('success', 'Data berhasil ditambahkan');
@@ -103,11 +106,11 @@ public function edit(Request $request)
             $update = DB::table('siswa')->where('nis', $nis)->update($data);
             if($update){
                 if ($request->hasFile('foto')) {
-                $folderPath = 'public/uploads/siswa';
-                $folderOld = 'public/uploads/siswa' .$old_foto;
-                Storage::delete($folderOld);
-                $request->file('foto')->storeAs($folderPath, $foto);
-            }
+                    $folderPath = 'public/uploads/siswa';
+                    $folderOld = $folderPath . '/' . $old_foto;
+                    Storage::delete($folderOld);
+                    $request->file('foto')->storeAs($folderPath, $foto);
+                }
             return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
             }
         } catch (\Exception $e){
