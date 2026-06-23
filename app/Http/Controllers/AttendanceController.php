@@ -479,6 +479,88 @@ class AttendanceController extends Controller
         return view('attendance.izinsakit', compact('izinsakit'));
     }
 
+    public function jurusanIzin()
+    {
+        $jurusan = DB::table('jurusan')->get();
+
+        return view(
+            'attendance.jurusan_izin',
+            compact('jurusan')
+        );
+    }
+
+    public function kelasIzin($kode_jurusan)
+    {
+        $kelas = DB::table('siswa')
+            ->where('kode_jurusan', $kode_jurusan)
+            ->select('kelas')
+            ->groupBy('kelas')
+            ->get();
+
+        return view(
+            'attendance.kelas_izin',
+            compact('kelas', 'kode_jurusan')
+        );
+    }
+
+    public function listIzinSakit(
+    Request $request,
+    $kode_jurusan,
+    $kelas
+    )
+    {
+        $query = DB::table('pengajuan_izin')
+            ->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis')
+            ->where('siswa.kode_jurusan', $kode_jurusan)
+            ->where('siswa.kelas', $kelas);
+
+        if (!empty($request->dari)) {
+            $query->whereDate(
+                'tanggal_izin',
+                '>=',
+                date('Y-m-d', strtotime($request->dari))
+            );
+        }
+
+        if (!empty($request->sampai)) {
+            $query->whereDate(
+                'tanggal_izin',
+                '<=',
+                date('Y-m-d', strtotime($request->sampai))
+            );
+        }
+
+        if (
+            $request->status_approved === "0" ||
+            $request->status_approved === "1" ||
+            $request->status_approved === "2"
+        ) {
+            $query->where(
+                'status_approved',
+                $request->status_approved
+            );
+        }
+
+        $izinsakit = $query
+        ->select(
+            'pengajuan_izin.*',
+            'siswa.nama_lengkap',
+            'siswa.kelas',
+            'siswa.kode_jurusan'
+        )
+        ->orderBy('tanggal_izin', 'desc')
+        ->paginate(10);
+
+        return view(
+            'attendance.izinsakit',
+            compact(
+                'izinsakit',
+                'kode_jurusan',
+                'kelas'
+            )
+        );
+    }
+
     public function approveizinsakit(Request $request)
     {
         $status_approved = $request->status_approved;
