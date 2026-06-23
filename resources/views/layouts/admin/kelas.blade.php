@@ -10,8 +10,8 @@
 
         @foreach($kelas as $k)
         <div class="col-md-3">
-            <a href="/panel/rekap/6/2026/{{ $k->kelas }}"
-               class="card card-body text-center">
+            <a href="/panel/rekap/{{ $kode }}/{{ $k->kelas }}/{{ date('m') }}/{{ date('Y') }}"
+            class="card card-body text-center">
                 <h4>{{ $k->kelas }}</h4>
             </a>
         </div>

@@ -132,13 +132,16 @@ class DashboardController extends Controller
         return view('layouts.admin.kelas', compact('kelas', 'kode'));
     }
 
-    public function rekapBulanan($bulan, $tahun, $kelas)
-    {
+    public function rekapBulanan(Request $request, $kode, $kelas, $bulan, $tahun)
+{
         $siswa = DB::table('siswa')
             ->where('kelas', $kelas)
+            ->where('kode_jurusan', $kode)
             ->get();
 
         $data = [];
+
+        $today = date('Y-m-d');
 
         foreach ($siswa as $s) {
 
@@ -155,12 +158,11 @@ class DashboardController extends Controller
 
                 $tanggal = $tahun . '-' . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
 
-                // 🔥 CEK HARI (Sabtu/Minggu)
-                $hari = date('N', strtotime($tanggal)); 
-                // 6 = Sabtu, 7 = Minggu
+                $hari = date('N', strtotime($tanggal));
 
+                // weekend
                 if ($hari == 6 || $hari == 7) {
-                    $row[$i] = '-'; // LIBUR
+                    $row[$i] = '-';
                     continue;
                 }
 
@@ -175,11 +177,16 @@ class DashboardController extends Controller
                     ->where('status_approved', 1)
                     ->first();
 
-                if ($absen) {
+                if ($tanggal > $today) {
+                    $row[$i] = '';
+                }
+                elseif ($absen) {
                     $row[$i] = 'H';
-                } elseif ($izin) {
+                }
+                elseif ($izin) {
                     $row[$i] = $izin->status == 'i' ? 'I' : 'S';
-                } else {
+                }
+                else {
                     $row[$i] = 'A';
                 }
             }
@@ -187,6 +194,19 @@ class DashboardController extends Controller
             $data[] = $row;
         }
 
-        return view('layouts.admin.rekap_bulanan', compact('data', 'bulan', 'tahun', 'kelas'));
+        $listKelas = DB::table('siswa')
+            ->where('kode_jurusan', $kode)
+            ->select('kelas')
+            ->groupBy('kelas')
+            ->pluck('kelas');
+
+        return view('layouts.admin.rekap_bulanan', compact(
+            'data',
+            'bulan',
+            'tahun',
+            'kelas',
+            'kode',
+            'listKelas'
+        ));
     }
 }

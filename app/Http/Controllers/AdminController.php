@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 
 class AdminController extends Controller
 {
@@ -18,6 +19,19 @@ class AdminController extends Controller
 
     public function updateSetting(Request $request)
     {
+        $request->validate([
+        'name' => 'required',
+        'email' => 'required|email',
+
+        'password' => [
+            'nullable',
+            Password::min(8)
+                ->mixedCase()
+                ->numbers()
+                ->symbols()
+        ]
+    ]);
+    
         $id = Auth::user()->id;
 
         $data = [

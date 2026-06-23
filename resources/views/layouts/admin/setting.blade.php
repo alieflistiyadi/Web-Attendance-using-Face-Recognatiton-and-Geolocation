@@ -26,7 +26,20 @@
 
                 <div class="mb-3">
                     <label>Password (Jikalau ingin diubah)</label>
-                    <input type="password" name="password" class="form-control">
+
+                    <input type="password"
+                        name="password"
+                        class="form-control @error('password') is-invalid @enderror">
+
+                    @error('password')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
+
+                    <small class="text-muted">
+                        Password minimal 8 karakter, mengandung huruf besar, huruf kecil, angka, dan simbol.
+                    </small>
                 </div>
 
                 <button class="btn btn-primary">

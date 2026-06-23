@@ -105,7 +105,9 @@ route::middleware('auth:siswa')->group(function () {
         route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
         Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']) ->name('dashboardadmin');
         Route::get('/panel/jurusan/{kode}', [DashboardController::class, 'kelas']);
-        Route::get('/panel/rekap/{bulan}/{tahun}/{kelas}', [DashboardController::class, 'rekapBulanan']);
+        Route::get('/panel/rekap/{kode}/{kelas}/{bulan}/{tahun}',
+    [DashboardController::class, 'rekapBulanan']
+);
 
     //Siswa
     route::get('/siswa', [SiswaController::class, 'index']);
