@@ -15,7 +15,7 @@ class SiswaController extends Controller
         $query = Siswa::query();
         $query->select('siswa.*', 'nama_jurusan');
         $query->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan');
-        $query->orderBy('nama_lengkap');
+        $query->orderBy('nama_lengkap', 'asc');
         if (!empty($request->nama_lengkap)) {
             $query->where('nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
         }
@@ -124,5 +124,69 @@ class SiswaController extends Controller
         } else {
             return Redirect::back()->with(['warning' => 'Data Gagal Dihapus']);
         }
+    }
+
+    public function jurusan()
+    {
+        $jurusan = DB::table('jurusan')->get();
+
+        return view('siswa.jurusan', compact('jurusan'));
+    }
+
+    public function kelas($kode_jurusan)
+    {
+        $kelas = DB::table('siswa')
+            ->where('kode_jurusan', $kode_jurusan)
+            ->select(
+                'kelas',
+                DB::raw('COUNT(*) as jumlah')
+            )
+            ->groupBy('kelas')
+            ->get();
+
+        return view(
+            'siswa.kelas',
+            compact('kelas', 'kode_jurusan')
+        );
+    }
+
+    public function listSiswa(Request $request, $kode_jurusan, $kelas)
+    {
+        $query = Siswa::query();
+
+        $query->select('siswa.*', 'nama_jurusan');
+        $query->join(
+            'jurusan',
+            'siswa.kode_jurusan',
+            '=',
+            'jurusan.kode_jurusan'
+        );
+
+        $query->where('siswa.kode_jurusan', $kode_jurusan);
+        $query->where('siswa.kelas', $kelas);
+
+        if (!empty($request->nama_lengkap)) {
+            $query->where(
+                'nama_lengkap',
+                'like',
+                '%' . $request->nama_lengkap . '%'
+            );
+        }
+
+        $query->orderBy('nama_lengkap', 'asc');
+
+        $siswa = $query->paginate(10);
+
+        $jurusan = DB::table('jurusan')->get();
+
+        return view(
+            'siswa.list',
+            compact(
+                'siswa',
+                'jurusan',
+                'kode_jurusan',
+                'kelas'
+            )
+        );
     }
 }

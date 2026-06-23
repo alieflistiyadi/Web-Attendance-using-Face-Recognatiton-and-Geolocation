@@ -109,12 +109,15 @@ route::middleware('auth:siswa')->group(function () {
     [DashboardController::class, 'rekapBulanan']
 );
 
-    //Siswa
-    route::get('/siswa', [SiswaController::class, 'index']);
-    route::post('/siswa/store', [SiswaController::class, 'store']);
-    route::post('/siswa/edit', [SiswaController::class, 'edit']);
-    route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
-    route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
+    // Siswa
+    Route::get('/siswa', [SiswaController::class, 'jurusan']);
+    Route::get('/siswa/{kode_jurusan}', [SiswaController::class, 'kelas']);
+    Route::get('/siswa/{kode_jurusan}/{kelas}', [SiswaController::class, 'listSiswa']);
+
+    Route::post('/siswa/store', [SiswaController::class, 'store']);
+    Route::post('/siswa/edit', [SiswaController::class, 'edit']);
+    Route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
+    Route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
 
     //jurusan
     Route::get('/jurusan', [JurusanController::class, 'index']);
