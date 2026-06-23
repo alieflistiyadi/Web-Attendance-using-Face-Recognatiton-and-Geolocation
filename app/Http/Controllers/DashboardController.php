@@ -19,7 +19,7 @@ class DashboardController extends Controller
             ->where('tgl_presensi', $hariini)
             ->first();
 
-        // ✅ FIX 1: tambah where('nis', $nis)
+        // Histori bulan ini
         $historibulanini = DB::table('attendance')
             ->where('nis', $nis)
             ->whereRaw('MONTH(tgl_presensi) = "' . $bulanini . '"')
@@ -35,7 +35,7 @@ class DashboardController extends Controller
             ->whereRaw('YEAR(tgl_presensi) = "' . $tahunini . '"')
             ->first();
 
-        // Leaderboard: siapa yang masuk paling pagi hari ini (semua siswa, bukan filter nis)
+        // Leaderboard hari ini
         $leaderboard = DB::table('attendance')
             ->leftJoin('siswa', 'attendance.nis', '=', 'siswa.nis')
             ->select(
@@ -73,25 +73,24 @@ class DashboardController extends Controller
             ->where('status_approved', 1)
             ->first();
 
-            $jumlahHariSekolah = 0;
-
-        for ($i = 1; $i <= date('d'); $i++) {
-
-            $tanggal = date('Y-m-') . str_pad($i, 2, '0', STR_PAD_LEFT);
-
-            $hari = date('N', strtotime($tanggal));
-
-            // Senin(1) - Jumat(5)
-            if ($hari <= 5) {
-                $jumlahHariSekolah++;
-            }
-        }
-
         $jmlhadir = $rekapattendance->jmlhadir ?? 0;
         $jmlizin = $rekapizin->jmlizin ?? 0;
         $jmlsakit = $rekapizin->jmlsakit ?? 0;
 
-        $alpa = $jumlahHariSekolah - ($jmlhadir + $jmlizin + $jmlsakit);
+        // Hitung hari sekolah SAMPAI KEMARIN (exclude hari ini)
+        // Hari ini belum tentu alpa, siswa masih bisa absen
+        $hariSekolahSampaiKemarin = 0;
+        $hariIni = (int) date('d');
+
+        for ($i = 1; $i < $hariIni; $i++) {  // < bukan <=
+            $tanggal = date('Y-m-') . str_pad($i, 2, '0', STR_PAD_LEFT);
+            $hari = date('N', strtotime($tanggal));
+            if ($hari <= 5) {  // Senin(1) - Jumat(5)
+                $hariSekolahSampaiKemarin++;
+            }
+        }
+
+        $alpa = $hariSekolahSampaiKemarin - ($jmlhadir + $jmlizin + $jmlsakit);
 
         if ($alpa < 0) {
             $alpa = 0;
@@ -112,13 +111,53 @@ class DashboardController extends Controller
 
     public function dashboardadmin()
     {
+        $hariini = date('Y-m-d');
+        $bulanini = date('m') * 1;
+        $tahunini = date('Y');
+
+        // Total siswa hadir hari ini
+        $rekapattendance = DB::table('attendance')
+            ->selectRaw('COUNT(nis) as jmlhadir, SUM(IF(jam_in > "07:00", 1, 0)) as jmlterlambat')
+            ->whereDate('tgl_presensi', $hariini)
+            ->first();
+
+        // Total izin & sakit hari ini
+        $rekapizin = DB::table('pengajuan_izin')
+            ->selectRaw('SUM(IF(status="i",1,0)) as jmlizin, SUM(IF(status="s",1,0)) as jmlsakit')
+            ->where('tanggal_izin', $hariini)
+            ->where('status_approved', 1)
+            ->first();
+
+        $jmlizin = $rekapizin->jmlizin ?? 0;
+        $jmlsakit = $rekapizin->jmlsakit ?? 0;
+        $jmlhadir = $rekapattendance->jmlhadir ?? 0;
+
+        // Total siswa
+        $totalSiswa = DB::table('siswa')->count();
+
+        // Alpa = total siswa - (hadir + izin + sakit), hanya di hari sekolah
+        $hariInt = (int) date('N'); // 1=Senin ... 7=Minggu
+        $alpa = 0;
+        if ($hariInt <= 5) {
+            $alpa = $totalSiswa - ($jmlhadir + $jmlizin + $jmlsakit);
+            if ($alpa < 0)
+                $alpa = 0;
+        }
+
         $jurusan = [
             ['kode' => 'TJKT', 'nama' => 'Teknik Jaringan Komputer dan Telekomunikasi'],
             ['kode' => 'MP', 'nama' => 'Manajemen Perkantoran'],
             ['kode' => 'TM', 'nama' => 'Teknik Mesin'],
         ];
 
-        return view('layouts.admin.jurusan', compact('jurusan'));
+        return view('dashboard.dashboardadmin', compact(
+            'rekapattendance',
+            'rekapizin',
+            'jmlizin',
+            'jmlsakit',
+            'alpa',
+            'jurusan'
+        ));
     }
 
     public function kelas($kode)
@@ -145,9 +184,7 @@ class DashboardController extends Controller
 
         foreach ($siswa as $s) {
 
-            $row = [
-                'nama' => $s->nama_lengkap
-            ];
+            $row = ['nama' => $s->nama_lengkap];
 
             for ($i = 1; $i <= 31; $i++) {
 
@@ -156,11 +193,17 @@ class DashboardController extends Controller
                     continue;
                 }
 
-                $tanggal = $tahun . '-' . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '-' . str_pad($i, 2, '0', STR_PAD_LEFT);
+                $tanggal = $tahun . '-'
+                    . str_pad($bulan, 2, '0', STR_PAD_LEFT) . '-'
+                    . str_pad($i, 2, '0', STR_PAD_LEFT);
 
                 $hari = date('N', strtotime($tanggal));
 
+<<<<<<< HEAD
                 // weekend
+=======
+                // Sabtu(6) atau Minggu(7) = libur
+>>>>>>> 0e784a2 (change routes)
                 if ($hari == 6 || $hari == 7) {
                     $row[$i] = '-';
                     continue;

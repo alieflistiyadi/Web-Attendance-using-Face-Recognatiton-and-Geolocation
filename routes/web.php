@@ -82,8 +82,11 @@ route::middleware('auth:siswa')->group(function () {
 
     // Izin
 <<<<<<< HEAD
+<<<<<<< HEAD
     route::get('/attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])
 =======
+=======
+>>>>>>> 0e784a2 (change routes)
 
     route::get('attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])->name('izin');
     route::get('attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])->name('buatizin');
@@ -94,27 +97,29 @@ route::middleware('auth:siswa')->group(function () {
 >>>>>>> cfa4aed (change routes)
         ->name('izin');
 
-    route::get('/attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])
+    route::get('attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])
         ->name('buatizin');
 
-    route::post('/attendance/storeizin', [App\Http\Controllers\AttendanceController::class, 'storeizin'])
+    route::post('attendance/storeizin', [App\Http\Controllers\AttendanceController::class, 'storeizin'])
         ->name('storeizin');
 
-    Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])
-        ->name('attendance.cekpengajuanizin');
-
+    // Face Descriptor
     route::post('/siswa/save-descriptor', [App\Http\Controllers\AttendanceController::class, 'saveDescriptor'])
         ->name('siswa.saveDescriptor');
 
     route::get('/siswa/face-descriptors', [App\Http\Controllers\AttendanceController::class, 'getFaceDescriptors'])
         ->name('siswa.faceDescriptors');
 <<<<<<< HEAD
+<<<<<<< HEAD
     });
 =======
+=======
+>>>>>>> 0e784a2 (change routes)
 
 });
 >>>>>>> cfa4aed (change routes)
 
+<<<<<<< HEAD
     //admin
     Route::middleware(['auth:user'])->group(function () {
         route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
@@ -123,6 +128,11 @@ route::middleware('auth:siswa')->group(function () {
         Route::get('/panel/rekap/{kode}/{kelas}/{bulan}/{tahun}',
     [DashboardController::class, 'rekapBulanan']
 );
+=======
+Route::middleware(['auth:user'])->group(function () {
+    route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
+    Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin']);
+>>>>>>> 0e784a2 (change routes)
 
     //Siswa
     route::get('/siswa', [SiswaController::class, 'index']);
@@ -150,11 +160,18 @@ route::middleware('auth:siswa')->group(function () {
     Route::post('/attendance/approveizinsakit', [App\Http\Controllers\AttendanceController::class, 'approveizinsakit'])->name('attendance.approveizinsakit');
     Route::get('/attendance/{id}/batalkanizinsakit', [App\Http\Controllers\AttendanceController::class, 'batalkanizinsakit'])->name('attendance.batalkanizinsakit');
 <<<<<<< HEAD
+<<<<<<< HEAD
     Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
 =======
 
     Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])->name('attendance.cekpengajuanizin');
     Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
+=======
+
+    Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])->name('attendance.cekpengajuanizin');
+    Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
+
+>>>>>>> 0e784a2 (change routes)
 
 
 >>>>>>> cfa4aed (change routes)
@@ -162,7 +179,4 @@ route::middleware('auth:siswa')->group(function () {
     Route::get('/konfigurasi/lokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'lokasisekolah'])->name('konfigurasi.lokasisekolah');
     Route::post('/konfigurasi/updatelokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'updatelokasisekolah'])->name('konfigurasi.updatelokasisekolah');
 
-    //settingadmin
-    Route::get('/panel/setting', [App\Http\Controllers\AdminController::class, 'setting']);
-    Route::post('/panel/setting/update', [App\Http\Controllers\AdminController::class, 'updateSetting']);
 });
