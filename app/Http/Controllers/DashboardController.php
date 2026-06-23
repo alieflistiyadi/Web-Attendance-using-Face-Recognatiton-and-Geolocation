@@ -118,7 +118,11 @@ class DashboardController extends Controller
             ['kode' => 'TM', 'nama' => 'Teknik Mesin'],
         ];
 
-        return view('layouts.admin.jurusan', compact('jurusan'));
+        $notifIzin = DB::table('pengajuan_izin')
+        ->where('status_approved', 0)
+        ->count();
+        
+        return view('layouts.admin.jurusan', compact('jurusan', 'notifIzin'));
     }
 
     public function kelas($kode)
