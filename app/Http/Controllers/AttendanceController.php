@@ -376,11 +376,25 @@ class AttendanceController extends Controller
     }
 
     public function rekap()
-    {
-        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        $siswa = DB::table('siswa')->orderBy('nama_lengkap')->get();
-        return view('attendance.rekap', compact('namabulan'));
-    }
+{
+    $namabulan = [
+        "",
+        "Januari","Februari","Maret","April","Mei","Juni",
+        "Juli","Agustus","September","Oktober","November","Desember"
+    ];
+
+    // ambil jurusan dari database (kalau kamu punya tabel jurusan)
+    $jurusan = DB::table('jurusan')->get();
+
+    // ambil kelas unik dari siswa
+    $kelas = DB::table('siswa')
+        ->select('kelas')
+        ->groupBy('kelas')
+        ->orderBy('kelas')
+        ->get();
+
+    return view('attendance.rekap', compact('namabulan', 'jurusan', 'kelas'));
+}
 
     public function cetakrekap(Request $request)
     {
