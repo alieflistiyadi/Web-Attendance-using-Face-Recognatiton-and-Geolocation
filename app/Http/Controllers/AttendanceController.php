@@ -376,25 +376,35 @@ class AttendanceController extends Controller
     }
 
     public function rekap()
-{
-    $namabulan = [
-        "",
-        "Januari","Februari","Maret","April","Mei","Juni",
-        "Juli","Agustus","September","Oktober","November","Desember"
-    ];
+    {
+        $namabulan = [
+            "",
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember"
+        ];
 
-    // ambil jurusan dari database (kalau kamu punya tabel jurusan)
-    $jurusan = DB::table('jurusan')->get();
+        // ambil jurusan dari database (kalau kamu punya tabel jurusan)
+        $jurusan = DB::table('jurusan')->get();
 
-    // ambil kelas unik dari siswa
-    $kelas = DB::table('siswa')
-        ->select('kelas')
-        ->groupBy('kelas')
-        ->orderBy('kelas')
-        ->get();
+        // ambil kelas unik dari siswa
+        $kelas = DB::table('siswa')
+            ->select('kelas')
+            ->groupBy('kelas')
+            ->orderBy('kelas')
+            ->get();
 
-    return view('attendance.rekap', compact('namabulan', 'jurusan', 'kelas'));
-}
+        return view('attendance.rekap', compact('namabulan', 'jurusan', 'kelas'));
+    }
 
     public function cetakrekap(Request $request)
     {
@@ -504,11 +514,10 @@ class AttendanceController extends Controller
     }
 
     public function listIzinSakit(
-    Request $request,
-    $kode_jurusan,
-    $kelas
-    )
-    {
+        Request $request,
+        $kode_jurusan,
+        $kelas
+    ) {
         $query = DB::table('pengajuan_izin')
             ->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis')
             ->where('siswa.kode_jurusan', $kode_jurusan)
@@ -542,14 +551,14 @@ class AttendanceController extends Controller
         }
 
         $izinsakit = $query
-        ->select(
-            'pengajuan_izin.*',
-            'siswa.nama_lengkap',
-            'siswa.kelas',
-            'siswa.kode_jurusan'
-        )
-        ->orderBy('tanggal_izin', 'desc')
-        ->paginate(10);
+            ->select(
+                'pengajuan_izin.*',
+                'siswa.nama_lengkap',
+                'siswa.kelas',
+                'siswa.kode_jurusan'
+            )
+            ->orderBy('tanggal_izin', 'desc')
+            ->paginate(10);
 
         return view(
             'attendance.izinsakit',
@@ -559,6 +568,49 @@ class AttendanceController extends Controller
                 'kelas'
             )
         );
+    }
+
+    public function listIzinSakitKelas(Request $request, $kelas)
+    {
+        $query = DB::table('pengajuan_izin')
+            ->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis')
+            ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
+            ->select(
+                'pengajuan_izin.*',
+                'siswa.nama_lengkap',
+                'siswa.kelas',
+                'siswa.kode_jurusan',
+                'jurusan.nama_jurusan'
+            )
+            ->where('siswa.kelas', $kelas)
+            ->orderBy('pengajuan_izin.tanggal_izin', 'desc');
+
+        if (!empty($request->dari)) {
+            $dari = date('Y-m-d', strtotime($request->dari));
+            $query->where('pengajuan_izin.tanggal_izin', '>=', $dari);
+        }
+
+        if (!empty($request->sampai)) {
+            $sampai = date('Y-m-d', strtotime($request->sampai));
+            $query->where('pengajuan_izin.tanggal_izin', '<=', $sampai);
+        }
+
+        if (!empty($request->nis)) {
+            $query->where('pengajuan_izin.nis', 'like', '%' . $request->nis . '%');
+        }
+
+        if (!empty($request->nama_lengkap)) {
+            $query->where('siswa.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+        }
+
+        if ($request->status_approved === "0" || $request->status_approved === "1" || $request->status_approved === "2") {
+            $query->where('pengajuan_izin.status_approved', $request->status_approved);
+        }
+
+        $izinsakit = $query->paginate(10);
+        $izinsakit->appends($request->all());
+
+        return view('attendance.list_izinsakit_kelas', compact('izinsakit', 'kelas'));
     }
 
     public function approveizinsakit(Request $request)

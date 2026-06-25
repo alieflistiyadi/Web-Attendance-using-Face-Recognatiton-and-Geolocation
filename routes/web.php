@@ -72,6 +72,12 @@ route::middleware('auth:siswa')->group(function () {
     route::post('/attendance/{nis}/updateprofile', [App\Http\Controllers\AttendanceController::class, 'updateprofile'])
         ->name('updateprofile');
 
+    route::post('/siswa/save-descriptor', [App\Http\Controllers\AttendanceController::class, 'saveDescriptor'])
+        ->name('siswa.saveDescriptor');
+
+    route::get('/siswa/face-descriptors', [App\Http\Controllers\AttendanceController::class, 'getFaceDescriptors'])
+        ->name('siswa.faceDescriptors');
+
 
     // Histori
     route::get('/attendance/histori', [App\Http\Controllers\AttendanceController::class, 'histori'])
@@ -93,24 +99,16 @@ route::middleware('auth:siswa')->group(function () {
     Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])
         ->name('attendance.cekpengajuanizin');
 
-    route::post('/siswa/save-descriptor', [App\Http\Controllers\AttendanceController::class, 'saveDescriptor'])
-        ->name('siswa.saveDescriptor');
-
-    route::get('/siswa/face-descriptors', [App\Http\Controllers\AttendanceController::class, 'getFaceDescriptors'])
-        ->name('siswa.faceDescriptors');
 });
-
 //admin
 Route::middleware(['auth:user'])->group(function () {
     route::get('/proseslogoutadmin', [App\Http\Controllers\AuthController::class, 'proseslogoutadmin']);
     Route::get('/panel/dashboardadmin', [DashboardController::class, 'dashboardadmin'])->name('dashboardadmin');
     Route::get('/panel/jurusan/{kode}', [DashboardController::class, 'kelas']);
-    Route::get(
-        '/panel/rekap/{kode}/{kelas}/{bulan}/{tahun}',
-        [DashboardController::class, 'rekapBulanan']
-    );
+    Route::get('/panel/rekap/{kode}/{kelas}/{bulan}/{tahun}', [DashboardController::class, 'rekapBulanan']);
 
     //Siswa
+    route::get('/siswa/kelas/{kelas}', [SiswaController::class, 'indexKelas'])->name('siswa.kelas');
     route::get('/siswa', [SiswaController::class, 'index']);
     route::post('/siswa/store', [SiswaController::class, 'store']);
     route::post('/siswa/edit', [SiswaController::class, 'edit']);
@@ -132,16 +130,15 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/attendance/cetaklaporan', [App\Http\Controllers\AttendanceController::class, 'cetaklaporan'])->name('attendance.cetaklaporan');
     Route::get('/attendance/rekap', [App\Http\Controllers\AttendanceController::class, 'rekap'])->name('attendance.rekap');
     Route::post('/attendance/cetakrekap', [App\Http\Controllers\AttendanceController::class, 'cetakrekap'])->name('attendance.cetakrekap');
+
+    // Izin Sakit per kelas (BARU)
+    Route::get('/attendance/izinsakit/kelas/{kelas}', [App\Http\Controllers\AttendanceController::class, 'listIzinSakitKelas'])->name('attendance.izinsakit.kelas');
     Route::get('/attendance/izinsakit', [App\Http\Controllers\AttendanceController::class, 'jurusanIzin'])->name('attendance.izinsakit');
-    Route::get('/attendance/izinsakit/{kode_jurusan}', [App\Http\Controllers\AttendanceController::class, 'kelasIzin']);
-    Route::get('/attendance/izinsakit/{kode_jurusan}/{kelas}', [App\Http\Controllers\AttendanceController::class, 'listIzinSakit']);
     Route::post('/attendance/approveizinsakit', [App\Http\Controllers\AttendanceController::class, 'approveizinsakit'])->name('attendance.approveizinsakit');
     Route::get('/attendance/{id}/batalkanizinsakit', [App\Http\Controllers\AttendanceController::class, 'batalkanizinsakit'])->name('attendance.batalkanizinsakit');
 
     Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
-
     Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])->name('attendance.cekpengajuanizin');
-    Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
 
     //Konfigurasi
     Route::get('/konfigurasi/lokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'lokasisekolah'])->name('konfigurasi.lokasisekolah');

@@ -112,60 +112,100 @@ class DashboardController extends Controller
     public function dashboardadmin()
     {
         $hariini = date('Y-m-d');
-        $bulanini = date('m') * 1;
-        $tahunini = date('Y');
 
-        // Total siswa hadir hari ini
+        // Statistik Hari Ini
         $rekapattendance = DB::table('attendance')
-            ->selectRaw('COUNT(nis) as jmlhadir, SUM(IF(jam_in > "07:00", 1, 0)) as jmlterlambat')
+            ->selectRaw('
+            COUNT(nis) as jmlhadir,
+            SUM(IF(jam_in > "07:00:00",1,0)) as jmlterlambat
+        ')
             ->whereDate('tgl_presensi', $hariini)
             ->first();
 
-        // Total izin & sakit hari ini
         $rekapizin = DB::table('pengajuan_izin')
-            ->selectRaw('SUM(IF(status="i",1,0)) as jmlizin, SUM(IF(status="s",1,0)) as jmlsakit')
-            ->where('tanggal_izin', $hariini)
+            ->selectRaw('
+            SUM(IF(status="i",1,0)) as jmlizin,
+            SUM(IF(status="s",1,0)) as jmlsakit
+        ')
+            ->whereDate('tanggal_izin', $hariini)
             ->where('status_approved', 1)
             ->first();
 
+        $jmlhadir = $rekapattendance->jmlhadir ?? 0;
+        $jmlterlambat = $rekapattendance->jmlterlambat ?? 0;
         $jmlizin = $rekapizin->jmlizin ?? 0;
         $jmlsakit = $rekapizin->jmlsakit ?? 0;
-        $jmlhadir = $rekapattendance->jmlhadir ?? 0;
 
         // Total siswa
         $totalSiswa = DB::table('siswa')->count();
 
-        // Alpa = total siswa - (hadir + izin + sakit), hanya di hari sekolah
-        $hariInt = (int) date('N'); // 1=Senin ... 7=Minggu
-        $alpa = 0;
-        if ($hariInt <= 5) {
-            $alpa = $totalSiswa - ($jmlhadir + $jmlizin + $jmlsakit);
-            if ($alpa < 0)
-                $alpa = 0;
-        }
+        // Alpa
+        $alpa = max(
+            0,
+            $totalSiswa - ($jmlhadir + $jmlizin + $jmlsakit)
+        );
 
-        $jurusan = [
-            ['kode' => 'TJKT', 'nama' => 'Teknik Jaringan Komputer dan Telekomunikasi'],
-            ['kode' => 'MP', 'nama' => 'Manajemen Perkantoran'],
-            ['kode' => 'TM', 'nama' => 'Teknik Mesin'],
-        ];
+        // Persentase hadir
+        $persentaseKehadiran = $totalSiswa > 0
+            ? round(($jmlhadir / $totalSiswa) * 100, 1)
+            : 0;
 
-<<<<<<< HEAD
+        // Pending izin
+        $pendingIzin = DB::table('pengajuan_izin')
+            ->where('status_approved', 0)
+            ->count();
+
+        // Aktivitas terbaru
+        $aktivitasTerbaru = DB::table('attendance')
+            ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
+            ->select(
+                'attendance.*',
+                'siswa.nama_lengkap'
+            )
+            ->orderByDesc('attendance.tgl_presensi')
+            ->orderByDesc('attendance.jam_in')
+            ->limit(10)
+            ->get();
+
+        // Top terlambat
+        $topTerlambat = DB::table('attendance')
+            ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
+            ->whereMonth('tgl_presensi', date('m'))
+            ->whereYear('tgl_presensi', date('Y'))
+            ->where('jam_in', '>', '07:00:00')
+            ->selectRaw('
+            siswa.nama_lengkap,
+            COUNT(*) as total
+        ')
+            ->groupBy('siswa.nama_lengkap')
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get();
+
+        // Statistik Jurusan
+        $statistikJurusan = DB::table('siswa')
+            ->selectRaw('
+            kode_jurusan,
+            COUNT(*) as total
+        ')
+            ->groupBy('kode_jurusan')
+            ->get();
+
         return view('dashboard.dashboardadmin', compact(
             'rekapattendance',
             'rekapizin',
             'jmlizin',
             'jmlsakit',
+            'jmlhadir',
+            'jmlterlambat',
+            'totalSiswa',
             'alpa',
-            'jurusan'
+            'persentaseKehadiran',
+            'pendingIzin',
+            'aktivitasTerbaru',
+            'topTerlambat',
+            'statistikJurusan'
         ));
-=======
-        $notifIzin = DB::table('pengajuan_izin')
-        ->where('status_approved', 0)
-        ->count();
-        
-        return view('layouts.admin.jurusan', compact('jurusan', 'notifIzin'));
->>>>>>> 4c5f880d8adf4cf33604d70f5bb656b45d2a5e49
     }
 
     public function kelas($kode)

@@ -31,7 +31,7 @@
 
         <div class="login-form mt-1">
             <div class="section">
-                <img src="{{ asset('assets/img/login/smart-logo.png') }}" alt="image" class="form-image">
+                <img src="{{ asset('assets/img/login/smksmart.png') }}" alt="image" class="form-image">
             </div>
             <div class="section mt-1">
                 <h1>E-Attendance</h1>

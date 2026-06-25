@@ -1,6 +1,43 @@
 @extends('layouts.admin.tabler')
 @section('content')
+  <style>
+    .dashboard-card {
+      height: 130px;
+    }
 
+    .dashboard-card .card-body {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .dashboard-card .avatar {
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+    }
+
+    .dashboard-card .stat-number {
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .dashboard-card .stat-label {
+      font-size: 14px;
+      line-height: 1.2;
+      min-height: 34px;
+      display: flex;
+      align-items: center;
+    }
+
+    .dashboard-card:hover {
+      transform: translateY(-3px);
+      transition: .3s;
+      box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
+    }
+  </style>
   <div class="page-header d-print-none">
     <div class="container-xl">
       <div class="row g-2 align-items-center">
@@ -15,10 +52,40 @@
   <div class="page-body">
     <div class="container-xl">
       <div class="row row-cards">
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+          <div class="card card-sm h-100">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="bg-primary text-white avatar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="icon icon-tabler icon-tabler-users">
 
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M9 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                      <path d="M17 11v.01" />
+                      <path d="M13 15h-4a4 4 0 0 0 -4 4v1h12v-1a4 4 0 0 0 -4 -4z" />
+                      <path d="M21 12a4 4 0 0 0 -3 -3.87" />
+                      <path d="M21 20v-1a4 4 0 0 0 -3 -3.85" />
+                    </svg>
+                  </span>
+                </div>
+                <div class="col">
+                  <div class="stat-number">
+                    {{ $totalSiswa }}
+                  </div>
+                  <div class="stat-label">
+                    Total Siswa
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
         {{-- HADIR --}}
-        <div class="col-sm-6 col-xl">
-          <div class="card card-sm">
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+          <div class="card card-sm h-100">
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-auto">
@@ -36,8 +103,8 @@
                   </span>
                 </div>
                 <div class="col">
-                  <div class="font-weight-medium">{{ $rekapattendance->jmlhadir ?? 0 }}</div>
-                  <div class="text-muted">Siswa Hadir</div>
+                  <div class="stat-number">{{ $rekapattendance->jmlhadir ?? 0 }}</div>
+                  <div class="stat-label">Siswa Hadir</div>
                 </div>
               </div>
             </div>
@@ -45,8 +112,8 @@
         </div>
 
         {{-- IZIN --}}
-        <div class="col-sm-6 col-xl">
-          <div class="card card-sm">
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+          <div class="card card-sm h-100">
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-auto">
@@ -64,8 +131,8 @@
                   </span>
                 </div>
                 <div class="col">
-                  <div class="font-weight-medium">{{ $jmlizin ?? 0 }}</div>
-                  <div class="text-muted">Siswa Izin</div>
+                  <div class="stat-number">{{ $jmlizin ?? 0 }}</div>
+                  <div class="stat-label">Siswa Izin</div>
                 </div>
               </div>
             </div>
@@ -73,8 +140,8 @@
         </div>
 
         {{-- SAKIT --}}
-        <div class="col-sm-6 col-xl">
-          <div class="card card-sm">
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+          <div class="card card-sm h-100">
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-auto">
@@ -91,8 +158,8 @@
                   </span>
                 </div>
                 <div class="col">
-                  <div class="font-weight-medium">{{ $rekapizin->jmlsakit ?? 0 }}</div>
-                  <div class="text-muted">Siswa Sakit</div>
+                  <div class="stat-number">{{ $rekapizin->jmlsakit ?? 0 }}</div>
+                  <div class="stat-label">Siswa Sakit</div>
                 </div>
               </div>
             </div>
@@ -100,8 +167,8 @@
         </div>
 
         {{-- TERLAMBAT --}}
-        <div class="col-sm-6 col-xl">
-          <div class="card card-sm">
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+          <div class="card card-sm h-100">
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-auto">
@@ -118,8 +185,8 @@
                   </span>
                 </div>
                 <div class="col">
-                  <div class="font-weight-medium">{{ $rekapattendance->jmlterlambat ?? 0 }}</div>
-                  <div class="text-muted">Siswa Terlambat</div>
+                  <div class="stat-number">{{ $rekapattendance->jmlterlambat ?? 0 }}</div>
+                  <div class="stat-label">Siswa Telat</div>
                 </div>
               </div>
             </div>
@@ -127,8 +194,8 @@
         </div>
 
         {{-- ALPA --}}
-        <div class="col-sm-6 col-xl">
-          <div class="card card-sm">
+        <div class="col-sm-6 col-lg-4 col-xl-2">
+          <div class="card card-sm h-100">
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-auto">
@@ -145,8 +212,8 @@
                   </span>
                 </div>
                 <div class="col">
-                  <div class="font-weight-medium">{{ $alpa ?? 0 }}</div>
-                  <div class="text-muted">Siswa Alpa</div>
+                  <div class="stat-number">{{ $alpa ?? 0 }}</div>
+                  <div class="stat-label">Siswa Alpa</div>
                 </div>
               </div>
             </div>
@@ -154,6 +221,187 @@
         </div>
 
       </div>{{-- end .row --}}
+      <div class="row mt-4">
+
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                Progress Kehadiran Hari Ini
+              </h3>
+            </div>
+
+            <div class="card-body">
+
+              <h1 class="mb-3">
+                {{ $persentaseKehadiran }}%
+              </h1>
+
+              <div class="progress progress-lg">
+                <div class="progress-bar bg-success" style="width: {{ $persentaseKehadiran }}%">
+                </div>
+              </div>
+
+              <div class="mt-3 stat-label">
+                {{ $jmlhadir }} dari {{ $totalSiswa }}
+                siswa sudah melakukan absensi
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-body text-center">
+
+              <h1 class="text-warning">
+                {{ $pendingIzin }}
+              </h1>
+
+              <div class="h3">
+                Pending Approval
+              </div>
+
+              <small class="stat-label">
+                Menunggu verifikasi admin
+              </small>
+
+            </div>
+          </div>
+        </div>
+        <div class="row mt-4">
+
+          <div class="col-md-7">
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title">
+                  Aktivitas Absensi Terbaru
+                </h3>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-vcenter">
+
+                  <thead>
+                    <tr>
+                      <th>Nama</th>
+                      <th>Tanggal</th>
+                      <th>Jam Masuk</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+
+                    @foreach($aktivitasTerbaru as $row)
+                      <tr>
+                        <td>{{ $row->nama_lengkap }}</td>
+                        <td>{{ $row->tgl_presensi }}</td>
+                        <td>{{ $row->jam_in }}</td>
+                      </tr>
+                    @endforeach
+
+                  </tbody>
+
+                </table>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="col-md-5">
+            <div class="card">
+
+              <div class="card-header">
+                <h3 class="card-title">
+                  Top 5 Terlambat Bulan Ini
+                </h3>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table">
+
+                  <thead>
+                    <tr>
+                      <th>Nama</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+
+                    @foreach($topTerlambat as $item)
+
+                      <tr>
+                        <td>{{ $item->nama_lengkap }}</td>
+                        <td>
+                          <span class="badge bg-danger">
+                            {{ $item->total }}x
+                          </span>
+                        </td>
+                      </tr>
+
+                    @endforeach
+
+                  </tbody>
+
+                </table>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div class="row mt-4">
+
+        <div class="col-12">
+
+          <div class="card">
+
+            <div class="card-header">
+              <h3 class="card-title">
+                Statistik Jurusan
+              </h3>
+            </div>
+
+            <div class="table-responsive">
+
+              <table class="table table-vcenter">
+
+                <thead>
+                  <tr>
+                    <th>Jurusan</th>
+                    <th>Total Siswa</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+
+                  @foreach($statistikJurusan as $jurusan)
+
+                    <tr>
+                      <td>{{ $jurusan->kode_jurusan }}</td>
+                      <td>
+                        <span class="badge bg-blue">
+                          {{ $jurusan->total }}
+                        </span>
+                      </td>
+                    </tr>
+
+                  @endforeach
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
     </div>{{-- end .container-xl --}}
   </div>{{-- end .page-body --}}
 

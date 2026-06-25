@@ -16,6 +16,7 @@ class SiswaController extends Controller
         $query->select('siswa.*', 'nama_jurusan');
         $query->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan');
         $query->orderBy('nama_lengkap', 'asc');
+
         if (!empty($request->nama_lengkap)) {
             $query->where('nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
         }
@@ -23,56 +24,88 @@ class SiswaController extends Controller
         if (!empty($request->kode_jurusan)) {
             $query->where('siswa.kode_jurusan', $request->kode_jurusan);
         }
-        $siswa = $query->paginate(10);
 
+        $siswa = $query->paginate(10);
         $jurusan = DB::table('jurusan')->get();
+
         return view('siswa.index', compact('siswa', 'jurusan'));
     }
 
-    public function store(Request $request){
-    $request->validate([
-        'nis' => 'required|unique:siswa,nis',
-        'nama_lengkap' => 'required',
-        'kelas' => 'required',
-        'no_hp' => 'required',
-        'kode_jurusan' => 'required'
-    ], [
-        'nis.unique' => 'NIS sudah terdaftar, tidak bisa ditambahkan!'
-    ]);
+    // Method baru untuk per kelas
+    public function indexKelas(Request $request, $kelas)
+    {
+        $query = Siswa::query();
+        $query->select('siswa.*', 'nama_jurusan');
+        $query->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan');
+        $query->where('siswa.kelas', $kelas);
+        $query->orderBy('nama_lengkap', 'asc');
 
-    $password = \Illuminate\Support\Facades\Hash::make('12345678');
+        if (!empty($request->nama_lengkap)) {
+            $query->where('nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+        }
 
-    $foto = null;
+        if (!empty($request->kode_jurusan)) {
+            $query->where('siswa.kode_jurusan', $request->kode_jurusan);
+        }
 
-    if ($request->hasFile('foto')) {
-        $foto = $request->nis . '.' . $request->file('foto')->getClientOriginalExtension();
-        $request->file('foto')->storeAs('public/uploads/siswa', $foto);
+        $siswa = $query->paginate(10);
+        $jurusan = DB::table('jurusan')->get();
+
+        return view('siswa.index_kelas', compact('siswa', 'jurusan', 'kelas'));
     }
 
-    try {
-        Siswa::create([
-            'nis' => $request->nis,
-            'nama_lengkap' => $request->nama_lengkap,
-            'kelas' => $request->kelas,
-            'no_hp' => $request->no_hp,
-            'kode_jurusan' => $request->kode_jurusan,
-            'foto' => $foto,
-            'password' => $password,
-            'is_default_password' => 1
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nis' => 'required|unique:siswa,nis',
+            'nama_lengkap' => 'required',
+            'kelas' => 'required',
+            'no_hp' => 'required',
+            'kode_jurusan' => 'required'
+        ], [
+            'nis.unique' => 'NIS sudah terdaftar, tidak bisa ditambahkan!'
         ]);
 
-        return redirect('/siswa')->with('success', 'Data berhasil ditambahkan');
+        $password = \Illuminate\Support\Facades\Hash::make('12345678');
+        $foto = null;
 
-    } catch (\Exception $e) {
-        dd($e->getMessage());
+        if ($request->hasFile('foto')) {
+            $foto = $request->nis . '.' . $request->file('foto')->getClientOriginalExtension();
+            $request->file('foto')->storeAs('public/uploads/siswa', $foto);
+        }
+
+        try {
+            Siswa::create([
+                'nis' => $request->nis,
+                'nama_lengkap' => $request->nama_lengkap,
+                'kelas' => $request->kelas,
+                'no_hp' => $request->no_hp,
+                'kode_jurusan' => $request->kode_jurusan,
+                'foto' => $foto,
+                'password' => $password,
+                'is_default_password' => 1
+            ]);
+
+            // Redirect kembali ke halaman kelas jika dari halaman per kelas
+            if ($request->redirect_kelas) {
+                return redirect('/siswa/kelas/' . $request->redirect_kelas)
+                    ->with('success', 'Data berhasil ditambahkan');
+            }
+
+            return redirect('/siswa')->with('success', 'Data berhasil ditambahkan');
+
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
-    }
+
     public function edit(Request $request)
     {
         $nis = $request->nis;
         $jurusan = DB::table('jurusan')->get();
         $siswa = DB::table('siswa')->where('nis', $nis)->first();
-        return view('siswa.edit', compact('jurusan', 'siswa'));
+        $redirect_kelas = $request->redirect_kelas;
+        return view('siswa.edit', compact('jurusan', 'siswa', 'redirect_kelas'));
     }
 
     public function update(Request $request, $nis)
@@ -97,7 +130,9 @@ class SiswaController extends Controller
                 'kode_jurusan' => $kode_jurusan,
                 'foto' => $foto,
             ];
+
             $update = DB::table('siswa')->where('nis', $nis)->update($data);
+
             if ($update) {
                 if ($request->hasFile('foto')) {
                     $folderPath = 'public/uploads/siswa';
@@ -107,19 +142,30 @@ class SiswaController extends Controller
                     }
                     $request->file('foto')->storeAs($folderPath, $foto);
                 }
-            return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
-            }
-            
-        } catch (\Exception $e){
 
+                if ($request->redirect_kelas) {
+                    return redirect('/siswa/kelas/' . $request->redirect_kelas)
+                        ->with('success', 'Data Berhasil Diupdate');
+                }
+
+                return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
+            }
+
+        } catch (\Exception $e) {
             dd($e->getMessage());
-            //return Redirect::back()->with(['warning' => 'Data Gagal Diupdate']);
         }
     }
-    public function delete($nis)
+
+    public function delete(Request $request, $nis)
     {
+        $redirect_kelas = $request->redirect_kelas;
         $delete = DB::table('siswa')->where('nis', $nis)->delete();
+
         if ($delete) {
+            if ($redirect_kelas) {
+                return redirect('/siswa/kelas/' . $redirect_kelas)
+                    ->with('success', 'Data Berhasil Dihapus');
+            }
             return Redirect::back()->with(['success' => 'Data Berhasil Dihapus']);
         } else {
             return Redirect::back()->with(['warning' => 'Data Gagal Dihapus']);
@@ -129,7 +175,6 @@ class SiswaController extends Controller
     public function jurusan()
     {
         $jurusan = DB::table('jurusan')->get();
-
         return view('siswa.jurusan', compact('jurusan'));
     }
 
@@ -137,56 +182,29 @@ class SiswaController extends Controller
     {
         $kelas = DB::table('siswa')
             ->where('kode_jurusan', $kode_jurusan)
-            ->select(
-                'kelas',
-                DB::raw('COUNT(*) as jumlah')
-            )
+            ->select('kelas', DB::raw('COUNT(*) as jumlah'))
             ->groupBy('kelas')
             ->get();
 
-        return view(
-            'siswa.kelas',
-            compact('kelas', 'kode_jurusan')
-        );
+        return view('siswa.kelas', compact('kelas', 'kode_jurusan'));
     }
 
     public function listSiswa(Request $request, $kode_jurusan, $kelas)
     {
         $query = Siswa::query();
-
         $query->select('siswa.*', 'nama_jurusan');
-        $query->join(
-            'jurusan',
-            'siswa.kode_jurusan',
-            '=',
-            'jurusan.kode_jurusan'
-        );
-
+        $query->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan');
         $query->where('siswa.kode_jurusan', $kode_jurusan);
         $query->where('siswa.kelas', $kelas);
 
         if (!empty($request->nama_lengkap)) {
-            $query->where(
-                'nama_lengkap',
-                'like',
-                '%' . $request->nama_lengkap . '%'
-            );
+            $query->where('nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
         }
 
         $query->orderBy('nama_lengkap', 'asc');
-
         $siswa = $query->paginate(10);
-
         $jurusan = DB::table('jurusan')->get();
 
-        return view(
-            'siswa.list',
-            compact(
-                'siswa',
-                'jurusan',
-                'kode_jurusan',
-                'kelas'
-            )
-        );
+        return view('siswa.list', compact('siswa', 'jurusan', 'kode_jurusan', 'kelas'));
     }
 }
