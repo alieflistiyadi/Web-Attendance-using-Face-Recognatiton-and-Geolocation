@@ -110,15 +110,12 @@ Route::middleware(['auth:user'])->group(function () {
         [DashboardController::class, 'rekapBulanan']
     );
 
-    // Siswa
-    Route::get('/siswa', [SiswaController::class, 'jurusan']);
-    Route::get('/siswa/{kode_jurusan}', [SiswaController::class, 'kelas']);
-    Route::get('/siswa/{kode_jurusan}/{kelas}', [SiswaController::class, 'listSiswa']);
-
-    Route::post('/siswa/store', [SiswaController::class, 'store']);
-    Route::post('/siswa/edit', [SiswaController::class, 'edit']);
-    Route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
-    Route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
+    //Siswa
+    route::get('/siswa', [SiswaController::class, 'index']);
+    route::post('/siswa/store', [SiswaController::class, 'store']);
+    route::post('/siswa/edit', [SiswaController::class, 'edit']);
+    route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
+    route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
 
     //jurusan
     Route::get('/jurusan', [JurusanController::class, 'index']);
@@ -140,6 +137,10 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/attendance/izinsakit/{kode_jurusan}/{kelas}', [App\Http\Controllers\AttendanceController::class, 'listIzinSakit']);
     Route::post('/attendance/approveizinsakit', [App\Http\Controllers\AttendanceController::class, 'approveizinsakit'])->name('attendance.approveizinsakit');
     Route::get('/attendance/{id}/batalkanizinsakit', [App\Http\Controllers\AttendanceController::class, 'batalkanizinsakit'])->name('attendance.batalkanizinsakit');
+
+    Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
+
+    Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])->name('attendance.cekpengajuanizin');
     Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
 
     //Konfigurasi
