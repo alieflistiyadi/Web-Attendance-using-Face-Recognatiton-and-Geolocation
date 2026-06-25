@@ -116,17 +116,17 @@ class DashboardController extends Controller
         // Statistik Hari Ini
         $rekapattendance = DB::table('attendance')
             ->selectRaw('
-            COUNT(nis) as jmlhadir,
-            SUM(IF(jam_in > "07:00:00",1,0)) as jmlterlambat
-        ')
+                COUNT(nis) as jmlhadir,
+                SUM(IF(jam_in > "07:00:00",1,0)) as jmlterlambat
+            ')
             ->whereDate('tgl_presensi', $hariini)
             ->first();
 
         $rekapizin = DB::table('pengajuan_izin')
             ->selectRaw('
-            SUM(IF(status="i",1,0)) as jmlizin,
-            SUM(IF(status="s",1,0)) as jmlsakit
-        ')
+                SUM(IF(status="i",1,0)) as jmlizin,
+                SUM(IF(status="s",1,0)) as jmlsakit
+            ')
             ->whereDate('tanggal_izin', $hariini)
             ->where('status_approved', 1)
             ->first();
@@ -174,9 +174,9 @@ class DashboardController extends Controller
             ->whereYear('tgl_presensi', date('Y'))
             ->where('jam_in', '>', '07:00:00')
             ->selectRaw('
-            siswa.nama_lengkap,
-            COUNT(*) as total
-        ')
+                siswa.nama_lengkap,
+                COUNT(*) as total
+            ')
             ->groupBy('siswa.nama_lengkap')
             ->orderByDesc('total')
             ->limit(5)
@@ -185,9 +185,9 @@ class DashboardController extends Controller
         // Statistik Jurusan
         $statistikJurusan = DB::table('siswa')
             ->selectRaw('
-            kode_jurusan,
-            COUNT(*) as total
-        ')
+                kode_jurusan,
+                COUNT(*) as total
+            ')
             ->groupBy('kode_jurusan')
             ->get();
 
