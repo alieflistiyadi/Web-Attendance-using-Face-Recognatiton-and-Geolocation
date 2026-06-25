@@ -81,7 +81,17 @@ route::middleware('auth:siswa')->group(function () {
         ->name('gethistori');
 
     // Izin
+<<<<<<< HEAD
     route::get('/attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])
+=======
+
+    route::get('attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])->name('izin');
+    route::get('attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])->name('buatizin');
+    route::post('attendance/storeizin', [App\Http\Controllers\AttendanceController::class, 'storeizin'])->name('storeizin');
+    Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])->name('attendance.cekpengajuanizin');
+
+    route::get('attendance/izin', [App\Http\Controllers\AttendanceController::class, 'izin'])
+>>>>>>> cfa4aed (change routes)
         ->name('izin');
 
     route::get('/attendance/buatizin', [App\Http\Controllers\AttendanceController::class, 'buatizin'])
@@ -98,7 +108,12 @@ route::middleware('auth:siswa')->group(function () {
 
     route::get('/siswa/face-descriptors', [App\Http\Controllers\AttendanceController::class, 'getFaceDescriptors'])
         ->name('siswa.faceDescriptors');
+<<<<<<< HEAD
     });
+=======
+
+});
+>>>>>>> cfa4aed (change routes)
 
     //admin
     Route::middleware(['auth:user'])->group(function () {
@@ -139,8 +154,19 @@ route::middleware('auth:siswa')->group(function () {
     Route::get('/attendance/izinsakit/{kode_jurusan}/{kelas}',[App\Http\Controllers\AttendanceController::class, 'listIzinSakit']);
     Route::post('/attendance/approveizinsakit', [App\Http\Controllers\AttendanceController::class, 'approveizinsakit'])->name('attendance.approveizinsakit');
     Route::get('/attendance/{id}/batalkanizinsakit', [App\Http\Controllers\AttendanceController::class, 'batalkanizinsakit'])->name('attendance.batalkanizinsakit');
+<<<<<<< HEAD
     Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
+<<<<<<< HEAD
     
+=======
+=======
+
+    Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])->name('attendance.cekpengajuanizin');
+    Route::post('/attendance/updatePassword', [App\Http\Controllers\AttendanceController::class, 'updatePassword'])->name('attendance.updatePassword');
+
+
+>>>>>>> cfa4aed (change routes)
+>>>>>>> 726ede8 (change routes)
     //Konfigurasi
     Route::get('/konfigurasi/lokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'lokasisekolah'])->name('konfigurasi.lokasisekolah');
     Route::post('/konfigurasi/updatelokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'updatelokasisekolah'])->name('konfigurasi.updatelokasisekolah');
