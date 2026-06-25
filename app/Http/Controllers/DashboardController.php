@@ -172,7 +172,7 @@ class DashboardController extends Controller
     }
 
     public function rekapBulanan(Request $request, $kode, $kelas, $bulan, $tahun)
-{
+    {
         $siswa = DB::table('siswa')
             ->where('kelas', $kelas)
             ->where('kode_jurusan', $kode)
@@ -199,11 +199,7 @@ class DashboardController extends Controller
 
                 $hari = date('N', strtotime($tanggal));
 
-<<<<<<< HEAD
                 // weekend
-=======
-                // Sabtu(6) atau Minggu(7) = libur
->>>>>>> 0e784a2 (change routes)
                 if ($hari == 6 || $hari == 7) {
                     $row[$i] = '-';
                     continue;
@@ -222,14 +218,11 @@ class DashboardController extends Controller
 
                 if ($tanggal > $today) {
                     $row[$i] = '';
-                }
-                elseif ($absen) {
+                } elseif ($absen) {
                     $row[$i] = 'H';
-                }
-                elseif ($izin) {
+                } elseif ($izin) {
                     $row[$i] = $izin->status == 'i' ? 'I' : 'S';
-                }
-                else {
+                } else {
                     $row[$i] = 'A';
                 }
             }
