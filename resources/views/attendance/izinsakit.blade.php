@@ -113,6 +113,11 @@
                     </form>
                 </div>
             </div>
+            <div class="alert alert-primary">
+                Jurusan : <b>{{ $kode_jurusan }}</b>
+                <br>
+                Kelas : <b>{{ $kelas }}</b>
+            </div>
             <div class="row">
                 <div class="col-12">
                     <table class="table table-bordered">
