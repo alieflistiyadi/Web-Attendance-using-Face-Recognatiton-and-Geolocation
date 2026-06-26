@@ -17,8 +17,12 @@
     <link rel="icon" type="image/png" href={{ asset('assets/img/favicon.png') }} sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href={{ asset('assets/img/icon/192x192.png') }}>
     <link rel="stylesheet" href={{ asset('assets/css/style.css') }}>
-
+    <link rel="stylesheet" href="{{ asset('assets/css/chatbot.css') }}">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style></style>
     <link rel="manifest" href="__manifest.json">
+    @include('layouts.admin.chatbot')
 </head>
 <style>
     #user-detail {
@@ -60,5 +64,7 @@
 
 
 </body>
+<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
+<script src="{{ asset('assets/js/chatbot.js') }}"></script>
 
 </html>

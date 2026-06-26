@@ -323,19 +323,22 @@ class AttendanceController extends Controller
                 ->with(['error' => 'Data Gagal Disimpan']);
         }
     }
-    public function monitoring()
+    public function monitoringKelas($kelas)
     {
-        return view('attendance.monitoring');
+        return view('attendance.monitoring_kelas', compact('kelas'));
     }
 
-    public function getattendance(Request $request)
+    public function getattendancekelas(Request $request)
     {
         $tanggal = date('Y-m-d', strtotime($request->tanggal));
+        $kelas = $request->kelas;
+
         $presensi = DB::table('attendance')
-            ->select('attendance.*', 'nama_lengkap', 'nama_jurusan')
+            ->select('attendance.*', 'nama_lengkap', 'nama_jurusan', 'siswa.kelas')
             ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
             ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
             ->where('attendance.tgl_presensi', $tanggal)
+            ->where('siswa.kelas', $kelas)
             ->get();
 
         return view('attendance.getattendance', compact('presensi'));

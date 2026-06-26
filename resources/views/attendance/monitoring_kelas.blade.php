@@ -1,7 +1,8 @@
 @extends('layouts.admin.tabler')
 @section('content')
+
     <?php
-    function selisih($jam_masuk, $jam_keluar)
+    function selisihKelas($jam_masuk, $jam_keluar)
     {
         list($h, $m, $s) = explode(":", $jam_masuk);
         $dtAwal = mktime($h, $m, $s, "1", "1", "1");
@@ -12,16 +13,16 @@
         $jam = explode(".", $totalmenit / 60);
         $sisamenit = ($totalmenit / 60) - $jam[0];
         $sisamenit2 = $sisamenit * 60;
-        $jml_jam = $jam[0];
-        return $jml_jam . ":" . round($sisamenit2);
+        return $jam[0] . ":" . round($sisamenit2);
     }
-                        ?>
+        ?>
+
     <div class="page-header d-print-none">
         <div class="container-xl">
             <div class="row g-2 align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        Monitoring Attendance
+                        Monitoring Attendance - Kelas {{ $kelas }}
                     </h2>
                 </div>
             </div>
@@ -38,7 +39,6 @@
                                 <div class="col-12">
                                     <div class="input-icon mb-3">
                                         <span class="input-icon-addon">
-                                            <!-- Download SVG icon from http://tabler.io/icons/icon/user -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                                 stroke-linecap="round" stroke-linejoin="round"
@@ -57,6 +57,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="row">
                                 <div class="col-12">
                                     <table class="table table-striped table-hover">
@@ -67,65 +68,84 @@
                                                 <th>Nama Siswa</th>
                                                 <th>Jurusan</th>
                                                 <th>Jam Masuk</th>
-                                                <th>Foto</th>
+                                                <th>Foto Masuk</th>
                                                 <th>Jam Pulang</th>
-                                                <th>Foto</th>
+                                                <th>Foto Pulang</th>
                                                 <th>Keterangan</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
-                                        <tbody id="loadattendance"></tbody>
+                                        <tbody id="loadattendance">
+                                            <tr>
+                                                <td colspan="10" class="text-center text-muted">
+                                                    Pilih tanggal untuk melihat data
+                                                </td>
+                                            </tr>
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    {{-- Modal edit --}}
-    <div class="modal modal-blur fade" id="modal-tampilkanpeta" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Lokasi Presensi User</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="loadpeta"></div>
 
+        {{-- Modal Peta --}}
+        <div class="modal modal-blur fade" id="modal-tampilkanpeta" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Lokasi Presensi Siswa</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="loadpeta"></div>
+                </div>
             </div>
         </div>
     </div>
-    </div>
+
 @endsection
+
 @push('myscript')
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            const kelas = "{{ $kelas }}";
+
+            // Load data hari ini otomatis saat halaman dibuka
+            loadData("{{ date('d-m-Y') }}");
+
             if (typeof flatpickr !== "undefined") {
                 flatpickr("#tanggal", {
                     dateFormat: "d-m-Y",
                     locale: "id",
+                    defaultDate: "today",
                     onChange: function (selectedDates, dateStr) {
-                        $.ajax({
-                            type: 'POST',
-                            url: '/getattendance',
-                            data: {
-                                _token: "{{ csrf_token() }}",
-                                tanggal: dateStr
-                            },
-                            beforeSend: function () {
-                                $("#loadattendance").html("<tr><td colspan='8'>Loading...</td></tr>");
-                            },
-                            cache: false,
-                            success: function (respond) {
-                                $("#loadattendance").html(respond);
-                            }
-                        });
+                        loadData(dateStr);
                     }
                 });
-            } else {
-                console.error("Flatpickr belum ke-load");
+            }
+
+            function loadData(dateStr) {
+                $.ajax({
+                    type: 'POST',
+                    url: '/getattendancekelas',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        tanggal: dateStr,
+                        kelas: kelas
+                    },
+                    beforeSend: function () {
+                        $("#loadattendance").html(
+                            "<tr><td colspan='10' class='text-center'>Loading...</td></tr>"
+                        );
+                    },
+                    cache: false,
+                    success: function (respond) {
+                        $("#loadattendance").html(respond);
+                    }
+                });
             }
         });
     </script>
