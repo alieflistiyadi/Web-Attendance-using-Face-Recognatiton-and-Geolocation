@@ -221,6 +221,51 @@
         </div>
 
       </div>{{-- end .row --}}
+
+      {{-- PILIH JURUSAN --}}
+      <div class="row mt-4">
+          <div class="col-12">
+              <div class="card">
+                  <div class="card-header">
+                      <h3 class="card-title">
+                          Pilih Jurusan
+                      </h3>
+                  </div>
+
+                  <div class="card-body">
+                      <div class="row">
+
+                          @foreach($statistikJurusan as $jurusan)
+
+                              <div class="col-md-4 mb-3">
+                                  <a href="{{ url('/panel/jurusan/'.$jurusan->kode_jurusan) }}"
+                                      class="text-decoration-none">
+
+                                      <div class="card card-sm h-100">
+                                          <div class="card-body text-center">
+
+                                              <h2 class="mb-1">
+                                                  {{ $jurusan->kode_jurusan }}
+                                              </h2>
+
+                                              <div class="text-secondary">
+                                                  {{ $jurusan->total }} Siswa
+                                              </div>
+
+                                          </div>
+                                      </div>
+
+                                  </a>
+                              </div>
+
+                          @endforeach
+
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
       <div class="row mt-4">
 
         <div class="col-md-8">
@@ -353,55 +398,7 @@
 
         </div>
       </div>
-      <div class="row mt-4">
-
-        <div class="col-12">
-
-          <div class="card">
-
-            <div class="card-header">
-              <h3 class="card-title">
-                Statistik Jurusan
-              </h3>
-            </div>
-
-            <div class="table-responsive">
-
-              <table class="table table-vcenter">
-
-                <thead>
-                  <tr>
-                    <th>Jurusan</th>
-                    <th>Total Siswa</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-
-                  @foreach($statistikJurusan as $jurusan)
-
-                    <tr>
-                      <td>{{ $jurusan->kode_jurusan }}</td>
-                      <td>
-                        <span class="badge bg-blue">
-                          {{ $jurusan->total }}
-                        </span>
-                      </td>
-                    </tr>
-
-                  @endforeach
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
+      
     </div>{{-- end .container-xl --}}
   </div>{{-- end .page-body --}}
 
