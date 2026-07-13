@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\JurusanController;
+use App\Http\Controllers\GuruController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -98,6 +99,13 @@ Route::middleware(['auth:user'])->group(function () {
     route::post('/siswa/edit', [SiswaController::class, 'edit']);
     route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
     route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
+
+    // Guru
+    Route::get('/guru', [GuruController::class,'index']);
+    Route::post('/guru/store', [GuruController::class,'store']);
+    Route::post('/guru/edit', [GuruController::class,'edit']);
+    Route::post('/guru/{id}/update', [GuruController::class,'update']);
+    Route::post('/guru/{id}/delete', [GuruController::class,'delete']);
 
     // Jurusan
     Route::get('/jurusan', [JurusanController::class, 'index']);
