@@ -325,21 +325,37 @@ class AttendanceController extends Controller
     }
     public function monitoringKelas($kelas)
     {
-        return view('attendance.monitoring_kelas', compact('kelas'));
+        $jurusan = DB::table('jurusan')->get();
+
+        return view('attendance.monitoring_kelas', compact(
+            'kelas',
+            'jurusan'
+        ));
     }
 
     public function getattendancekelas(Request $request)
     {
         $tanggal = date('Y-m-d', strtotime($request->tanggal));
         $kelas = $request->kelas;
+        $kode_jurusan = $request->kode_jurusan;
 
         $presensi = DB::table('attendance')
-            ->select('attendance.*', 'nama_lengkap', 'nama_jurusan', 'siswa.kelas')
+            ->select(
+                'attendance.*',
+                'nama_lengkap',
+                'nama_jurusan',
+                'siswa.kelas'
+            )
             ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
             ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
             ->where('attendance.tgl_presensi', $tanggal)
-            ->where('siswa.kelas', $kelas)
-            ->get();
+            ->where('siswa.kelas', $kelas);
+
+        if (!empty($kode_jurusan)) {
+            $presensi->where('siswa.kode_jurusan', $kode_jurusan);
+        }
+
+        $presensi = $presensi->get();
 
         return view('attendance.getattendance', compact('presensi'));
     }
@@ -469,7 +485,8 @@ class AttendanceController extends Controller
             'nama_lengkap',
             'kelas',
             'kode_jurusan',
-            'surat_sakit'
+            'surat_sakit',
+            'jurusan'
         );
         $query->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis');
         if (!empty($request->dari) && !empty($request->sampai)) {
@@ -575,6 +592,9 @@ class AttendanceController extends Controller
 
     public function listIzinSakitKelas(Request $request, $kelas)
     {
+        // Ambil data jurusan untuk dropdown filter
+        $jurusan = DB::table('jurusan')->get();
+
         $query = DB::table('pengajuan_izin')
             ->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis')
             ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
@@ -585,37 +605,53 @@ class AttendanceController extends Controller
                 'siswa.kode_jurusan',
                 'jurusan.nama_jurusan'
             )
-            ->where('siswa.kelas', $kelas)
-            ->orderBy('pengajuan_izin.tanggal_izin', 'desc');
+            ->where('siswa.kelas', $kelas);
 
-        if (!empty($request->dari)) {
+        // Filter tanggal
+        if ($request->filled('dari')) {
             $dari = date('Y-m-d', strtotime($request->dari));
-            $query->where('pengajuan_izin.tanggal_izin', '>=', $dari);
+            $query->whereDate('pengajuan_izin.tanggal_izin', '>=', $dari);
         }
 
-        if (!empty($request->sampai)) {
+        if ($request->filled('sampai')) {
             $sampai = date('Y-m-d', strtotime($request->sampai));
-            $query->where('pengajuan_izin.tanggal_izin', '<=', $sampai);
+            $query->whereDate('pengajuan_izin.tanggal_izin', '<=', $sampai);
         }
 
-        if (!empty($request->nis)) {
+        // Filter NIS
+        if ($request->filled('nis')) {
             $query->where('pengajuan_izin.nis', 'like', '%' . $request->nis . '%');
         }
 
-        if (!empty($request->nama_lengkap)) {
+        // Filter Nama
+        if ($request->filled('nama_lengkap')) {
             $query->where('siswa.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
         }
 
-        if ($request->status_approved === "0" || $request->status_approved === "1" || $request->status_approved === "2") {
+        // Filter Jurusan
+        if ($request->filled('kode_jurusan')) {
+            $query->where('siswa.kode_jurusan', $request->kode_jurusan);
+        }
+
+        // Filter Status Approval
+        if ($request->filled('status_approved')) {
             $query->where('pengajuan_izin.status_approved', $request->status_approved);
         }
 
-        $izinsakit = $query->paginate(10);
-        $izinsakit->appends($request->all());
+        $izinsakit = $query
+            ->orderBy('pengajuan_izin.tanggal_izin', 'desc')
+            ->paginate(10)
+            ->appends($request->all());
 
-        return view('attendance.list_izinsakit_kelas', compact('izinsakit', 'kelas'));
+        return view(
+            'attendance.list_izinsakit_kelas',
+            compact(
+                'izinsakit',
+                'kelas',
+                'jurusan'
+            )
+        );
     }
-
     public function approveizinsakit(Request $request)
     {
         $status_approved = $request->status_approved;

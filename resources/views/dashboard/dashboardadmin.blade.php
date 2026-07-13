@@ -224,46 +224,45 @@
 
       {{-- PILIH JURUSAN --}}
       <div class="row mt-4">
-          <div class="col-12">
-              <div class="card">
-                  <div class="card-header">
-                      <h3 class="card-title">
-                          Pilih Jurusan
-                      </h3>
-                  </div>
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                Rekap Statistik Absensi
+              </h3>
+            </div>
 
-                  <div class="card-body">
-                      <div class="row">
+            <div class="card-body">
+              <div class="row">
 
-                          @foreach($statistikJurusan as $jurusan)
+                @foreach($jurusanDashboard as $jurusan)
 
-                              <div class="col-md-4 mb-3">
-                                  <a href="{{ url('/panel/jurusan/'.$jurusan->kode_jurusan) }}"
-                                      class="text-decoration-none">
+                  <div class="col-md-4 mb-3">
+                    <a href="{{ url('/panel/jurusan/' . $jurusan->kode_jurusan) }}" class="text-decoration-none">
 
-                                      <div class="card card-sm h-100">
-                                          <div class="card-body text-center">
+                      <div class="card card-sm h-100">
+                        <div class="card-body text-center">
 
-                                              <h2 class="mb-1">
-                                                  {{ $jurusan->nama_jurusan }}
-                                              </h2>
+                          <h2 class="mb-1">
+                            {{ $jurusan->nama_jurusan }}
+                          </h2>
 
-                                              <div class="text-secondary">
-                                                  {{ $jurusan->total }} Siswa
-                                              </div>
+                          <div class="text-secondary">
+                            {{ $jurusan->total }} Siswa
+                          </div>
 
-                                          </div>
-                                      </div>
-
-                                  </a>
-                              </div>
-
-                          @endforeach
-
+                        </div>
                       </div>
+
+                    </a>
                   </div>
+
+                @endforeach
+
               </div>
+            </div>
           </div>
+        </div>
       </div>
 
       <div class="row mt-4">
@@ -398,7 +397,7 @@
 
         </div>
       </div>
-      
+
     </div>{{-- end .container-xl --}}
   </div>{{-- end .page-body --}}
 

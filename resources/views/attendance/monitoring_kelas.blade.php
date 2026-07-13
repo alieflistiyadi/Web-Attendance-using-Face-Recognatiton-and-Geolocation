@@ -15,7 +15,7 @@
         $sisamenit2 = $sisamenit * 60;
         return $jam[0] . ":" . round($sisamenit2);
     }
-        ?>
+                    ?>
 
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -35,9 +35,10 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-12">
-                                    <div class="input-icon mb-3">
+                            <div class="row mb-3">
+
+                                <div class="col-md-6">
+                                    <div class="input-icon">
                                         <span class="input-icon-addon">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -52,10 +53,24 @@
                                                 <path d="M8 15h2v2h-2l0 -2" />
                                             </svg>
                                         </span>
-                                        <input type="text" id="tanggal" name="tanggal" value="{{ date('d-m-Y') }}"
-                                            class="form-control" placeholder="Tanggal Attendance" autocomplete="off">
+
+                                        <input type="text" id="tanggal" class="form-control" value="{{ date('d-m-Y') }}">
                                     </div>
                                 </div>
+
+                                <div class="col-md-6">
+                                    <select class="form-select" id="kode_jurusan">
+                                        <option value="">Semua Jurusan</option>
+
+                                        @foreach($jurusan as $d)
+                                            <option value="{{ $d->kode_jurusan }}">
+                                                {{ $d->nama_jurusan }}
+                                            </option>
+                                        @endforeach
+
+                                    </select>
+                                </div>
+
                             </div>
 
                             <div class="row">

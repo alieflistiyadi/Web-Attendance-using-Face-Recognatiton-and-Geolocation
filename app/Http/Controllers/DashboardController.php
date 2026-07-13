@@ -184,17 +184,17 @@ class DashboardController extends Controller
 
         // Statistik Jurusan
         $statistikJurusan = DB::table('siswa')
-        ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
-        ->select(
-            'jurusan.kode_jurusan',
-            'jurusan.nama_jurusan',
-            DB::raw('COUNT(*) as total')
-        )
-        ->groupBy(
-            'jurusan.kode_jurusan',
-            'jurusan.nama_jurusan'
-        )
-        ->get();
+            ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
+            ->select(
+                'jurusan.kode_jurusan',
+                'jurusan.nama_jurusan',
+                DB::raw('COUNT(*) as total')
+            )
+            ->groupBy(
+                'jurusan.kode_jurusan',
+                'jurusan.nama_jurusan'
+            )
+            ->get();
 
         // Card Jurusan Dashboard
         $jurusanDashboard = DB::table('jurusan')
@@ -210,7 +210,7 @@ class DashboardController extends Controller
             )
             ->orderBy('jurusan.kode_jurusan')
             ->get();
-        
+
         return view('dashboard.dashboardadmin', compact(
             'rekapattendance',
             'rekapizin',
@@ -224,7 +224,6 @@ class DashboardController extends Controller
             'pendingIzin',
             'aktivitasTerbaru',
             'topTerlambat',
-            'statistikJurusan',
             'jurusanDashboard'
         ));
     }
