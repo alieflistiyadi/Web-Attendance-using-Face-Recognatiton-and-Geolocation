@@ -184,12 +184,17 @@ class DashboardController extends Controller
 
         // Statistik Jurusan
         $statistikJurusan = DB::table('siswa')
-            ->selectRaw('
-                kode_jurusan,
-                COUNT(*) as total
-            ')
-            ->groupBy('kode_jurusan')
-            ->get();
+        ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
+        ->select(
+            'jurusan.kode_jurusan',
+            'jurusan.nama_jurusan',
+            DB::raw('COUNT(*) as total')
+        )
+        ->groupBy(
+            'jurusan.kode_jurusan',
+            'jurusan.nama_jurusan'
+        )
+        ->get();
 
         // Card Jurusan Dashboard
         $jurusanDashboard = DB::table('jurusan')

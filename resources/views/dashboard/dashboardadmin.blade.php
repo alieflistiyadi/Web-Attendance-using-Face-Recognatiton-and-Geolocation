@@ -245,7 +245,7 @@
                                           <div class="card-body text-center">
 
                                               <h2 class="mb-1">
-                                                  {{ $jurusan->kode_jurusan }}
+                                                  {{ $jurusan->nama_jurusan }}
                                               </h2>
 
                                               <div class="text-secondary">
