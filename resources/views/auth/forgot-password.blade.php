@@ -8,9 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>E-Attendance SMK SMART</title>
-    <meta name="description" content="Mobilekit HTML Mobile UI Kit">
-    <meta name="keywords" content="bootstrap 4, mobile template, cordova, phonegap, mobile, html" />
+    <title>Lupa Password - E-Attendance SMK SMART</title>
     <link rel="icon" type="image/png" href=" {{ asset('assets/img/favicon.png') }}" sizes="32x32">
     <link rel="apple-touch-icon" sizes="180x180" href={{ asset('assets/img/icon/192x192.png') }}>
     <link rel="stylesheet" href={{ asset('assets/css/style.css') }}>
@@ -34,24 +32,39 @@
                 <img src="{{ asset('assets/img/login/smksmart.png') }}" alt="image" class="form-image">
             </div>
             <div class="section mt-1">
-                <h1>E-Attendance</h1>
-                <h4>Silahkan Login Untuk Melanjutkan</h4>
+                <h1>Lupa Password</h1>
+                <h4>Masukkan NIS dan No HP terdaftar untuk mengajukan reset password</h4>
             </div>
             <div class="section mt-1 mb-5">
-                @php
-                    $messagewarning = Session::get('warning');
-                @endphp
 
-                @if (session::get('warning'))
-                    <div class="alert alert-outline-warning">
-                        {{ $messagewarning }}
+                @if (session('success'))
+                    <div class="alert alert-outline-success">
+                        {{ session('success') }}
                     </div>
                 @endif
-                <form action="/process-login" method="POST">
+
+                @if (session('warning'))
+                    <div class="alert alert-outline-warning">
+                        {{ session('warning') }}
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="alert alert-outline-danger">
+                        <ul class="mb-0 pl-3">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <form action="{{ route('forgot-password.submit') }}" method="POST">
                     @csrf
                     <div class="form-group boxed">
                         <div class="input-wrapper">
-                            <input type="text" name="nis" class="form-control" id="nis" placeholder="NIS">
+                            <input type="text" name="nis" value="{{ old('nis') }}" class="form-control" id="nis"
+                                placeholder="NIS">
                             <i class="clear-input">
                                 <ion-icon name="close-circle"></ion-icon>
                             </i>
@@ -60,23 +73,23 @@
 
                     <div class="form-group boxed">
                         <div class="input-wrapper">
-                            <input type="password" name="password" class="form-control" id="password"
-                                placeholder="Password">
+                            <input type="text" name="no_hp" value="{{ old('no_hp') }}" class="form-control" id="no_hp"
+                                placeholder="No HP Terdaftar">
                             <i class="clear-input">
                                 <ion-icon name="close-circle"></ion-icon>
                             </i>
                         </div>
                     </div>
 
-                    <div class="form-links mt-2">
-                        <div><a href="{{ route('forgot-password') }}" class="text-muted">Lupa Password?</a></div>
-                    </div>
-
                     <div class="form-button-group">
-                        <button type="submit" class="btn btn-primary btn-block btn-lg">Log in</button>
+                        <button type="submit" class="btn btn-primary btn-block btn-lg">Ajukan Reset
+                            Password</button>
                     </div>
-
                 </form>
+
+                <div class="form-links mt-2 text-center">
+                    <div><a href="{{ route('login') }}" class="text-muted">Kembali ke Login</a></div>
+                </div>
             </div>
         </div>
 
@@ -105,3 +118,4 @@
 </body>
 
 </html>
+<!-- ini kode forgot-password.blade.php -->
