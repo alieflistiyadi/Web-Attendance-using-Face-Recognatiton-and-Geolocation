@@ -22,7 +22,7 @@
                         <th>No</th>
                         <th>Nama</th>
                         <th>Email</th>
-                        <th width="120">Action</th>
+                        <th width="120">Aksi</th>
                     </tr>
 
                     @foreach($guru as $g)
@@ -38,7 +38,8 @@
 
                                 <a href="#"
                                     class="btn btn-info btn-sm edit"
-                                    id="{{ $g->id }}">
+                                    id="{{ $g->id }}"
+                                    style="width:38px;height:31px;">
 
                                     <svg xmlns="http://www.w3.org/2000/svg"
                                         width="20"
