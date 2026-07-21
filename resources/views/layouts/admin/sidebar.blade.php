@@ -394,6 +394,9 @@
                 <a class="dropdown-item" href="{{ route('admin.resetpassword.list') }}">
                   Ubah Password Siswa
                 </a>
+                <a class="dropdown-item" href="{{ route('konfigurasi.waktu') }}">
+                  Konfigurasi Waktu Presensi
+                </a>
               </div>
             </div>
           </div>

@@ -165,7 +165,8 @@ Route::middleware(['auth:user'])->group(function () {
     // Konfigurasi
     Route::get('/konfigurasi/lokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'lokasisekolah'])->name('konfigurasi.lokasisekolah');
     Route::post('/konfigurasi/updatelokasisekolah', [App\Http\Controllers\KonfigurasiController::class, 'updatelokasisekolah'])->name('konfigurasi.updatelokasisekolah');
-
+    Route::get('/konfigurasi/waktu', [App\Http\Controllers\KonfigurasiController::class, 'konfigurasiWaktu'])->name('konfigurasi.waktu');
+    Route::post('/konfigurasi/updatewaktu', [App\Http\Controllers\KonfigurasiController::class, 'updateWaktu'])->name('konfigurasi.updatewaktu');
     // Setting Admin
     Route::get('/panel/setting', [App\Http\Controllers\AdminController::class, 'setting']);
     Route::post('/panel/setting/update', [App\Http\Controllers\AdminController::class, 'updateSetting']);

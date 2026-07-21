@@ -18,9 +18,28 @@ class AttendanceController extends Controller
     {
         $hari_ini = date('Y-m-d');
         $nis = Auth::guard('siswa')->user()->nis;
-        $cek = DB::table('attendance')->where('nis', $nis)->where('tgl_presensi', $hari_ini)->count();
-        $lok_sekolah = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
-        return view('attendance.create', compact('cek', 'lok_sekolah'));
+
+        $cek = DB::table('attendance')
+            ->where('nis', $nis)
+            ->where('tgl_presensi', $hari_ini)
+            ->count();
+
+        $lok_sekolah = DB::table('konfigurasi_lokasi')
+            ->where('id', 1)
+            ->first();
+
+        $waktu = DB::table('konfigurasi_waktu')
+            ->where('id', 1)
+            ->first();
+
+        return view(
+            'attendance.create',
+            compact(
+                'cek',
+                'lok_sekolah',
+                'waktu'
+            )
+        );
     }
 
     public function store(Request $request)
@@ -30,6 +49,16 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
+        $waktu = DB::table('konfigurasi_waktu')
+            ->where('id', 1)
+            ->first();
+
+        $jamMulaiMasuk = $waktu->jam_mulai_masuk;
+        $batasTelat = $waktu->batas_telat;
+        $batasMasuk = $waktu->batas_masuk;
+
+        $jamMulaiPulang = $waktu->jam_mulai_pulang;
+        $batasPulang = $waktu->batas_pulang;
         $lok_sekolah = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
         $lok = explode(",", $lok_sekolah->lokasi_sekolah);
         $latitudesekolah = $lok[0];
@@ -46,6 +75,17 @@ class AttendanceController extends Controller
 
         if ($cek > 0) {
             $ket = "out";
+            // Belum waktunya pulang
+            if ($jam < $jamMulaiPulang) {
+                echo "error|Belum waktunya absensi pulang.|jam";
+                return;
+            }
+
+            // Jam pulang sudah ditutup
+            if ($jam > $batasPulang) {
+                echo "error|Jam absensi pulang sudah ditutup.|jam";
+                return;
+            }
         } else {
             $ket = "in";
         }
@@ -682,3 +722,5 @@ class AttendanceController extends Controller
         return $cek;
     }
 }
+
+// ini kode attendacecontroller

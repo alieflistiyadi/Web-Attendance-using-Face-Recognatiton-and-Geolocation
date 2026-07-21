@@ -12,7 +12,12 @@ class DashboardController extends Controller
         $bulanini = date('m') * 1;
         $tahunini = date('Y');
         $nis = Auth::guard('siswa')->user()->nis;
+        // Ambil konfigurasi waktu
+        $waktu = DB::table('konfigurasi_waktu')
+            ->where('id', 1)
+            ->first();
 
+        $batasTelat = $waktu->batas_telat;
         // Data attendance hari ini milik siswa ini
         $attendancehariini = DB::table('attendance')
             ->where('nis', $nis)
@@ -29,7 +34,10 @@ class DashboardController extends Controller
 
         // Rekap hadir & terlambat bulan ini
         $rekapattendance = DB::table('attendance')
-            ->selectRaw('COUNT(nis) as jmlhadir, SUM(IF(jam_in > "07:00", 1, 0)) as jmlterlambat')
+            ->selectRaw("
+        COUNT(nis) as jmlhadir,
+        SUM(IF(jam_in > ?,1,0)) as jmlterlambat
+    ", [$batasTelat])
             ->where('nis', $nis)
             ->whereRaw('MONTH(tgl_presensi) = "' . $bulanini . '"')
             ->whereRaw('YEAR(tgl_presensi) = "' . $tahunini . '"')
@@ -112,13 +120,17 @@ class DashboardController extends Controller
     public function dashboardadmin()
     {
         $hariini = date('Y-m-d');
+        $waktu = DB::table('konfigurasi_waktu')
+            ->where('id', 1)
+            ->first();
 
+        $batasTelat = $waktu->batas_telat;
         // Statistik Hari Ini
         $rekapattendance = DB::table('attendance')
             ->selectRaw('
                 COUNT(nis) as jmlhadir,
-                SUM(IF(jam_in > "07:00:00",1,0)) as jmlterlambat
-            ')
+                SUM(IF(jam_in > ?,1,0)) as jmlterlambat
+            ', [$batasTelat])
             ->whereDate('tgl_presensi', $hariini)
             ->first();
 
@@ -172,7 +184,7 @@ class DashboardController extends Controller
             ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
             ->whereMonth('tgl_presensi', date('m'))
             ->whereYear('tgl_presensi', date('Y'))
-            ->where('jam_in', '>', '07:00:00')
+            ->where('jam_in', '>', $batasTelat)
             ->selectRaw('
                 siswa.nama_lengkap,
                 COUNT(*) as total
@@ -314,3 +326,6 @@ class DashboardController extends Controller
         ));
     }
 }
+
+
+// ini kode dashboardcontroller
