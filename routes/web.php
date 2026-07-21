@@ -8,6 +8,7 @@ use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\JurusanController;
 use App\Http\Controllers\GuruController;
+use App\Http\Controllers\ImportController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -128,6 +129,9 @@ Route::middleware(['auth:user'])->group(function () {
     route::post('/siswa/edit', [SiswaController::class, 'edit']);
     route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
     route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
+    Route::post('/siswa/import', [ImportController::class, 'import'])->name('siswa.import');
+    Route::get('/siswa/template', [ImportController::class,'downloadTemplate'])
+    ->name('siswa.template');
 
     // Guru
     Route::get('/guru', [GuruController::class, 'index']);

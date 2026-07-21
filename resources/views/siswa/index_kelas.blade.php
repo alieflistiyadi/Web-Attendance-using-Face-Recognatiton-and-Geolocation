@@ -27,18 +27,41 @@
               @endif
 
               <div class="row">
-                <div class="col-12">
-                  @if (Session::get('success'))
-                    <div class="alert alert-success">
-                      {{ Session::get('success') }}
-                    </div>
-                  @endif
-                  @if (Session::get('warning'))
-                    <div class="alert alert-warning">
-                      {{ Session::get('warning') }}
-                    </div>
-                  @endif
-                </div>
+                  <div class="col-12">
+
+                      @if (Session::get('success'))
+                          <div class="alert alert-success">
+                              {{ Session::get('success') }}
+                          </div>
+                      @endif
+
+                      @if (Session::get('warning'))
+                          <div class="alert alert-warning">
+                              {{ Session::get('warning') }}
+                          </div>
+                      @endif
+
+                      {{-- Hasil Import --}}
+                      @if(session('success_import'))
+                          <div class="alert alert-success">
+                              <strong>Import berhasil!</strong><br>
+                              Berhasil: {{ session('success_import') }} data<br>
+                              Gagal: {{ session('failed_import') }} data
+                          </div>
+                      @endif
+
+                      @if(session('errors_import'))
+                          <div class="alert alert-danger">
+                              <strong>Data yang gagal diimport:</strong>
+                              <ul class="mb-0">
+                                  @foreach(session('errors_import') as $error)
+                                      <li>{{ $error }}</li>
+                                  @endforeach
+                              </ul>
+                          </div>
+                      @endif
+
+                  </div>
               </div>
 
               <div class="row">
@@ -53,6 +76,22 @@
                     </svg>
                     Tambah Data
                   </a>
+                  <a href="#" class="btn btn-success" id="btnImport">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                      <path d="M12 5l0 14" />
+                      <path d="M5 12l14 0" />
+                    </svg>
+                    Import Excel
+                </a>
+                <a href="{{ route('siswa.template') }}"
+                    class="btn btn-secondary">
+
+                    Download Template
+
+                </a>
                 </div>
               </div>
 
@@ -294,6 +333,44 @@
       </div>
     </div>
 
+    {{-- Modal Import --}}
+    <div class="modal fade" id="modal-import" tabindex="-1">
+      <div class="modal-dialog">
+          <div class="modal-content">
+
+              <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data">
+
+                  @csrf
+
+                  <div class="modal-header">
+                      <h5 class="modal-title">Import Data Siswa</h5>
+                  </div>
+
+                  <div class="modal-body">
+
+                      <input
+                          type="file"
+                          name="file"
+                          class="form-control"
+                          accept=".xlsx,.xls"
+                          required>
+
+                  </div>
+
+                  <div class="modal-footer">
+
+                      <button type="submit" class="btn btn-success">
+                          Import
+                      </button>
+
+                  </div>
+
+              </form>
+
+          </div>
+      </div>
+  </div>
+
     {{-- Modal Edit --}}
     <div class="modal modal-blur fade" id="modal-editsiswa" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered" role="document">
@@ -314,6 +391,10 @@
       $(function () {
         $("#btnTambahsiswa").click(function () {
           $("#modal-inputsiswa").modal("show");
+        });
+
+        $("#btnImport").click(function () {
+        $("#modal-import").modal("show");
         });
 
         // Format No HP
