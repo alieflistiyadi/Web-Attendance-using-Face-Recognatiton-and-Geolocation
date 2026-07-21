@@ -257,7 +257,13 @@
                           d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
                       </svg>
                     </span>
-                    <input type="text" value="" id="no_hp_modal" class="form-control" name="no_hp" placeholder="No HP">
+                    <input
+                      type="text"
+                      id="no_hp_modal"
+                      class="form-control"
+                      name="no_hp"
+                      placeholder="+628xxxxxxxxxx"
+                      maxlength="15">
                   </div>
                 </div>
               </div>
@@ -310,6 +316,38 @@
           $("#modal-inputsiswa").modal("show");
         });
 
+        // Format No HP
+        $("#no_hp_modal").on("input", function () {
+
+            var nomor = $(this).val();
+
+            // Hanya angka
+            nomor = nomor.replace(/\D/g, '');
+
+            // Kalau diawali 0 -> ganti jadi 62
+            if (nomor.startsWith("0")) {
+                nomor = "62" + nomor.substring(1);
+            }
+
+            // Kalau bukan 62 -> tambahkan 62
+            if (!nomor.startsWith("62")) {
+                nomor = "62" + nomor;
+            }
+
+            $(this).val("+" + nomor);
+
+        });
+
+        $("#no_hp_modal").keypress(function(e){
+
+            var char = String.fromCharCode(e.which);
+
+            if(!/[0-9]/.test(char)){
+                return false;
+            }
+
+        });
+
         $(".edit").click(function () {
           var nis = $(this).attr("nis");
           var redirect_kelas = $(this).attr("redirect_kelas");
@@ -348,29 +386,78 @@
         });
 
         $("#formsiswa").submit(function () {
-          var nis = $("#nis").val();
-          var nama_lengkap = $("#nama_lengkap_modal").val();
-          var no_hp = $("#no_hp_modal").val();
-          var kode_jurusan = $("#kode_jurusan_modal").val();
 
-          if (nis == "") {
-            Swal.fire({ title: 'Warning!', text: 'NIS Harus Diisi', icon: 'warning', confirmButtonText: 'OK' })
-              .then(() => { $("#nis").focus(); });
-            return false;
-          } else if (nama_lengkap == "") {
-            Swal.fire({ title: 'Warning!', text: 'Nama Lengkap Harus Diisi', icon: 'warning', confirmButtonText: 'OK' })
-              .then(() => { $("#nama_lengkap_modal").focus(); });
-            return false;
-          } else if (no_hp == "") {
-            Swal.fire({ title: 'Warning!', text: 'No HP Harus Diisi', icon: 'warning', confirmButtonText: 'OK' })
-              .then(() => { $("#no_hp_modal").focus(); });
-            return false;
-          } else if (kode_jurusan == "") {
-            Swal.fire({ title: 'Warning!', text: 'Jurusan Harus Dipilih', icon: 'warning', confirmButtonText: 'OK' })
-              .then(() => { $("#kode_jurusan_modal").focus(); });
-            return false;
-          }
-        });
+      var nis = $("#nis").val();
+      var nama_lengkap = $("#nama_lengkap_modal").val();
+      var no_hp = $("#no_hp_modal").val();
+      var kode_jurusan = $("#kode_jurusan_modal").val();
+
+      if (nis == "") {
+          Swal.fire({
+              title: 'Warning!',
+              text: 'NIS Harus Diisi',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+          }).then(() => {
+              $("#nis").focus();
+          });
+          return false;
+      }
+
+      if (nama_lengkap == "") {
+          Swal.fire({
+              title: 'Warning!',
+              text: 'Nama Lengkap Harus Diisi',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+          }).then(() => {
+              $("#nama_lengkap_modal").focus();
+          });
+          return false;
+      }
+
+      if (no_hp == "") {
+          Swal.fire({
+              title: 'Warning!',
+              text: 'No HP Harus Diisi',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+          }).then(() => {
+              $("#no_hp_modal").focus();
+          });
+          return false;
+      }
+
+      if (kode_jurusan == "") {
+          Swal.fire({
+              title: 'Warning!',
+              text: 'Jurusan Harus Dipilih',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+          }).then(() => {
+              $("#kode_jurusan_modal").focus();
+          });
+          return false;
+      }
+
+      // Validasi nomor HP
+      var hp = no_hp.replace("+", "");
+
+      if (!/^62\d{9,18}$/.test(hp)) {
+      Swal.fire({
+          title: 'Warning!',
+          text: 'Nomor HP harus menggunakan format +62 dan terdiri dari 11 sampai 15 digit.',
+          icon: 'warning',
+          confirmButtonText: 'OK'
+      }).then(() => {
+          $("#no_hp_modal").focus();
       });
+
+      return false;
+  }
+
+  });
+    
+  });
     </script>
   @endpush

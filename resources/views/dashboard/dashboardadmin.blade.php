@@ -42,7 +42,7 @@
     <div class="container-xl">
       <div class="row g-2 align-items-center">
         <div class="col">
-          <div class="page-pretitle">Overview</div>
+          <div class="page-pretitle">Ringkasan</div>
           <h2 class="page-title">Dashboard</h2>
         </div>
       </div>
@@ -304,7 +304,7 @@
               </h1>
 
               <div class="h3">
-                Pending Approval
+                Menunggu Persetujuan Izin
               </div>
 
               <small class="stat-label">
@@ -358,7 +358,7 @@
 
               <div class="card-header">
                 <h3 class="card-title">
-                  Top 5 Terlambat Bulan Ini
+                  Top 5 Siswa Terlambat Bulan Ini
                 </h3>
               </div>
 

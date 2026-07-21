@@ -74,8 +74,13 @@
                     </svg>
                 </span>
 
-                <input type="text" value="{{ $siswa->no_hp }}" id="no_hp" class="form-control" name="no_hp"
-                    placeholder="Nomor HP">
+                <input type="text"
+                value="{{ $siswa->no_hp }}"
+                id="no_hp"
+                class="form-control"
+                name="no_hp"
+                placeholder="+62xxxxxxxxxxx"
+                maxlength="15">
             </div>
         </div>
     </div>
@@ -108,3 +113,62 @@
         </div>
     </div>
 </form>
+<script>
+$(function () {
+
+    // Kalau kosong, isi otomatis +62
+    if ($("#no_hp").val() == "") {
+        $("#no_hp").val("+62");
+    }
+
+    // Saat diketik
+    $("#no_hp").on("input", function () {
+
+        var value = $(this).val();
+
+        // Harus selalu diawali +62
+        if (!value.startsWith("+62")) {
+            value = "+62";
+        }
+
+        // Sisakan hanya angka setelah +62
+        value = "+62" + value.substring(3).replace(/\D/g, "");
+
+        // Maksimal 15 karakter (+62 + 12 digit)
+        if (value.length > 15) {
+            value = value.substring(0, 15);
+        }
+
+        $(this).val(value);
+    });
+
+    // Tidak boleh hapus +62
+    $("#no_hp").on("keydown", function(e){
+
+        if($(this).val().length <= 3 &&
+           (e.key == "Backspace" || e.key == "Delete")){
+            e.preventDefault();
+        }
+
+    });
+
+    // Validasi sebelum submit
+    $("#formsiswa").submit(function(){
+
+        var hp = $("#no_hp").val();
+
+        if(!/^\+62\d{9,12}$/.test(hp)){
+
+            Swal.fire({
+                title: 'Warning!',
+                text: 'Nomor HP harus diawali +62 dan terdiri dari 11-14 digit angka.',
+                icon: 'warning'
+            });
+
+            return false;
+        }
+
+    });
+
+});
+</script>

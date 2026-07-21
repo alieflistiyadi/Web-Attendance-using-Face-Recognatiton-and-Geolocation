@@ -4,7 +4,7 @@
 
 <div class="container-xl mt-3">
 
-    <h2>Setting Akun Admin</h2>
+    <h2>Pengaturan Akun Admin</h2>
 
     <div class="card mt-3">
         <div class="card-body">

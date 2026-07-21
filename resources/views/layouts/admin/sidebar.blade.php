@@ -284,7 +284,7 @@
                 <path d="M7 10h2l2 3l2 -6l1 3h3" />
               </svg>
             </span>
-            <span class="nav-link-title">Monitoring Attendance</span>
+            <span class="nav-link-title">Monitoring Kehadiran</span>
           </a>
           <div class="dropdown-menu">
             <div class="dropdown-menu-columns">
