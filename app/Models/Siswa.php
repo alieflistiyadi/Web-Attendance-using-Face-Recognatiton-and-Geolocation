@@ -12,16 +12,12 @@ class Siswa extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $table = 'siswa';
     protected $primaryKey = 'nis';
-    public $incrementing = false;     // ← tambah
+    public $incrementing = false;
     protected $keyType = 'string';
-    public $timestamps = false;
+    public $timestamps = false;   // ← TAMBAHKAN INI
+
     protected $fillable = [
         'nis',
         'nama_lengkap',
@@ -30,7 +26,7 @@ class Siswa extends Authenticatable
         'kode_jurusan',
         'foto',
         'password',
-        'is_default_password'
+        'is_default_password',
     ];
 
     /**
@@ -52,3 +48,4 @@ class Siswa extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 }
+// ini kode Siswa.php
