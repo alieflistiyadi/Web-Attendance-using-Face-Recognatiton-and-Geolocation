@@ -4,12 +4,21 @@
       aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <h1 class="navbar-brand navbar-brand-autodark">
-      <a href=".">
-        <img src="{{ asset('assets/img/login/smksmart.png') }}" alt="Logo" class="navbar-brand-image"
-          style="width: 80px; height: auto;">
+    <h1 class="navbar-brand">
+      <a href="." class="text-center text-decoration-none d-block">
+
+          <img src="{{ asset('assets/img/login/smksmart.png') }}"
+              alt="Logo"
+              class="navbar-brand-image"
+              style="width:80px;height:auto;">
+
+          <div class="fw-bold mt-2 text-white">
+              SMK SMART<br>
+              CIKARANG
+          </div>
+
       </a>
-    </h1>
+  </h1>
     <div class="navbar-nav flex-row d-lg-none">
       <div class="nav-item d-none d-lg-flex me-3">
         <div class="btn-list">
