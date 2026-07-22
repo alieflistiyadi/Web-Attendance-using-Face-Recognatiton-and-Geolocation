@@ -322,10 +322,29 @@ class AttendanceController extends Controller
 
     public function storeizin(Request $request)
     {
+
         $nis = Auth::guard('siswa')->user()->nis;
         $tanggal_izin = date('Y-m-d', strtotime($request->tanggal_izin));
         $status = $request->status;
         $keterangan = $request->keterangan;
+
+        // validasi upload surat izin
+        if ($status == "i" && !$request->hasFile('surat_izin')) {
+            return redirect()->back()->with([
+                'error' => 'Surat izin wajib diupload'
+            ]);
+        }
+
+        $surat_izin = null;
+
+        if ($request->hasFile('surat_izin')) {
+
+            $file = $request->file('surat_izin');
+
+            $surat_izin = time() . "_" . $file->getClientOriginalName();
+
+            $file->storeAs('public/uploads/surat_izin', $surat_izin);
+        }
 
         // validasi upload surat sakit
         if ($status == "s" && !$request->hasFile('surat_sakit')) {
@@ -350,6 +369,7 @@ class AttendanceController extends Controller
             'tanggal_izin' => $tanggal_izin,
             'status' => $status,
             'keterangan' => $keterangan,
+            'surat_izin' => $surat_izin,
             'surat_sakit' => $surat_sakit
         ];
 
@@ -363,6 +383,119 @@ class AttendanceController extends Controller
                 ->with(['error' => 'Data Gagal Disimpan']);
         }
     }
+
+    public function editizin($id)
+    {
+        $izin = DB::table('pengajuan_izin')
+                ->where('id',$id)
+                ->first();
+
+        if (!$izin) {
+        return redirect()->back()->with('error', 'Data pengajuan tidak ditemukan.');
+        }
+
+        if ($izin->status_approved != 0){
+            return redirect('/attendance/izin')
+                ->with('error','Pengajuan sudah diproses.');
+        }
+
+        return view('attendance.editizin', compact('izin'));
+    }
+
+    public function updateizin(Request $request, $id)
+    {
+        $tanggal_izin = date("Y-m-d", strtotime($request->tanggal_izin));
+        $status = $request->status;
+        $keterangan = $request->keterangan;
+
+        $izin = DB::table('pengajuan_izin')->where('id', $id)->first();
+
+        if (!$izin) {
+            return redirect()->back()->with('error', 'Data tidak ditemukan.');
+        }
+
+        $surat_izin = $izin->surat_izin;
+        $surat_sakit = $izin->surat_sakit;
+
+        // Upload surat izin
+        if ($request->hasFile('surat_izin')) {
+
+            if ($surat_izin != null) {
+                Storage::delete('public/uploads/surat_izin/' . $surat_izin);
+            }
+
+            $file = $request->file('surat_izin');
+            $surat_izin = time() . "_" . $file->getClientOriginalName();
+            $file->storeAs('public/uploads/surat_izin', $surat_izin);
+        }
+
+        // Upload surat sakit
+        if ($request->hasFile('surat_sakit')) {
+
+            if ($surat_sakit != null) {
+                Storage::delete('public/uploads/surat_sakit/' . $surat_sakit);
+            }
+
+            $file = $request->file('surat_sakit');
+            $surat_sakit = time() . "_" . $file->getClientOriginalName();
+            $file->storeAs('public/uploads/surat_sakit', $surat_sakit);
+        }
+
+        $data = [
+            'tanggal_izin' => $tanggal_izin,
+            'status' => $status,
+            'keterangan' => $keterangan,
+            'surat_izin' => $surat_izin,
+            'surat_sakit' => $surat_sakit
+        ];
+
+        $update = DB::table('pengajuan_izin')
+            ->where('id', $id)
+            ->update($data);
+
+        if ($update) {
+            return redirect('/attendance/izin')
+                ->with('success', 'Pengajuan berhasil diperbarui.');
+        } else {
+            return redirect('/attendance/izin')
+                ->with('error', 'Pengajuan gagal diperbarui.');
+        }
+    }
+
+    public function deleteizin($id)
+    {
+        $izin = DB::table('pengajuan_izin')
+                ->where('id', $id)
+                ->first();
+
+        if (!$izin) {
+            return redirect('/attendance/izin')
+                ->with('error', 'Data tidak ditemukan.');
+        }
+
+        if ($izin->status_approved != 0) {
+            return redirect('/attendance/izin')
+                ->with('error', 'Pengajuan sudah diproses dan tidak dapat dihapus.');
+        }
+
+        // Hapus file surat izin
+        if ($izin->surat_izin != null) {
+            Storage::delete('public/uploads/surat_izin/' . $izin->surat_izin);
+        }
+
+        // Hapus file surat sakit
+        if ($izin->surat_sakit != null) {
+            Storage::delete('public/uploads/surat_sakit/' . $izin->surat_sakit);
+        }
+
+        DB::table('pengajuan_izin')
+            ->where('id', $id)
+            ->delete();
+
+        return redirect('/attendance/izin')
+            ->with('success', 'Pengajuan berhasil dihapus.');
+    }
+    
     public function monitoringKelas($kelas)
     {
         $jurusan = DB::table('jurusan')->get();
@@ -526,6 +659,7 @@ class AttendanceController extends Controller
             'kelas',
             'kode_jurusan',
             'surat_sakit',
+            'surat_izin',
             'jurusan'
         );
         $query->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis');

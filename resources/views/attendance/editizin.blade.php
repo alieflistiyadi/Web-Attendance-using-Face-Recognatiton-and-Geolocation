@@ -242,7 +242,7 @@
         </div>
 
         <div class="pageTitle">
-            Form Izin
+            Edit Pengajuan
         </div>
 
         <div class="right"></div>
@@ -288,7 +288,7 @@
             </div>
 
             {{-- FORM --}}
-            <form method="POST" action="{{ route('storeizin') }}" id="frmIzin" enctype="multipart/form-data">
+            <form id="frmIzin" action="{{ route('attendance.updateizin',$izin->id) }}" method="POST" enctype="multipart/form-data">
 
                 @csrf
 
@@ -300,7 +300,7 @@
                     </label>
 
                     <input type="text" id="tanggal_izin" name="tanggal_izin" class="custom-input datepicker"
-                        placeholder="Pilih tanggal izin">
+                        value="{{ date('d-m-Y',strtotime($izin->tanggal_izin)) }}">
                 </div>
 
                 {{-- STATUS --}}
@@ -316,11 +316,13 @@
                             Pilih Status
                         </option>
 
-                        <option value="i">
+                        <option value="i"
+                        @if($izin->status=="i") selected @endif>
                             Izin
                         </option>
 
-                        <option value="s">
+                        <option value="s"
+                        @if($izin->status=="s") selected @endif>
                             Sakit
                         </option>
                     </select>
@@ -340,6 +342,15 @@
                             id="surat_izin"
                             class="custom-file">
 
+                        @if($izin->surat_izin)
+                        <div class="helper-text">
+                            <a href="{{ asset('storage/uploads/surat_izin/'.$izin->surat_izin) }}"
+                            target="_blank">
+                                {{ $izin->surat_izin }}
+                            </a>
+                        </div>
+                        @endif
+
                         <div class="upload-note">
                             Upload file JPG, PNG, atau PDF dengan ukuran maksimal 2MB.
                         </div>
@@ -357,6 +368,16 @@
                         </div>
 
                         <input type="file" name="surat_sakit" id="surat_sakit" class="custom-file">
+                        
+                        @if($izin->surat_sakit)
+                        <div class="helper-text">
+                            File saat ini :
+                            <a href="{{ asset('storage/uploads/surat_sakit/'.$izin->surat_sakit) }}"
+                            target="_blank">
+                                {{ $izin->surat_sakit }}
+                            </a>
+                        </div>
+                        @endif
 
                         <div class="upload-note">
                             Upload file JPG, PNG, atau PDF
@@ -373,7 +394,7 @@
                     </label>
 
                     <textarea name="keterangan" id="keterangan" class="custom-textarea"
-                        placeholder="Tulis alasan izin atau sakit..."></textarea>
+                        placeholder="Tulis alasan izin atau sakit...">{{ $izin->keterangan }}</textarea>
 
                     <div class="helper-text">
                         Contoh: Sakit demam, ada keperluan keluarga, dan lain-lain.
@@ -387,7 +408,7 @@
 
                         <ion-icon name="send-outline"></ion-icon>
 
-                        Kirim Pengajuan
+                        Update Pengajuan
                     </button>
                 </div>
 
@@ -426,6 +447,8 @@
 
             });
 
+            $('#status').trigger('change');
+
             $("#frmIzin").submit(function () {
 
                 var tanggal_izin = $("#tanggal_izin").val();
@@ -449,25 +472,6 @@
                     Swal.fire({
                         title: 'Oops!',
                         text: 'Status harus dipilih',
-                        icon: 'Peringatan',
-                    });
-
-                    return false;
-
-                } else if(status=="i" && surat_izin==""){
-
-                    Swal.fire({
-                        title:'Oops!',
-                        text:'Upload surat izin wajib diisi',
-                        icon:'Peringatan'
-                    });
-                    return false;
-                
-                } else if (status == "s" && surat_sakit == "") {
-
-                    Swal.fire({
-                        title: 'Oops!',
-                        text: 'Upload surat sakit wajib diisi',
                         icon: 'Peringatan',
                     });
 

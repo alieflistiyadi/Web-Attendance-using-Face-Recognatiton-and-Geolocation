@@ -110,6 +110,12 @@ route::middleware('auth:siswa')->group(function () {
         ->name('storeizin');
     Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])
         ->name('attendance.cekpengajuanizin');
+    Route::get('/attendance/editizin/{id}', [App\Http\Controllers\AttendanceController::class, 'editizin'])
+    ->name('attendance.editizin');
+    Route::post('/attendance/updateizin/{id}', [App\Http\Controllers\AttendanceController::class, 'updateizin'])
+        ->name('attendance.updateizin');
+    Route::get('/attendance/deleteizin/{id}', [App\Http\Controllers\AttendanceController::class, 'deleteizin'])
+        ->name('attendance.deleteizin');
 });
 
 // ===================== ADMIN ROUTES =====================

@@ -376,12 +376,39 @@
                     @endif
 
                     {{-- FILE --}}
+                    @if($d->surat_izin != null)
+                        <div class="izin-file-right">
+                            <a href="{{ asset('storage/uploads/surat_izin/' . $d->surat_izin) }}" target="_blank">
+
+                                <ion-icon name="document-attach-outline"></ion-icon>
+                                Surat
+                            </a>
+                        </div>
+                    @endif
+
                     @if($d->surat_sakit != null)
                         <div class="izin-file-right">
                             <a href="{{ asset('storage/uploads/surat_sakit/' . $d->surat_sakit) }}" target="_blank">
 
                                 <ion-icon name="document-attach-outline"></ion-icon>
                                 Surat
+                            </a>
+                        </div>
+                    @endif
+
+                    @if($d->status_approved == 0)
+                        <div style="display:flex; gap:6px; margin-top:8px;">
+                            <a href="{{ route('attendance.editizin', $d->id) }}"
+                                class="btn btn-warning btn-sm">
+
+                                <ion-icon name="create-outline"></ion-icon>
+                                Edit
+                            </a>
+                            <a href="{{ route('attendance.deleteizin',$d->id) }}"
+                                class="btn btn-danger btn-sm btn-delete">
+                                
+                                <ion-icon name="trash-outline"></ion-icon>
+                                Delete
                             </a>
                         </div>
                     @endif
@@ -418,3 +445,36 @@
     </a>
 
 @endsection
+
+@push('myscript')
+<script>
+$(document).ready(function () {
+
+    $('.btn-delete').click(function(e){
+
+        e.preventDefault();
+
+        let url = $(this).attr('href');
+
+        Swal.fire({
+            title: 'Hapus Pengajuan?',
+            text: 'Data yang dihapus tidak dapat dikembalikan.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+
+            if(result.isConfirmed){
+                window.location.href = url;
+            }
+
+        });
+
+    });
+
+});
+</script>
+@endpush
