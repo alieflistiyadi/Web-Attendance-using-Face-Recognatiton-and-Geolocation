@@ -14,8 +14,8 @@
         }
 
         /* =========================
-                                                                                                    PROFILE HEADER
-                                                                                                ========================= */
+                                                                                                                                            PROFILE HEADER
+                                                                                                                                        ========================= */
         .profile-section {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             padding: 28px 18px 85px;
@@ -52,6 +52,22 @@
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
         }
 
+        .profile-avatar .avatar-initial {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #42a5f5, #1565c0);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            font-weight: 700;
+            border: 4px solid rgba(255, 255, 255, .25);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, .18);
+            text-transform: uppercase;
+        }
+
         .profile-name {
             font-size: 20px;
             font-weight: 700;
@@ -66,8 +82,8 @@
         }
 
         /* =========================
-                                                                                                    MENU
-                                                                                                ========================= */
+                                                                                                                                            MENU
+                                                                                                                                        ========================= */
         .menu-wrapper {
             margin-top: -55px;
             padding: 0 16px;
@@ -129,8 +145,8 @@
         }
 
         /* =========================
-                                                                                                    CONTENT
-                                                                                                ========================= */
+                                                                                                                                            CONTENT
+                                                                                                                                        ========================= */
         .content-wrapper {
             padding: 22px 16px 110px;
         }
@@ -143,8 +159,8 @@
         }
 
         /* =========================
-                                                                                                    PRESENCE
-                                                                                                ========================= */
+                                                                                                                                            PRESENCE
+                                                                                                                                        ========================= */
         .presence-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -207,8 +223,8 @@
         }
 
         /* =========================
-                                                                        REKAP MODERN
-                                                                    ========================= */
+                                                                                                                REKAP MODERN
+                                                                                                            ========================= */
         .rekap-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -287,8 +303,8 @@
         }
 
         /* =========================
-                                                                                                    TABS
-                                                                                                ========================= */
+                                                                                                                                            TABS
+                                                                                                                                        ========================= */
         .custom-tabs {
             background: white;
             border-radius: 18px;
@@ -320,8 +336,8 @@
         }
 
         /* =========================
-                                                                                                    HISTORY
-                                                                                                ========================= */
+                                                                                                                                            HISTORY
+                                                                                                                                        ========================= */
         .history-card {
             background: white;
             border-radius: 20px;
@@ -386,8 +402,8 @@
         }
 
         /* =========================
-                                                                                                    MOBILE FIX
-                                                                                                ========================= */
+                                                                                                                                            MOBILE FIX
+                                                                                                                                        ========================= */
         @media (max-width: 380px) {
 
             .presence-time {
@@ -412,17 +428,11 @@
         <div class="profile-card">
 
             <div class="profile-avatar">
-                @if (!empty(Auth::guard('siswa')->user()->foto))
-                    @php
-                        $path = Storage::url('/uploads/siswa/' . Auth::guard('siswa')->user()->foto);
-                    @endphp
 
-                    <img src="{{ asset($path) }}">
-                @else
-                    <img src="assets/img/sample/avatar/avatar1.jpg">
-                @endif
+                <div class="avatar-initial">
+                    {{ strtoupper(substr(Auth::guard('siswa')->user()->nama_lengkap, 0, 2)) }}
+                </div>
             </div>
-
             <div>
                 <div class="profile-name">
                     {{ Auth::guard('siswa')->user()->nama_lengkap }}

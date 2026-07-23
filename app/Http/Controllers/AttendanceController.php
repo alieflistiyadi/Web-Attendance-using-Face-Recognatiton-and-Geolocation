@@ -44,11 +44,25 @@ class AttendanceController extends Controller
 
     public function store(Request $request)
     {
-        // Tambahkan sementara di method store(), baris pertama
-
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
+
+        // =========================
+        // ✅ VALIDASI FACE RECOGNITION
+        // =========================
+        $detected_nis = $request->detected_nis;
+
+        if (empty($detected_nis)) {
+            echo "error|Wajah tidak terdeteksi atau tidak cocok dengan data manapun. Silakan coba lagi.|wajah";
+            return;
+        }
+
+        if ($detected_nis != $nis) {
+            echo "error|Wajah yang terdeteksi tidak sesuai dengan akun Anda yang sedang login.|wajah";
+            return;
+        }
+
         $waktu = DB::table('konfigurasi_waktu')
             ->where('id', 1)
             ->first();
@@ -89,6 +103,7 @@ class AttendanceController extends Controller
         } else {
             $ket = "in";
         }
+
         $image = $request->image;
         $folderPath = "public/uploads/absensi/";
         $format_name = $nis . '-' . $tgl_presensi . '-' . $ket;
@@ -101,7 +116,6 @@ class AttendanceController extends Controller
         if ($radius > $lok_sekolah->radius) {
             echo "error|maaf anda berada diluar radius, jarak anda " . $radius . " meter dari sekolah|radius";
         } else {
-
 
             if ($cek > 0) {
                 $data_pulang = [
@@ -220,46 +234,25 @@ class AttendanceController extends Controller
             }
         }
 
-        $nama_lengkap = $request->nama_lengkap;
-        $no_hp = $request->no_hp;
-
-        if ($request->hasFile('foto')) {
-
-            $foto = $nis . '.' .
-                $request->file('foto')->getClientOriginalExtension();
-
-        } else {
-
-            $foto = $siswa->foto;
-        }
-
         // =========================
         // DATA UPDATE
         // =========================
-        $data = [
-            'nama_lengkap' => $nama_lengkap,
-            'no_hp' => $no_hp,
-            'foto' => $foto
-        ];
-
-        // Jika password baru diisi dan password lama benar
-        if (!empty($request->password_baru)) {
-
-            $data['password'] = Hash::make($request->password_baru);
-            $data['is_default_password'] = 0;
+        // Hanya password yang bisa diubah lewat form ini.
+        // nama_lengkap, no_hp, dan foto tidak lagi diedit di sini.
+        if (empty($request->password_baru)) {
+            return Redirect::back()->with([
+                'success' => 'Tidak ada perubahan yang disimpan'
+            ]);
         }
+
+        $data = [
+            'password' => Hash::make($request->password_baru),
+            'is_default_password' => 0
+        ];
 
         DB::table('siswa')
             ->where('nis', $nis)
             ->update($data);
-
-        if ($request->hasFile('foto')) {
-
-            $folderPath = 'public/uploads/siswa';
-
-            $request->file('foto')
-                ->storeAs($folderPath, $foto);
-        }
 
         return Redirect::back()->with([
             'success' => 'Profil berhasil diupdate'
