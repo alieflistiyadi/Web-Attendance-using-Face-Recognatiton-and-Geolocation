@@ -307,10 +307,27 @@ class AttendanceController extends Controller
 
     }
 
-    public function izin()
+    public function izin(Request $request)
     {
         $nis = Auth::guard('siswa')->user()->nis;
-        $dataizin = DB::table('pengajuan_izin')->where('nis', $nis)->get();
+
+        $query = DB::table('pengajuan_izin')
+                    ->where('nis', $nis);
+
+        // Filter jenis
+        if ($request->filled('jenis')) {
+            $query->where('status', $request->jenis);
+        }
+
+        // Filter status approval
+        if ($request->filled('approve')) {
+            $query->where('status_approved', $request->approve);
+        }
+
+        $dataizin = $query
+                    ->orderBy('tanggal_izin', 'desc')
+                    ->get();
+
         return view('attendance.izin', compact('dataizin'));
     }
 

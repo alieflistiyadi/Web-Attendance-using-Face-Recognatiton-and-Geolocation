@@ -80,6 +80,78 @@
             z-index: 2;
         }
 
+        /* ===== FILTER ===== */
+
+        .filter-card{
+            background:#fff;
+            border-radius:22px;
+            padding:18px;
+            margin-bottom:18px;
+            box-shadow:var(--shadow);
+        }
+
+        .filter-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            margin-bottom:15px;
+        }
+
+        .filter-title{
+            font-weight:700;
+            color:var(--text);
+            font-size:15px;
+        }
+
+        
+        .filter-select{
+            width:100%;
+            height:48px;
+            padding:0 40px 0 14px;
+            border:1px solid #E5E7EB;
+            border-radius:14px;
+            background:#fff;
+            font-size:14px;
+            overflow:hidden;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+        }
+
+        .filter-group{
+            margin-bottom:16px;
+        }
+
+        .filter-label{
+            display:block;
+            margin-bottom:8px;
+            font-size:13px;
+            font-weight:600;
+            color:#64748b;
+        }
+
+        .filter-select{
+            width:100%;
+            height:50px;
+            border:1px solid #E5E7EB;
+            border-radius:14px;
+            padding:0 16px;
+            background:#fff;
+            font-size:14px;
+        }
+
+        .filter-select:focus{
+            outline:none;
+            border-color:#1A73E8;
+            box-shadow:0 0 0 3px rgba(26,115,232,.12);
+        }
+
+        .btn-filter{
+            width:100%;
+            height:48px;
+            border-radius:14px;
+            font-weight:600;
+        }
+
         /* ===== ALERT ===== */
         .custom-alert {
             border-radius: 16px;
@@ -307,6 +379,45 @@
             </div>
         </div>
 
+        {{-- FILTER --}}
+        <form id="filterForm" action="{{ url('/attendance/izin') }}" method="GET">
+            <div class="filter-card">
+                <div class="filter-header">
+                    <div class="filter-title">
+                        <ion-icon name="filter-outline"></ion-icon>
+                        Filter
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Jenis</label>
+                    <select name="jenis" class="filter-select">
+                        <option value="">Semua Jenis</option>
+                        <option value="i" {{ request('jenis') == 'i' ? 'selected' : '' }}>
+                            Izin
+                        </option>
+                        <option value="s" {{ request('jenis') == 's' ? 'selected' : '' }}>
+                            Sakit
+                        </option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Status</label>
+                    <select name="approve" class="filter-select">
+                        <option value="">Semua Status</option>
+                        <option value="0" {{ request('approve') == '0' ? 'selected' : '' }}>
+                            Menunggu
+                        </option>
+                        <option value="1" {{ request('approve') == '1' ? 'selected' : '' }}>
+                            Disetujui
+                        </option>
+                        <option value="2" {{ request('approve') == '2' ? 'selected' : '' }}>
+                            Ditolak
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </form>
+
         {{-- ALERT --}}
         @php
             $messagesuccess = Session::get('success');
@@ -449,6 +560,12 @@
 @push('myscript')
 <script>
 $(document).ready(function () {
+
+    // Filter otomatis
+    $('.filter-select').change(function () {
+        $('#filterForm').submit();
+    });
+
 
     $('.btn-delete').click(function(e){
 
