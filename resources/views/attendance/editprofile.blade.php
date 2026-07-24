@@ -64,16 +64,6 @@
             margin-bottom: 10px;
         }
 
-        .avatar-img {
-            width: 88px;
-            height: 88px;
-            border-radius: 50%;
-            border: 4px solid rgba(255, 255, 255, 0.9);
-            object-fit: cover;
-            background: #c5cae9;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
-        }
-
         .avatar-initial {
             width: 88px;
             height: 88px;
@@ -204,61 +194,6 @@
             background: var(--blue-light);
         }
 
-        /* ── File upload area ── */
-        .upload-area {
-            width: 100%;
-            max-width: 400px;
-
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-
-            border: 2px dashed var(--blue);
-            border-radius: 12px;
-            background: var(--blue-light);
-            padding: 22px 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: background .18s;
-        }
-
-        .upload-area:hover {
-            background: #d2e3fc;
-        }
-
-        .upload-area input[type="file"] {
-            display: none;
-        }
-
-        .upload-icon {
-            font-size: 32px;
-            color: var(--blue);
-        }
-
-        .upload-text {
-            font-size: 13px;
-            color: var(--blue);
-            font-weight: 600;
-            margin-top: 4px;
-        }
-
-        .upload-sub {
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        #previewFoto {
-            display: none;
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--blue);
-            margin: 0 auto 8px;
-        }
-
         /* ── Tombol Simpan Perubahan ── */
         .btn-save {
             width: 100%;
@@ -281,6 +216,13 @@
         .btn-save:active {
             opacity: .88;
             transform: scale(.98);
+        }
+
+        .btn-save:disabled {
+            background: var(--gray-2);
+            color: var(--text-muted);
+            box-shadow: none;
+            cursor: not-allowed;
         }
 
         /* ✅ Tombol Logout — merah, tepat di bawah Simpan Perubahan */
@@ -631,6 +573,77 @@
         .btn-processing {
             animation: btnPulse 1s ease infinite;
         }
+
+        /* ══════════════════════════════ */
+        /* ✅ PASSWORD REQUIREMENT CHECKLIST (BARU) */
+        /* ══════════════════════════════ */
+        .pw-requirement-box {
+            background: var(--gray);
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: -4px 0 14px;
+        }
+
+        .pw-requirement-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .pw-req-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            color: var(--text-muted);
+            padding: 4px 0;
+            transition: color .18s ease;
+        }
+
+        .pw-req-item .pw-req-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--gray-2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 11px;
+            color: transparent;
+            transition: all .18s ease;
+        }
+
+        .pw-req-item.valid {
+            color: var(--green);
+            font-weight: 600;
+        }
+
+        .pw-req-item.valid .pw-req-icon {
+            background: var(--green);
+            border-color: var(--green);
+            color: #fff;
+        }
+
+        .pw-match-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        .pw-match-row.match {
+            color: var(--green);
+        }
+
+        .pw-match-row.no-match {
+            color: var(--red);
+        }
     </style>
 
 @endsection
@@ -640,14 +653,9 @@
     {{-- ── Hero ── --}}
     <div class="profile-hero">
         <div class="avatar-wrap">
-            @if($siswa->foto)
-                <img class="avatar-img" src="{{ asset('storage/uploads/siswa/' . $siswa->foto) }}"
-                    alt="{{ $siswa->nama_lengkap }}">
-            @else
-                <div class="avatar-initial">
-                    {{ strtoupper(substr($siswa->nama_lengkap, 0, 1)) }}
-                </div>
-            @endif
+            <div class="avatar-initial">
+                {{ strtoupper(substr($siswa->nama_lengkap, 0, 2)) }}
+            </div>
         </div>
         <div class="hero-name">{{ $siswa->nama_lengkap }}</div>
         <div class="hero-sub">NIS: {{ $siswa->nis }} &nbsp;·&nbsp; Kelas {{ $siswa->kelas }}</div>
@@ -675,20 +683,13 @@
         </button>
     </div>
 
-    @if(Auth::guard('siswa')->user()->is_default_password == 1)
 
-        <div class="alert alert-warning">
-            Password Anda masih menggunakan password default.
-            Silakan ganti password terlebih dahulu.
-        </div>
-
-    @endif
     {{-- ══════════════════════════════ --}}
     {{-- TAB 1 : INFORMASI AKUN --}}
     {{-- ══════════════════════════════ --}}
     <div class="tab-panel active" id="panelInfo">
 
-        <form action="/attendance/{{ $siswa->nis }}/updateprofile" method="POST" enctype="multipart/form-data">
+        <form action="/attendance/{{ $siswa->nis }}/updateprofile" method="POST" id="formGantiPassword">
             @csrf
 
             <div class="profile-card">
@@ -696,19 +697,20 @@
 
                 <div class="field-group">
                     <div class="field-label">
-                        <ion-icon name="person-outline"></ion-icon> Nama Lengkap
+                        <ion-icon name="person-outline"></ion-icon>
+                        Nama Lengkap
                     </div>
-                    <input type="text" class="field-input" name="nama_lengkap" value="{{ $siswa->nama_lengkap }}"
-                        placeholder="Nama Lengkap" autocomplete="off">
+
+                    <input type="text" class="field-input" value="{{ $siswa->nama_lengkap }}" readonly>
                 </div>
 
                 <div class="field-group">
-
                     <div class="field-label">
-                        <ion-icon name="call-outline"></ion-icon> No. HP / WhatsApp
+                        <ion-icon name="person-outline"></ion-icon>
+                        NIS
                     </div>
-                    <input type="text" class="field-input" name="no_hp" value="{{ $siswa->no_hp }}"
-                        placeholder="08xxxxxxxxxx" autocomplete="off">
+
+                    <input type="text" class="field-input" value="{{ $siswa->nis }}" readonly>
                 </div>
             </div>
 
@@ -741,7 +743,8 @@
                         <ion-icon name="key-outline"></ion-icon>
                         Password Baru
                     </div>
-                    <input type="password" class="field-input" name="password_baru" placeholder="Masukkan password baru">
+                    <input type="password" class="field-input" name="password_baru" id="passwordBaru"
+                        placeholder="Masukkan password baru" autocomplete="new-password">
 
                     @error('password_baru')
                         <div style="color:red;font-size:12px;margin-top:5px;">
@@ -750,13 +753,37 @@
                     @enderror
                 </div>
 
+                {{-- ✅ REQUIREMENT CHECKLIST PASSWORD (BARU) --}}
+                <div class="pw-requirement-box">
+                    <div class="pw-requirement-title">Password Anda Harus:</div>
+
+                    <div class="pw-req-item" data-rule="length">
+                        <span class="pw-req-icon"><ion-icon name="checkmark-outline"></ion-icon></span>
+                        Minimal 8 karakter
+                    </div>
+                    <div class="pw-req-item" data-rule="number">
+                        <span class="pw-req-icon"><ion-icon name="checkmark-outline"></ion-icon></span>
+                        Mengandung minimal 1 angka
+                    </div>
+                    <div class="pw-req-item" data-rule="case">
+                        <span class="pw-req-icon"><ion-icon name="checkmark-outline"></ion-icon></span>
+                        Mengandung huruf besar dan huruf kecil
+                    </div>
+                    <div class="pw-req-item" data-rule="special">
+                        <span class="pw-req-icon"><ion-icon name="checkmark-outline"></ion-icon></span>
+                        Mengandung minimal 1 karakter spesial (~!@#$%^&amp;*()-_+=[]{}\:;"&lt;&gt;,.?/)
+                    </div>
+                </div>
+
                 <div class="field-group">
                     <div class="field-label">
                         <ion-icon name="shield-checkmark-outline"></ion-icon>
                         Konfirmasi Password Baru
                     </div>
-                    <input type="password" class="field-input" name="password_baru_confirmation"
-                        placeholder="Konfirmasi password baru">
+                    <input type="password" class="field-input" name="password_baru_confirmation" id="passwordKonfirmasi"
+                        placeholder="Konfirmasi password baru" autocomplete="new-password">
+
+                    <div class="pw-match-row" id="pwMatchRow" style="display:none;"></div>
 
                     @error('password_baru_confirmation')
                         <div style="color:red;font-size:12px;margin-top:5px;">
@@ -765,22 +792,10 @@
                     @enderror
                 </div>
             </div>
-            <div class="profile-card">
-                <div class="card-section-label">Foto Profil</div>
-
-                <label class="upload-area" for="fileuploadInput">
-                    <img id="previewFoto" src="#" alt="preview">
-                    <input type="file" name="foto" id="fileuploadInput" accept=".png,.jpg,.jpeg"
-                        onchange="previewImage(this)">
-                    <ion-icon class="upload-icon" name="cloud-upload-outline"></ion-icon>
-                    <div class="upload-text" id="uploadLabel">Tap untuk upload foto</div>
-                    <div class="upload-sub">PNG, JPG, JPEG — maks 2 MB</div>
-                </label>
-            </div>
 
             {{-- ✅ Tombol Simpan Perubahan --}}
             <div style="padding: 0 16px 12px;">
-                <button type="submit" class="btn-save">
+                <button type="submit" class="btn-save" id="btnSimpanProfil">
                     <ion-icon name="save-outline" style="font-size:18px;"></ion-icon>
                     Simpan Perubahan
                 </button>
@@ -901,20 +916,83 @@
         }
 
         // ══════════════════════════════
-        // PREVIEW FOTO
+        // ✅ VALIDASI REQUIREMENT PASSWORD (BARU)
         // ══════════════════════════════
-        function previewImage(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    const prev = document.getElementById('previewFoto');
-                    prev.src = e.target.result;
-                    prev.style.display = 'block';
-                    document.getElementById('uploadLabel').textContent = input.files[0].name;
-                };
-                reader.readAsDataURL(input.files[0]);
+        const passwordBaru = document.getElementById('passwordBaru');
+        const passwordKonfirmasi = document.getElementById('passwordKonfirmasi');
+        const pwMatchRow = document.getElementById('pwMatchRow');
+        const formGantiPassword = document.getElementById('formGantiPassword');
+
+        const pwRules = {
+            length: v => v.length >= 8,
+            number: v => /[0-9]/.test(v),
+            case: v => /[a-z]/.test(v) && /[A-Z]/.test(v),
+            special: v => /[~!@#$%^&*()\-_+=\[\]{}\\:;"'<>,.?/]/.test(v)
+        };
+
+        function checkPasswordRequirements() {
+            const val = passwordBaru.value;
+            let allValid = val.length > 0;
+
+            Object.keys(pwRules).forEach(rule => {
+                const el = document.querySelector('.pw-req-item[data-rule="' + rule + '"]');
+                const isValid = pwRules[rule](val);
+                el.classList.toggle('valid', isValid);
+                if (!isValid) allValid = false;
+            });
+
+            checkPasswordMatch();
+            return allValid;
+        }
+
+        function checkPasswordMatch() {
+            const val = passwordBaru.value;
+            const confirm = passwordKonfirmasi.value;
+
+            if (confirm.length === 0) {
+                pwMatchRow.style.display = 'none';
+                return true;
+            }
+
+            pwMatchRow.style.display = 'flex';
+
+            if (val === confirm) {
+                pwMatchRow.textContent = '✔ Password cocok';
+                pwMatchRow.classList.remove('no-match');
+                pwMatchRow.classList.add('match');
+                return true;
+            } else {
+                pwMatchRow.textContent = '✘ Password tidak cocok';
+                pwMatchRow.classList.remove('match');
+                pwMatchRow.classList.add('no-match');
+                return false;
             }
         }
+
+        passwordBaru.addEventListener('input', checkPasswordRequirements);
+        passwordKonfirmasi.addEventListener('input', checkPasswordMatch);
+
+        // Validasi sebelum submit — hanya jika user memang mengisi password baru
+        formGantiPassword.addEventListener('submit', function (e) {
+            const val = passwordBaru.value;
+            const confirm = passwordKonfirmasi.value;
+
+            // Kalau user tidak mengubah password, biarkan submit (misal hanya update data lain)
+            if (val.length === 0 && confirm.length === 0) return;
+
+            const requirementsOk = checkPasswordRequirements();
+            const matchOk = checkPasswordMatch();
+
+            if (!requirementsOk || !matchOk) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Password Belum Valid',
+                    text: 'Pastikan password baru memenuhi semua syarat dan konfirmasi password sama.',
+                    icon: 'warning',
+                    confirmButtonText: 'Mengerti'
+                });
+            }
+        });
 
         // ══════════════════════════════
         // FACE API — VARIABEL
@@ -1067,14 +1145,14 @@
 
                     // Update status pill → registered
                     document.getElementById('faceStatusPill').innerHTML = `
-                                                                                    <div class="pill-icon registered">
-                                                                                        <ion-icon name="checkmark-circle-outline"></ion-icon>
-                                                                                    </div>
-                                                                                    <div>
-                                                                                        <div class="pill-text-main">Wajah Sudah Terdaftar</div>
-                                                                                        <div class="pill-text-sub">Data wajah berhasil disimpan. Anda siap absensi!</div>
-                                                                                    </div>
-                                                                                `;
+                                                                                                                                        <div class="pill-icon registered">
+                                                                                                                                            <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                                                                                                                        </div>
+                                                                                                                                        <div>
+                                                                                                                                            <div class="pill-text-main">Wajah Sudah Terdaftar</div>
+                                                                                                                                            <div class="pill-text-sub">Data wajah berhasil disimpan. Anda siap absensi!</div>
+                                                                                                                                        </div>
+                                                                                                                                    `;
 
                     btnScan.disabled = false;
                     btnScanIcon.setAttribute('name', 'refresh-outline');
