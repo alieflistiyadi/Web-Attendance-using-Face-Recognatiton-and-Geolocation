@@ -34,8 +34,8 @@ class KonfigurasiController extends Controller
     public function konfigurasiWaktu()
     {
         $waktu = DB::table('konfigurasi_waktu')
-            ->where('id', 1)
-            ->first();
+            ->orderBy('id')
+            ->get();
 
         return view(
             'konfigurasi.konfigurasi_waktu',
@@ -44,39 +44,33 @@ class KonfigurasiController extends Controller
     }
     public function updateWaktu(Request $request)
     {
-        $request->validate([
-            'jam_mulai_masuk' => 'required',
-            'batas_telat' => 'required',
-            'batas_masuk' => 'required',
-            'jam_mulai_pulang' => 'required',
-            'batas_pulang' => 'required',
-        ]);
+        foreach ($request->id as $i => $id) {
 
-        // Validasi urutan waktu
-        if (
-            !(
-                $request->jam_mulai_masuk <= $request->batas_telat &&
-                $request->batas_telat <= $request->batas_masuk &&
-                $request->jam_mulai_pulang <= $request->batas_pulang
-            )
-        ) {
-            return back()->with('warning', 'Urutan waktu tidak valid.');
+            // Validasi urutan waktu tiap hari
+            if (
+                !(
+                    $request->jam_mulai_masuk[$i] <= $request->batas_telat[$i] &&
+                    $request->batas_telat[$i] <= $request->batas_masuk[$i] &&
+                    $request->jam_mulai_pulang[$i] <= $request->batas_pulang[$i]
+                )
+            ) {
+                return back()->with(
+                    'warning',
+                    'Urutan waktu pada hari ' . $request->hari[$i] . ' tidak valid.'
+                );
+            }
+
+            DB::table('konfigurasi_waktu')
+                ->where('id', $id)
+                ->update([
+                    'jam_mulai_masuk'  => $request->jam_mulai_masuk[$i],
+                    'batas_telat'      => $request->batas_telat[$i],
+                    'batas_masuk'      => $request->batas_masuk[$i],
+                    'jam_mulai_pulang' => $request->jam_mulai_pulang[$i],
+                    'batas_pulang'     => $request->batas_pulang[$i],
+                    'updated_at'       => now(),
+                ]);
         }
-
-        DB::table('konfigurasi_waktu')
-            ->where('id', 1)
-            ->update([
-
-                'jam_mulai_masuk' => $request->jam_mulai_masuk,
-                'batas_telat' => $request->batas_telat,
-                'batas_masuk' => $request->batas_masuk,
-
-                'jam_mulai_pulang' => $request->jam_mulai_pulang,
-                'batas_pulang' => $request->batas_pulang,
-
-                'updated_at' => now()
-
-            ]);
 
         return back()->with('success', 'Konfigurasi waktu berhasil diperbarui.');
     }
