@@ -27,41 +27,41 @@
               @endif
 
               <div class="row">
-                  <div class="col-12">
+                <div class="col-12">
 
-                      @if (Session::get('success'))
-                          <div class="alert alert-success">
-                              {{ Session::get('success') }}
-                          </div>
-                      @endif
+                  @if (Session::get('success'))
+                    <div class="alert alert-success">
+                      {{ Session::get('success') }}
+                    </div>
+                  @endif
 
-                      @if (Session::get('warning'))
-                          <div class="alert alert-warning">
-                              {{ Session::get('warning') }}
-                          </div>
-                      @endif
+                  @if (Session::get('warning'))
+                    <div class="alert alert-warning">
+                      {{ Session::get('warning') }}
+                    </div>
+                  @endif
 
-                      {{-- Hasil Import --}}
-                      @if(session('success_import'))
-                          <div class="alert alert-success">
-                              <strong>Import berhasil!</strong><br>
-                              Berhasil: {{ session('success_import') }} data<br>
-                              Gagal: {{ session('failed_import') }} data
-                          </div>
-                      @endif
+                  {{-- Hasil Import --}}
+                  @if(session('success_import'))
+                    <div class="alert alert-success">
+                      <strong>Import berhasil!</strong><br>
+                      Berhasil: {{ session('success_import') }} data<br>
+                      Gagal: {{ session('failed_import') }} data
+                    </div>
+                  @endif
 
-                      @if(session('errors_import'))
-                          <div class="alert alert-danger">
-                              <strong>Data yang gagal diimport:</strong>
-                              <ul class="mb-0">
-                                  @foreach(session('errors_import') as $error)
-                                      <li>{{ $error }}</li>
-                                  @endforeach
-                              </ul>
-                          </div>
-                      @endif
+                  @if(session('errors_import'))
+                    <div class="alert alert-danger">
+                      <strong>Data yang gagal diimport:</strong>
+                      <ul class="mb-0">
+                        @foreach(session('errors_import') as $error)
+                          <li>{{ $error }}</li>
+                        @endforeach
+                      </ul>
+                    </div>
+                  @endif
 
-                  </div>
+                </div>
               </div>
 
               <div class="row">
@@ -85,13 +85,12 @@
                       <path d="M5 12l14 0" />
                     </svg>
                     Import Excel
-                </a>
-                <a href="{{ route('siswa.template') }}"
-                    class="btn btn-secondary">
+                  </a>
+                  <a href="{{ route('siswa.template') }}" class="btn btn-secondary">
 
                     Download Template
 
-                </a>
+                  </a>
                 </div>
               </div>
 
@@ -143,29 +142,21 @@
                         <th>Nama Lengkap</th>
                         <th>Kelas</th>
                         <th>No. Hp</th>
-                        <th>Foto</th>
+
                         <th>Jurusan</th>
                         <th>Aksi</th>
                       </tr>
                     </thead>
                     <tbody>
                       @foreach ($siswa as $d)
-                        @php
-                          $path = Storage::url('uploads/siswa/' . $d->foto)
-                        @endphp
+
                         <tr>
                           <td>{{ $loop->iteration + $siswa->firstItem() - 1 }}</td>
                           <td>{{ $d->nis }}</td>
                           <td>{{ $d->nama_lengkap }}</td>
                           <td>{{ $d->kelas }}</td>
                           <td>{{ $d->no_hp }}</td>
-                          <td>
-                            @if (empty($d->foto))
-                              <img src="{{ asset('assets/img/nophoto.png') }}" class="avatar" alt="">
-                            @else
-                              <img src="{{ url($path) }}" class="avatar" alt="">
-                            @endif
-                          </td>
+
                           <td>{{ $d->nama_jurusan }}</td>
                           <td>
                             <div class="btn-group">
@@ -296,22 +287,12 @@
                           d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
                       </svg>
                     </span>
-                    <input
-                      type="text"
-                      id="no_hp_modal"
-                      class="form-control"
-                      name="no_hp"
-                      placeholder="+628xxxxxxxxxx"
+                    <input type="text" id="no_hp_modal" class="form-control" name="no_hp" placeholder="+628xxxxxxxxxx"
                       maxlength="15">
                   </div>
                 </div>
               </div>
 
-              <div class="row mt-2">
-                <div class="col-12">
-                  <input type="file" name="foto" class="form-control">
-                </div>
-              </div>
 
               <div class="row mt-2">
                 <div class="col-12">
@@ -336,40 +317,35 @@
     {{-- Modal Import --}}
     <div class="modal fade" id="modal-import" tabindex="-1">
       <div class="modal-dialog">
-          <div class="modal-content">
+        <div class="modal-content">
 
-              <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data">
+          <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data">
 
-                  @csrf
+            @csrf
 
-                  <div class="modal-header">
-                      <h5 class="modal-title">Import Data Siswa</h5>
-                  </div>
+            <div class="modal-header">
+              <h5 class="modal-title">Import Data Siswa</h5>
+            </div>
 
-                  <div class="modal-body">
+            <div class="modal-body">
 
-                      <input
-                          type="file"
-                          name="file"
-                          class="form-control"
-                          accept=".xlsx,.xls"
-                          required>
+              <input type="file" name="file" class="form-control" accept=".xlsx,.xls" required>
 
-                  </div>
+            </div>
 
-                  <div class="modal-footer">
+            <div class="modal-footer">
 
-                      <button type="submit" class="btn btn-success">
-                          Import
-                      </button>
+              <button type="submit" class="btn btn-success">
+                Import
+              </button>
 
-                  </div>
+            </div>
 
-              </form>
+          </form>
 
-          </div>
+        </div>
       </div>
-  </div>
+    </div>
 
     {{-- Modal Edit --}}
     <div class="modal modal-blur fade" id="modal-editsiswa" tabindex="-1" role="dialog" aria-hidden="true">
@@ -394,38 +370,38 @@
         });
 
         $("#btnImport").click(function () {
-        $("#modal-import").modal("show");
+          $("#modal-import").modal("show");
         });
 
         // Format No HP
         $("#no_hp_modal").on("input", function () {
 
-            var nomor = $(this).val();
+          var nomor = $(this).val();
 
-            // Hanya angka
-            nomor = nomor.replace(/\D/g, '');
+          // Hanya angka
+          nomor = nomor.replace(/\D/g, '');
 
-            // Kalau diawali 0 -> ganti jadi 62
-            if (nomor.startsWith("0")) {
-                nomor = "62" + nomor.substring(1);
-            }
+          // Kalau diawali 0 -> ganti jadi 62
+          if (nomor.startsWith("0")) {
+            nomor = "62" + nomor.substring(1);
+          }
 
-            // Kalau bukan 62 -> tambahkan 62
-            if (!nomor.startsWith("62")) {
-                nomor = "62" + nomor;
-            }
+          // Kalau bukan 62 -> tambahkan 62
+          if (!nomor.startsWith("62")) {
+            nomor = "62" + nomor;
+          }
 
-            $(this).val("+" + nomor);
+          $(this).val("+" + nomor);
 
         });
 
-        $("#no_hp_modal").keypress(function(e){
+        $("#no_hp_modal").keypress(function (e) {
 
-            var char = String.fromCharCode(e.which);
+          var char = String.fromCharCode(e.which);
 
-            if(!/[0-9]/.test(char)){
-                return false;
-            }
+          if (!/[0-9]/.test(char)) {
+            return false;
+          }
 
         });
 
@@ -468,77 +444,77 @@
 
         $("#formsiswa").submit(function () {
 
-      var nis = $("#nis").val();
-      var nama_lengkap = $("#nama_lengkap_modal").val();
-      var no_hp = $("#no_hp_modal").val();
-      var kode_jurusan = $("#kode_jurusan_modal").val();
+          var nis = $("#nis").val();
+          var nama_lengkap = $("#nama_lengkap_modal").val();
+          var no_hp = $("#no_hp_modal").val();
+          var kode_jurusan = $("#kode_jurusan_modal").val();
 
-      if (nis == "") {
-          Swal.fire({
+          if (nis == "") {
+            Swal.fire({
               title: 'Warning!',
               text: 'NIS Harus Diisi',
               icon: 'warning',
               confirmButtonText: 'OK'
-          }).then(() => {
+            }).then(() => {
               $("#nis").focus();
-          });
-          return false;
-      }
+            });
+            return false;
+          }
 
-      if (nama_lengkap == "") {
-          Swal.fire({
+          if (nama_lengkap == "") {
+            Swal.fire({
               title: 'Warning!',
               text: 'Nama Lengkap Harus Diisi',
               icon: 'warning',
               confirmButtonText: 'OK'
-          }).then(() => {
+            }).then(() => {
               $("#nama_lengkap_modal").focus();
-          });
-          return false;
-      }
+            });
+            return false;
+          }
 
-      if (no_hp == "") {
-          Swal.fire({
+          if (no_hp == "") {
+            Swal.fire({
               title: 'Warning!',
               text: 'No HP Harus Diisi',
               icon: 'warning',
               confirmButtonText: 'OK'
-          }).then(() => {
+            }).then(() => {
               $("#no_hp_modal").focus();
-          });
-          return false;
-      }
+            });
+            return false;
+          }
 
-      if (kode_jurusan == "") {
-          Swal.fire({
+          if (kode_jurusan == "") {
+            Swal.fire({
               title: 'Warning!',
               text: 'Jurusan Harus Dipilih',
               icon: 'warning',
               confirmButtonText: 'OK'
-          }).then(() => {
+            }).then(() => {
               $("#kode_jurusan_modal").focus();
-          });
-          return false;
-      }
+            });
+            return false;
+          }
 
-      // Validasi nomor HP
-      var hp = no_hp.replace("+", "");
+          // Validasi nomor HP
+          var hp = no_hp.replace("+", "");
 
-      if (!/^62\d{9,18}$/.test(hp)) {
-      Swal.fire({
-          title: 'Warning!',
-          text: 'Nomor HP harus menggunakan format +62 dan terdiri dari 11 sampai 15 digit.',
-          icon: 'warning',
-          confirmButtonText: 'OK'
-      }).then(() => {
-          $("#no_hp_modal").focus();
+          if (!/^62\d{9,18}$/.test(hp)) {
+            Swal.fire({
+              title: 'Warning!',
+              text: 'Nomor HP harus menggunakan format +62 dan terdiri dari 11 sampai 15 digit.',
+              icon: 'warning',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              $("#no_hp_modal").focus();
+            });
+
+            return false;
+          }
+
+        });
+
       });
-
-      return false;
-  }
-
-  });
-    
-  });
     </script>
   @endpush

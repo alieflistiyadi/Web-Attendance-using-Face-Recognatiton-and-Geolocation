@@ -83,3 +83,4 @@ class KonfigurasiController extends Controller
         return back()->with('success', 'Konfigurasi waktu berhasil diperbarui.');
     }
 }
+// ini kode konfigurasi controller  

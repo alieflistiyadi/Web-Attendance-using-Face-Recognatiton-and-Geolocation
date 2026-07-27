@@ -166,13 +166,12 @@ class AttendanceController extends Controller
         $siswas = DB::table('siswa')
             ->whereNotNull('face_descriptor')
             ->where('face_descriptor', '!=', '')
-            ->select('nis', 'nama_lengkap', 'foto', 'face_descriptor')
+            ->select('nis', 'nama_lengkap', 'face_descriptor')
             ->get()
             ->map(function ($s) {
                 return [
                     'nis' => $s->nis,
                     'nama' => $s->nama_lengkap,
-                    'foto' => $s->foto ? asset('storage/uploads/siswa/' . $s->foto) : null,
                     'face_descriptor' => json_decode($s->face_descriptor), // array 128 float
                 ];
             });
@@ -397,16 +396,16 @@ class AttendanceController extends Controller
     public function editizin($id)
     {
         $izin = DB::table('pengajuan_izin')
-                ->where('id',$id)
-                ->first();
+            ->where('id', $id)
+            ->first();
 
         if (!$izin) {
-        return redirect()->back()->with('error', 'Data pengajuan tidak ditemukan.');
+            return redirect()->back()->with('error', 'Data pengajuan tidak ditemukan.');
         }
 
-        if ($izin->status_approved != 0){
+        if ($izin->status_approved != 0) {
             return redirect('/attendance/izin')
-                ->with('error','Pengajuan sudah diproses.');
+                ->with('error', 'Pengajuan sudah diproses.');
         }
 
         return view('attendance.editizin', compact('izin'));
@@ -475,8 +474,8 @@ class AttendanceController extends Controller
     public function deleteizin($id)
     {
         $izin = DB::table('pengajuan_izin')
-                ->where('id', $id)
-                ->first();
+            ->where('id', $id)
+            ->first();
 
         if (!$izin) {
             return redirect('/attendance/izin')
@@ -505,7 +504,7 @@ class AttendanceController extends Controller
         return redirect('/attendance/izin')
             ->with('success', 'Pengajuan berhasil dihapus.');
     }
-    
+
     public function monitoringKelas($kelas)
     {
         $jurusan = DB::table('jurusan')->get();
