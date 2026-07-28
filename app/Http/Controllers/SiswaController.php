@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Siswa;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 
 class SiswaController extends Controller
 {
@@ -67,12 +66,6 @@ class SiswaController extends Controller
         ]);
 
         $password = \Illuminate\Support\Facades\Hash::make('12345678');
-        $foto = null;
-
-        if ($request->hasFile('foto')) {
-            $foto = $request->nis . '.' . $request->file('foto')->getClientOriginalExtension();
-            $request->file('foto')->storeAs('public/uploads/siswa', $foto);
-        }
 
         try {
             Siswa::create([
@@ -81,7 +74,6 @@ class SiswaController extends Controller
                 'kelas' => $request->kelas,
                 'no_hp' => $request->no_hp,
                 'kode_jurusan' => $request->kode_jurusan,
-                'foto' => $foto,
                 'password' => $password,
                 'is_default_password' => 1
             ]);
@@ -114,13 +106,9 @@ class SiswaController extends Controller
         $kelas = $request->kelas;
         $no_hp = $request->no_hp;
         $kode_jurusan = $request->kode_jurusan;
-        $old_foto = $request->old_foto;
 
-        if ($request->hasFile('foto')) {
-            $foto = $nis . '.' . $request->file('foto')->getClientOriginalExtension();
-        } else {
-            $foto = $old_foto;
-        }
+
+
 
         try {
             $data = [
@@ -128,27 +116,21 @@ class SiswaController extends Controller
                 'kelas' => $kelas,
                 'no_hp' => $no_hp,
                 'kode_jurusan' => $kode_jurusan,
-                'foto' => $foto,
+
             ];
 
             $update = DB::table('siswa')->where('nis', $nis)->update($data);
 
             if ($update) {
-                if ($request->hasFile('foto')) {
-                    $folderPath = 'public/uploads/siswa';
-                    $folderOld = $folderPath . '/' . $old_foto;
-                    if (Storage::exists($folderOld)) {
-                        Storage::delete($folderOld);
-                    }
-                    $request->file('foto')->storeAs($folderPath, $foto);
-                }
 
                 if ($request->redirect_kelas) {
                     return redirect('/siswa/kelas/' . $request->redirect_kelas)
                         ->with('success', 'Data Berhasil Diupdate');
                 }
 
-                return Redirect::back()->with(['success' => 'Data Berhasil Diupdate']);
+                return Redirect::back()->with([
+                    'success' => 'Data Berhasil Diupdate'
+                ]);
             }
 
         } catch (\Exception $e) {

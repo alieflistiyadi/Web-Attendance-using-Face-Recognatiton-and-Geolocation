@@ -53,7 +53,7 @@
         }
 
         /* Saat foto hasil liveness ditampilkan, live video + canvas overlay + elemen
-               debug disembunyikan agar user cuma lihat foto diam, bukan live feed */
+                           debug disembunyikan agar user cuma lihat foto diam, bukan live feed */
         .webcam-capture.show-result-photo video,
         .webcam-capture.show-result-photo canvas.face-canvas,
         .webcam-capture.show-result-photo #face-status,
@@ -487,7 +487,7 @@
                         style="position:absolute; top:8px; right:8px; z-index:20; border:2px solid #ffab40; border-radius:4px; overflow:hidden; width:80px; height:80px; background:#000;">
                     </div>
 
-                    {{-- ✅ TAHAP LIVENESS (kedip -> senyum -> gerakan kepala terarah), langsung tampil tanpa tahap framing
+                    {{-- ✅ TAHAP LIVENESS (kedip -> gerakan kepala terarah), langsung tampil tanpa tahap framing
                     --}}
                     <div class="liveness-overlay" id="stageLivenessOverlay" style="display:none;">
                         <div class="liveness-circle-wrap">
@@ -514,19 +514,15 @@
                         </div>
                         <div class="liveness-hint" id="livenessHint">Tatap kamera secara normal</div>
 
-                        {{-- ✅ Checklist: kedipan -> senyum -> gerakan kepala terarah --}}
+                        {{-- ✅ Checklist: kedipan -> gerakan kepala terarah --}}
                         <div class="liveness-checklist">
                             <div class="check-item" id="checkBlink">
                                 <ion-icon name="ellipse-outline"></ion-icon>
                                 1. Kedipkan mata Anda sekali
                             </div>
-                            <div class="check-item" id="checkMouth">
-                                <ion-icon name="ellipse-outline"></ion-icon>
-                                2. Tersenyumlah sebentar
-                            </div>
                             <div class="check-item" id="checkMove">
                                 <ion-icon name="ellipse-outline"></ion-icon>
-                                3. Ikuti arah panah &amp; kembali ke tengah
+                                2. Ikuti arah panah &amp; kembali ke tengah
                             </div>
                         </div>
                     </div>
@@ -623,7 +619,7 @@
             // Tahap framing/bingkai dihapus (masih bisa ditembus foto) -> langsung mulai
             // dari liveness begitu kamera aktif dan model siap.
             // stage: 'liveness' -> 'ready'
-            // livenessSubStage (di dalam 'liveness'): 'blink' -> 'mouth' -> 'move'
+            // livenessSubStage (di dalam 'liveness'): 'blink' -> 'move'
             let stage = 'liveness';
             let livenessStageStarted = false; // guard supaya transitionToLiveness() cuma dipanggil sekali
 
@@ -664,7 +660,7 @@
             // "kaku" ke angka hasil kalibrasi awal saja kalau pencahayaan/jarak wajah sedikit berubah.
             const EAR_BASELINE_ADAPT_RATE = 0.06;
 
-            // ✅ Sub-tahap dalam Tahap 2: 'blink' -> 'mouth' -> 'move'
+            // ✅ Sub-tahap dalam Tahap 2: 'blink' -> 'move'
             let livenessSubStage = 'blink';
 
             // ══════════════════════════════
@@ -684,33 +680,9 @@
             const FACE_BOX_RATIO_MAX = 1.15;
 
             // ══════════════════════════════
-            // ✅ OPSI 2: SENYUM challenge (Smile Ratio)
-            // ══════════════════════════════
-            // Sebelumnya pakai Mouth Aspect Ratio (buka mulut vertikal), tapi sering gagal
-            // terdeteksi karena orang cenderung tersenyum (mulut melebar ke samping) alih-alih
-            // membuka mulut lebar-lebar (mulut naik-turun). Sekarang diganti jadi Smile Ratio:
-            // mengukur pelebaran sudut mulut (titik 48 & 54) relatif terhadap jarak referensi
-            // skala wajah (jarak antar sudut luar mata, titik 36 & 45). Rasio ini stabil terhadap
-            // jarak/kamera (sama-sama diukur dari landmark wajah) dan naik jelas saat senyum,
-            // serta tetap sulit dipalsukan pakai foto statis (foto tidak bisa mengubah ekspresi).
-            let mouthState = 'closed'; // 'closed' (netral) | 'open' (senyum)
-            let mouthActionCount = 0;
-            let mouthCheckPassed = false;
-            const MOUTH_REQUIRED = 1; // minimal 1 kali senyum lalu kembali netral
-
-            let marBaseline = null; // baseline rasio saat ekspresi netral (tidak senyum)
-            let marCalibrationSamples = [];
-            const MAR_CALIBRATION_FRAMES_NEEDED = 8;
-            // Rasio relatif terhadap baseline (ekspresi netral), meniru pola EAR di atas.
-            const SMILE_OPEN_RATIO = 1.12;  // dianggap "senyum" jika rasio >= baseline * 1.12
-            const SMILE_CLOSE_RATIO = 1.05; // dianggap "kembali netral" jika rasio turun <= baseline * 1.05
-            const SMILE_OPEN_THRESHOLD_FALLBACK = 0.9;
-            const SMILE_CLOSE_THRESHOLD_FALLBACK = 0.8;
-
-            // ══════════════════════════════
             // ✅ OPSI 4: DETEKSI LAYAR / MOIRÉ (anti video-replay)
             // ══════════════════════════════
-            // Behavior challenge (kedip/senyum/toleh) bisa ditembus dengan MEMUTAR VIDEO
+            // Behavior challenge (kedip/toleh) bisa ditembus dengan MEMUTAR VIDEO
             // wajah asli di layar HP lain di depan kamera — gerakannya memang "sungguhan"
             // terjadi secara geometris, hanya bukan terjadi live di depan lensa. Untuk
             // menutup celah ini, tiap beberapa frame kita crop area wajah, ubah ke
@@ -789,7 +761,6 @@
 
             const checkMove = document.getElementById('checkMove');
             const checkBlink = document.getElementById('checkBlink');
-            const checkMouth = document.getElementById('checkMouth');
             const livenessRing = document.getElementById('livenessRing');
             const blinkIndicator = document.getElementById('blinkIndicator');
             const livenessCircleWrap = document.querySelector('.liveness-circle-wrap');
@@ -954,64 +925,6 @@
                         `EAR:${ear.toFixed(3)} Baseline:${earBaseline !== null ? earBaseline.toFixed(3) : '-'} ` +
                         `Tutup<${closedThreshold.toFixed(3)} Buka>${openThreshold.toFixed(3)} State:${eyeState} ` +
                         `Kedip:${blinkCount} Relax:${blinkRelaxLevel}`;
-                }
-            }
-
-            // ══════════════════════════════
-            // ✅ OPSI 2: SMILE RATIO — deteksi senyum
-            // ══════════════════════════════
-            // Rasio lebar sudut mulut (titik 48 & 54) terhadap jarak antar sudut luar
-            // mata (titik 36 & 45) sebagai referensi skala wajah yang stabil (tidak
-            // terpengaruh jarak wajah ke kamera seperti halnya lebar bounding-box).
-            // Baseline dikalibrasi saat ekspresi netral, lalu rasio wajib naik signifikan
-            // (senyum) dan turun lagi (kembali netral) untuk dianggap satu aksi yang valid.
-            function estimateSmileRatio(positions) {
-                const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
-                const mouthCorner1 = positions[48];
-                const mouthCorner2 = positions[54];
-                const eyeOuterLeft = positions[36];
-                const eyeOuterRight = positions[45];
-
-                const mouthWidth = dist(mouthCorner1, mouthCorner2);
-                const eyeDist = dist(eyeOuterLeft, eyeOuterRight);
-                if (eyeDist === 0) return 0.3;
-                return mouthWidth / eyeDist;
-            }
-
-            function collectMarCalibrationSample(ratio) {
-                marCalibrationSamples.push(ratio);
-                if (marCalibrationSamples.length >= MAR_CALIBRATION_FRAMES_NEEDED) {
-                    // Median, sama seperti baseline EAR, supaya tidak "terkunci" ke satu
-                    // frame outlier (misal terekam pas sedang bicara/senyum sekilas).
-                    const sorted = [...marCalibrationSamples].sort((a, b) => a - b);
-                    const mid = Math.floor(sorted.length / 2);
-                    marBaseline = sorted.length % 2 !== 0
-                        ? sorted[mid]
-                        : (sorted[mid - 1] + sorted[mid]) / 2;
-                    console.log('✅ Kalibrasi Smile Ratio selesai, baseline (median):', marBaseline.toFixed(3));
-                }
-            }
-
-            function processMouthDetection(ratio) {
-                const openThreshold = marBaseline !== null
-                    ? marBaseline * SMILE_OPEN_RATIO
-                    : SMILE_OPEN_THRESHOLD_FALLBACK;
-                const closeThreshold = marBaseline !== null
-                    ? marBaseline * SMILE_CLOSE_RATIO
-                    : SMILE_CLOSE_THRESHOLD_FALLBACK;
-
-                if (mouthState === 'closed' && ratio > openThreshold) {
-                    mouthState = 'open';
-                } else if (mouthState === 'open' && ratio < closeThreshold) {
-                    mouthState = 'closed';
-                    mouthActionCount++;
-                }
-
-                if (earDebugText) {
-                    earDebugText.textContent =
-                        `Smile:${ratio.toFixed(3)} Baseline:${marBaseline !== null ? marBaseline.toFixed(3) : '-'} ` +
-                        `Senyum>${openThreshold.toFixed(3)} Netral<${closeThreshold.toFixed(3)} State:${mouthState} ` +
-                        `Aksi:${mouthActionCount}`;
                 }
             }
 
@@ -1314,15 +1227,12 @@
                 livenessHint.classList.remove('screen-warning');
             }
 
-            function updateChecklistUI(moveDone, blinkDone, mouthDone) {
+            function updateChecklistUI(moveDone, blinkDone) {
                 checkMove.classList.toggle('done', moveDone);
                 checkMove.querySelector('ion-icon').setAttribute('name', moveDone ? 'checkmark-circle' : 'ellipse-outline');
 
                 checkBlink.classList.toggle('done', blinkDone);
                 checkBlink.querySelector('ion-icon').setAttribute('name', blinkDone ? 'checkmark-circle' : 'ellipse-outline');
-
-                checkMouth.classList.toggle('done', mouthDone);
-                checkMouth.querySelector('ion-icon').setAttribute('name', mouthDone ? 'checkmark-circle' : 'ellipse-outline');
             }
 
             // Jadwalkan pelonggaran threshold bertahap selama fase blink berlangsung.
@@ -1361,7 +1271,7 @@
             function startBlinkFastLoop() {
                 if (blinkLoopTimer) return;
                 blinkLoopTimer = setInterval(async () => {
-                    if (blinkLoopBusy) return; // frame sebelumnya masih diproses -> lewati, jangan numpuk
+                    if (blinkLoopBusy) return;
                     if (stage !== 'liveness' || livenessSubStage !== 'blink') return;
                     if (!faceReady) return;
 
@@ -1381,6 +1291,59 @@
 
                         if (!result) return;
 
+                        // ✅ TAMBAHAN: cek anti-spoof JUGA selama fase blink, bukan hanya
+                        // fase gerakan kepala. Ini menutup celah foto/layar yang lolos
+                        // kedip karena anti-spoof belum pernah dicek sama sekali di sini.
+                        if (antiSpoofReady) {
+                            antiSpoofTickCounter++;
+                            if (antiSpoofTickCounter % ANTISPOOF_CHECK_EVERY_N_TICKS === 0) {
+                                let antiSpoofResult = null;
+                                try {
+                                    antiSpoofResult = await computeAntiSpoofScore(
+                                        video, result.detection.box, video.videoWidth, video.videoHeight
+                                    );
+                                } catch (e) {
+                                    console.error('AntiSpoof inference error (blink phase):', e);
+                                }
+
+                                if (antiSpoofResult && antiSpoofResult.realScore < ANTISPOOF_REAL_THRESHOLD) {
+                                    antiSpoofSuspicionStreak++;
+                                    livenessInstructionText.innerHTML = '🖥️ Sepertinya Anda menunjukkan layar/rekaman/foto';
+                                    livenessInstructionText.classList.add('screen-warning');
+                                    livenessHint.textContent =
+                                        `Terdeteksi kemungkinan spoof (skor asli: ${(antiSpoofResult.realScore * 100).toFixed(0)}%). Gunakan wajah asli langsung.`;
+                                    livenessHint.classList.add('screen-warning');
+
+                                    if (antiSpoofSuspicionStreak >= ANTISPOOF_SUSPICION_LIMIT) {
+                                        resetLivenessProgress();
+                                    }
+                                    return; // jangan proses blink kalau sedang mencurigakan
+                                } else if (antiSpoofSuspicionStreak > 0) {
+                                    resetAntiSpoofSuspicion();
+                                }
+                            }
+                        } else {
+                            // fallback FFT moire kalau model ONNX gagal load
+                            moireTickCounter++;
+                            if (moireTickCounter % MOIRE_CHECK_EVERY_N_TICKS === 0) {
+                                const moireResult = computeMoireSuspicion(video, result.detection.box);
+                                if (moireResult.suspicious) {
+                                    moireSuspicionStreak++;
+                                    livenessInstructionText.innerHTML = '🖥️ Sepertinya Anda menunjukkan layar/rekaman';
+                                    livenessInstructionText.classList.add('screen-warning');
+                                    livenessHint.textContent = 'Gunakan wajah asli langsung di depan kamera.';
+                                    livenessHint.classList.add('screen-warning');
+
+                                    if (moireSuspicionStreak >= MOIRE_SUSPICION_LIMIT) {
+                                        resetLivenessProgress();
+                                    }
+                                    return;
+                                } else if (moireSuspicionStreak > 0) {
+                                    resetMoireSuspicion();
+                                }
+                            }
+                        }
+
                         const ear = estimateEAR(result.landmarks.positions);
 
                         if (earBaseline === null) {
@@ -1398,31 +1361,21 @@
                         processBlinkDetection(ear);
 
                         const blinkDone = blinkCount >= BLINK_REQUIRED;
-                        updateChecklistUI(false, blinkDone, false);
+                        updateChecklistUI(false, blinkDone);
 
                         if (blinkDone) {
-                            // Kedip terdeteksi -> hentikan loop cepat, lanjut ke OPSI 2 (senyum)
                             stopBlinkFastLoop();
                             clearBlinkRelaxTimer();
 
-                            livenessSubStage = 'mouth';
-                            mouthState = 'closed';
-                            mouthActionCount = 0;
-                            marBaseline = null;
-                            marCalibrationSamples = [];
                             blinkIndicator.style.display = 'none';
-                            livenessCircleWrap.classList.add('pulsing');
-                            updateRingProgress(0.3);
-                            livenessInstructionText.innerHTML = 'Tersenyumlah sebentar,<br>lalu kembali ke ekspresi normal.';
-                            livenessHint.textContent = 'Tatap kamera secara normal';
-                            updateChecklistUI(false, true, false);
+                            updateChecklistUI(false, true);
+                            startMoveStage();
                         }
                     } finally {
                         blinkLoopBusy = false;
                     }
                 }, BLINK_LOOP_MS);
             }
-
             function stopBlinkFastLoop() {
                 if (blinkLoopTimer) {
                     clearInterval(blinkLoopTimer);
@@ -1472,16 +1425,11 @@
                 blinkCount = 0;
                 earBaseline = null;
                 earCalibrationSamples = [];
-                mouthState = 'closed';
-                mouthActionCount = 0;
-                mouthCheckPassed = false;
-                marBaseline = null;
-                marCalibrationSamples = [];
                 moveReachedTarget = false;
                 blinkRelaxLevel = 0;
                 resetMoireSuspicion();
                 resetAntiSpoofSuspicion();
-                updateChecklistUI(false, false, false);
+                updateChecklistUI(false, false);
 
                 livenessRing.style.display = 'block';
                 ringFill.classList.remove('phase-move', 'done');
@@ -1512,11 +1460,6 @@
                 earBaseline = null;
                 earCalibrationSamples = [];
                 livenessSubStage = 'blink';
-                mouthState = 'closed';
-                mouthActionCount = 0;
-                mouthCheckPassed = false;
-                marBaseline = null;
-                marCalibrationSamples = [];
                 moveReachedTarget = false;
                 blinkRelaxLevel = 0;
                 clearBlinkRelaxTimer();
@@ -1529,7 +1472,7 @@
                 livenessCheckBadge.classList.remove('show');
                 livenessCircleWrap.classList.add('pulsing');
                 updateRingProgress(0);
-                updateChecklistUI(false, false, false);
+                updateChecklistUI(false, false);
                 startBlinkFastLoop();
             }
 
@@ -1700,7 +1643,7 @@
 
                         const resized = faceapi.resizeResults(detections, displaySize);
 
-                        // ── TAHAP LIVENESS (kedip -> senyum -> gerakan kepala terarah) ──
+                        // ── TAHAP LIVENESS (kedip -> gerakan kepala terarah) ──
                         if (stage === 'liveness') {
                             if (resized.length === 1) {
                                 const detection = resized[0];
@@ -1811,34 +1754,7 @@
                                     return;
                                 }
 
-                                // SUB-TAHAP 2 (OPSI 2): SENYUM (Smile Ratio)
-                                // Murni geometri landmark sehingga bisa langsung diproses di loop
-                                // utama (300ms) tanpa perlu loop cepat terpisah seperti kedip.
-                                if (livenessSubStage === 'mouth') {
-                                    const smileRatio = estimateSmileRatio(detection.landmarks.positions);
-
-                                    if (marBaseline === null) {
-                                        collectMarCalibrationSample(smileRatio);
-                                        livenessHint.textContent = 'Sedang menyesuaikan sensor senyum...';
-                                        return;
-                                    }
-
-                                    processMouthDetection(smileRatio);
-
-                                    const mouthDone = mouthActionCount >= MOUTH_REQUIRED;
-                                    updateChecklistUI(false, true, mouthDone);
-                                    updateRingProgress(mouthDone ? 0.5 : (mouthState === 'open' ? 0.4 : 0.3));
-
-                                    if (mouthDone) {
-                                        mouthCheckPassed = true;
-                                        livenessInstructionText.innerHTML = '✅ Terverifikasi, lanjut...';
-                                        livenessHint.textContent = '';
-                                        startMoveStage();
-                                    }
-                                    return;
-                                }
-
-                                // SUB-TAHAP 3 (OPSI 1 + OPSI 3): GERAKAN KEPALA TERARAH
+                                // SUB-TAHAP 2 (OPSI 1 + OPSI 3): GERAKAN KEPALA TERARAH
                                 // + KEMBALI KE TENGAH, dengan guard rasio geometri wajah.
                                 const box = detection.detection.box;
                                 const faceBoxRatio = box.width / box.height;
@@ -1880,7 +1796,7 @@
                                 updateRingProgress(0.3 + moveProgress * 0.7);
 
                                 const moveDone = moveReachedTarget && Math.abs(yaw) <= YAW_RETURN_THRESHOLD;
-                                updateChecklistUI(moveDone, true, true);
+                                updateChecklistUI(moveDone, true);
 
                                 if (!moveReachedTarget) {
                                     livenessInstructionText.innerHTML = 'Ikuti arah panah,<br>lalu kembalikan wajah ke tengah.';
@@ -1987,6 +1903,7 @@
                 var map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 18);
                 var lat_sekolah = "{{ $lok_sekolah->latitude }}";
                 var long_sekolah = "{{ $lok_sekolah->longitude }}";
+                var radius = "{{ $lok_sekolah->radius }}";
                 var radius = "{{ $lok_sekolah->radius }}";
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
@@ -2129,8 +2046,7 @@
                         image: image,
                         lokasi: lokasiVal,
                         detected_nis: detectedNis,
-                        liveness_passed: livenessPassed ? 1 : 0,
-                        mouth_check_passed: mouthCheckPassed ? 1 : 0
+                        liveness_passed: livenessPassed ? 1 : 0
                     },
                     cache: false,
                     success: function (respond) {

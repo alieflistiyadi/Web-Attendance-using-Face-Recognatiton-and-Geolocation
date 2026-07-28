@@ -102,30 +102,17 @@
                         <th>Nama Lengkap</th>
                         <th>Kelas</th>
                         <th>No. Hp</th>
-                        <th>Foto</th>
                         <th>Jurusan</th>
                         <th>Aksi</th>
                       </tr>
                     </thead>
                     <tbody>
-                      @foreach ($siswa as $d)
-                        @php
-                          $path = Storage::url('uploads/siswa/' . $d->foto)
-                        @endphp
                         <tr>
                           <td>{{ $loop->iteration + $siswa->firstItem() - 1}}</td>
                           <td>{{ $d->nis }}</td>
                           <td>{{ $d->nama_lengkap }}</td>
                           <td>{{ $d->kelas }}</td>
                           <td>{{ $d->no_hp }}</td>
-                          <td>
-                            @if (empty($d->foto))
-                              <img src="{{ asset('assets/img/nophoto.png')}}" class="avatar" alt="">
-                            @else
-                              <img src="{{ url($path)}}" class="avatar" alt="">
-                            @endif
-
-                          </td>
                           <td>{{ $d->nama_jurusan }}</td>
                           <td>
                             <div class="btn-group">
@@ -182,7 +169,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form action="{{ url('/siswa/store') }}" method="POST" id="formsiswa" enctype="multipart/form-data">
+          <form action="/siswa/store" method="POST" id="formsiswa">
             @csrf
             <div class="row">
               <div class="col-12">
@@ -261,11 +248,6 @@
                   </span>
                   <input type="text" value="" id="no_hp" class="form-control" name="no_hp" placeholder="No HP">
                 </div>
-              </div>
-            </div>
-            <div class="row mt-2">
-              <div class="col-12">
-                <input type="file" name="foto" class="form-control">
               </div>
             </div>
             <div class="row mt-2">

@@ -24,7 +24,6 @@ class Siswa extends Authenticatable
         'kelas',
         'no_hp',
         'kode_jurusan',
-        'foto',
         'password',
         'is_default_password',
     ];

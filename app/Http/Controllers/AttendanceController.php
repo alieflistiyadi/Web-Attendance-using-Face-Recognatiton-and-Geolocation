@@ -29,10 +29,18 @@ class AttendanceController extends Controller
             ->where('id', 1)
             ->first();
 
+        $hari = date('N');
+
+        $hari = date('N');
+
         $waktu = DB::table('konfigurasi_waktu')
-            ->where('id', 1)
+            ->where('hari', $hari)
             ->first();
 
+        if (!$waktu) {
+            echo "error|Konfigurasi waktu hari ini belum dibuat.|jam";
+            return;
+        }
         return view(
             'attendance.create',
             compact(
@@ -64,14 +72,20 @@ class AttendanceController extends Controller
             return;
         }
 
+        $hari = date('N');
+
         $waktu = DB::table('konfigurasi_waktu')
-            ->where('id', 1)
+            ->where('hari', $hari)
             ->first();
+
+        if (!$waktu) {
+            echo "error|Konfigurasi waktu untuk hari ini belum dibuat.|jam";
+            return;
+        }
 
         $jamMulaiMasuk = $waktu->jam_mulai_masuk;
         $batasTelat = $waktu->batas_telat;
         $batasMasuk = $waktu->batas_masuk;
-
         $jamMulaiPulang = $waktu->jam_mulai_pulang;
         $batasPulang = $waktu->batas_pulang;
         $lok_sekolah = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
@@ -102,6 +116,23 @@ class AttendanceController extends Controller
             }
         } else {
             $ket = "in";
+
+            // Belum waktunya absen masuk
+            if ($jam < $jamMulaiMasuk) {
+                echo "error|Belum waktunya absensi masuk.|jam";
+                return;
+            }
+
+            // Jam absen masuk sudah ditutup
+            if ($jam > $batasMasuk) {
+                echo "error|Jam absensi masuk sudah ditutup.|jam";
+                return;
+            }
+
+            // Opsional: tandai telat kalau lewat batas_telat tapi belum lewat batas_masuk
+            // if ($jam > $batasTelat) {
+            //     $ket = "in_telat"; // atau simpan flag terpisah kalau mau dibedakan di tabel attendance
+            // }
         }
 
         $image = $request->image;
@@ -389,7 +420,7 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
 
         $query = DB::table('pengajuan_izin')
-                    ->where('nis', $nis);
+            ->where('nis', $nis);
 
         // Filter jenis
         if ($request->filled('jenis')) {
@@ -402,8 +433,8 @@ class AttendanceController extends Controller
         }
 
         $dataizin = $query
-                    ->orderBy('tanggal_izin', 'desc')
-                    ->get();
+            ->orderBy('tanggal_izin', 'desc')
+            ->get();
 
         return view('attendance.izin', compact('dataizin'));
     }
