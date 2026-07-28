@@ -714,8 +714,8 @@
         }
 
         // Update checklist UI (tetap sama)
-        function updateChecklistUI(moveDone, blinkDone, mouthDone) {
-            // ... (tetap sama)
+        function u(tetap sama)pdateChecklistUI(moveDone, blinkDone, mouthDone) {
+            // ...
         }
 
         // Ganti di startBlinkFastLoop() saat transisi ke mouth stage

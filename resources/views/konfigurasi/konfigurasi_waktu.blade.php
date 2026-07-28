@@ -15,7 +15,7 @@
 
             <div class="row justify-content-center">
 
-                <div class="col-md-8">
+                <div class="col-xl-11">
 
                     <div class="card">
 
@@ -33,82 +33,106 @@
                                 </div>
                             @endif
 
-                            <form action="/konfigurasi/updatewaktu" method="POST">
+                            <form action="{{ route('konfigurasi.updatewaktu') }}" method="POST">
 
                                 @csrf
 
-                                <h4 class="mb-3 text-primary">
-                                    Jam Masuk
-                                </h4>
+                                <div class="table-responsive">
 
-                                <div class="row">
+                                    <table class="table table-bordered table-hover align-middle">
 
-                                    <div class="col-md-4">
+                                        <thead class="table-light">
+                                            <tr class="text-center">
+                                                <th width="15%">Hari</th>
+                                                <th>Jam Mulai Masuk (WIB)</th>
+                                                <th>Batas Telat (WIB)</th>
+                                                <th>Jam Tutup Masuk (WIB)</th>
+                                                <th>Jam Mulai Pulang (WIB)</th>
+                                                <th>Jam Tutup Pulang (WIB)</th>
+                                            </tr>
+                                        </thead>
 
-                                        <label>Jam Mulai</label>
+                                        <tbody>
 
-                                        <input type="time" name="jam_mulai_masuk" class="form-control"
-                                            value="{{ $waktu->jam_mulai_masuk }}">
+                                            @foreach($waktu as $item)
 
-                                    </div>
+                                            <tr>
 
-                                    <div class="col-md-4">
+                                                <td class="fw-bold">
 
-                                        <label>Batas Telat</label>
+                                                    @php
+                                                        $namaHari = [
+                                                            1 => 'Senin',
+                                                            2 => 'Selasa',
+                                                            3 => 'Rabu',
+                                                            4 => 'Kamis',
+                                                            5 => 'Jumat'
+                                                        ];
+                                                    @endphp
 
-                                        <input type="time" name="batas_telat" class="form-control"
-                                            value="{{ $waktu->batas_telat }}">
+                                                    {{ $namaHari[$item->hari] }}
 
-                                    </div>
+                                                    <input type="hidden" name="id[]" value="{{ $item->id }}">
+                                                    <input type="hidden" name="hari[]" value="{{ $item->hari }}">
 
-                                    <div class="col-md-4">
+                                                </td>
 
-                                        <label>Jam Tutup Masuk</label>
+                                                <td>
+                                                    <input type="time"
+                                                        class="form-control"
+                                                        name="jam_mulai_masuk[]"
+                                                        value="{{ $item->jam_mulai_masuk }}">
+                                                </td>
 
-                                        <input type="time" name="batas_masuk" class="form-control"
-                                            value="{{ $waktu->batas_masuk }}">
+                                                <td>
+                                                    <input type="time"
+                                                        class="form-control"
+                                                        name="batas_telat[]"
+                                                        value="{{ $item->batas_telat }}">
+                                                </td>
 
-                                    </div>
+                                                <td>
+                                                    <input type="time"
+                                                        class="form-control"
+                                                        name="batas_masuk[]"
+                                                        value="{{ $item->batas_masuk }}">
+                                                </td>
+
+                                                <td>
+                                                    <input type="time"
+                                                        class="form-control"
+                                                        name="jam_mulai_pulang[]"
+                                                        value="{{ $item->jam_mulai_pulang }}">
+                                                </td>
+
+                                                <td>
+                                                    <input type="time"
+                                                        class="form-control"
+                                                        name="batas_pulang[]"
+                                                        value="{{ $item->batas_pulang }}">
+                                                </td>
+
+                                            </tr>
+
+                                            @endforeach
+
+
+                                        </tbody>
+
+                                    </table>
 
                                 </div>
 
-                                <hr>
-
-                                <h4 class="mb-3 text-success">
-                                    Jam Pulang
-                                </h4>
-
-                                <div class="row">
-
-                                    <div class="col-md-6">
-
-                                        <label>Jam Mulai Pulang</label>
-
-                                        <input type="time" name="jam_mulai_pulang" class="form-control"
-                                            value="{{ $waktu->jam_mulai_pulang }}">
-
-                                    </div>
-
-                                    <div class="col-md-6">
-
-                                        <label>Jam Tutup Pulang</label>
-
-                                        <input type="time" name="batas_pulang" class="form-control"
-                                            value="{{ $waktu->batas_pulang }}">
-
-                                    </div>
-
+                                <div class="alert alert-info mt-3 mb-0">
+                                    <strong>Informasi:</strong>
+                                    Seluruh waktu menggunakan zona waktu <strong>WIB (UTC+7)</strong>.
+                                    Konfigurasi hanya berlaku untuk hari <strong>Senin–Jumat</strong>,
+                                    sedangkan <strong>Sabtu dan Minggu</strong> otomatis dianggap sebagai hari libur.
                                 </div>
 
-                                <div class="mt-4">
-
-                                    <button class="btn btn-primary w-100">
-
-                                        Update Konfigurasi
-
-                                    </button>
-
-                                </div>
+                                <button class="btn btn-primary w-100 mt-3">
+                                    Simpan Konfigurasi
+                                </button>
 
                             </form>
 
