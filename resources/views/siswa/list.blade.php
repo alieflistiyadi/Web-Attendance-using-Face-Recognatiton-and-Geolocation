@@ -28,7 +28,7 @@
             
             <div class="row">
               <div class="col-12">
-                @if (Session::get('success'))
+                @if (Session::get('sccess'))
                   <div class="alert alert-success">
                     {{ Session::get('success')}}
                   </div>

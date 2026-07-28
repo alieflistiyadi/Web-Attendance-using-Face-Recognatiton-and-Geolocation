@@ -111,7 +111,7 @@ route::middleware('auth:siswa')->group(function () {
     Route::post('/attendance/cekpengajuanizin', [App\Http\Controllers\AttendanceController::class, 'cekpengajuanizin'])
         ->name('attendance.cekpengajuanizin');
     Route::get('/attendance/editizin/{id}', [App\Http\Controllers\AttendanceController::class, 'editizin'])
-    ->name('attendance.editizin');
+        ->name('attendance.editizin');
     Route::post('/attendance/updateizin/{id}', [App\Http\Controllers\AttendanceController::class, 'updateizin'])
         ->name('attendance.updateizin');
     Route::get('/attendance/deleteizin/{id}', [App\Http\Controllers\AttendanceController::class, 'deleteizin'])
@@ -136,8 +136,8 @@ Route::middleware(['auth:user'])->group(function () {
     route::post('/siswa/{nis}/update', [SiswaController::class, 'update']);
     route::post('/siswa/{nis}/delete', [SiswaController::class, 'delete']);
     Route::post('/siswa/import', [ImportController::class, 'import'])->name('siswa.import');
-    Route::get('/siswa/template', [ImportController::class,'downloadTemplate'])
-    ->name('siswa.template');
+    Route::get('/siswa/template', [ImportController::class, 'downloadTemplate'])
+        ->name('siswa.template');
 
     // Guru
     Route::get('/guru', [GuruController::class, 'index']);

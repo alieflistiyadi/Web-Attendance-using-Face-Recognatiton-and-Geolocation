@@ -12,3 +12,5 @@ class PasswordOtp extends Model
     ];
 }
 ?>
+
+<!-- ini passwordOtp.php -->
