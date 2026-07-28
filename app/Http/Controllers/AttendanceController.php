@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengajuanizin;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -288,16 +289,101 @@ class AttendanceController extends Controller
     {
         $bulan = $request->bulan;
         $tahun = $request->tahun;
+        $status = $request->status ?? 'semua';
         $nis = Auth::guard('siswa')->user()->nis;
 
-        $histori = DB::table('attendance')
-            ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
-            ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
+        // Presensi
+        $presensi = DB::table('attendance')
+            ->whereMonth('tgl_presensi', $bulan)
+            ->whereYear('tgl_presensi', $tahun)
             ->where('nis', $nis)
-            ->orderBy('tgl_presensi')
-            ->get();
-        return view('attendance.gethistori', compact('histori'));
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->tgl_presensi;
+            });
 
+        // Izin / Sakit yang disetujui
+        $izin = DB::table('pengajuan_izin')
+            ->whereMonth('tanggal_izin', $bulan)
+            ->whereYear('tanggal_izin', $tahun)
+            ->where('nis', $nis)
+            ->where('status_approved', 1)
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->tanggal_izin;
+            });
+
+        $histori = collect();
+
+        $today = Carbon::today();
+
+        $tanggalDipilih = Carbon::create($tahun, $bulan, 1);
+
+        if ($tanggalDipilih->startOfMonth()->gt($today->copy()->startOfMonth())) {
+            return view('attendance.gethistori', compact('histori'));
+        }
+
+        if ($bulan == $today->month && $tahun == $today->year) {
+            $jumlahHari = $today->day;
+        } else {
+            $jumlahHari = Carbon::create($tahun, $bulan)->daysInMonth;
+        }
+
+        for ($i = 1; $i <= $jumlahHari; $i++) {
+
+            $tanggal = Carbon::create($tahun, $bulan, $i)->format('Y-m-d');
+            $hari = Carbon::create($tahun, $bulan, $i)->dayOfWeek;
+
+            // Lewati Sabtu (6) & Minggu (0)
+            if ($hari == Carbon::SATURDAY || $hari == Carbon::SUNDAY) {
+                continue;
+            }
+
+            // Presensi
+            if ($presensi->has($tanggal)) {
+
+                $data = $presensi[$tanggal];
+                $data->tipe = 'presensi';
+
+                $histori->push($data);
+                continue;
+            }
+
+            // Izin / Sakit
+            if ($izin->has($tanggal)) {
+
+                $data = $izin[$tanggal];
+
+                $histori->push((object)[
+                    'tgl_presensi' => $tanggal,
+                    'jam_in' => null,
+                    'jam_out' => null,
+                    'foto_in' => null,
+                    'foto_out' => null,
+                    'tipe' => $data->status == 'i' ? 'izin' : 'sakit',
+                ]);
+
+                continue;
+            }
+
+            // Alpa
+            $histori->push((object)[
+                'tgl_presensi' => $tanggal,
+                'jam_in' => null,
+                'jam_out' => null,
+                'foto_in' => null,
+                'foto_out' => null,
+                'tipe' => 'alpa',
+            ]);
+        }
+
+        $histori = $histori->sortByDesc('tgl_presensi');
+
+        if ($status != 'semua') {
+            $histori = $histori->where('tipe', $status);
+        }
+
+        return view('attendance.gethistori', compact('histori'));
     }
 
     public function izin(Request $request)

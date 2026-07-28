@@ -36,7 +36,7 @@
         }
 
         .histori-wrapper {
-            padding: 84px 16px 24px;
+            padding: 84px 16px 100px;
         }
 
         /* ───── Header Card ───── */
@@ -182,6 +182,187 @@
             animation: spin 1s linear infinite;
         }
 
+        /* ===== Icon Histori Izin & Sakit ===== */
+        .icon-box{
+            width:48px;
+            height:48px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#fff;
+            font-size:22px;
+            flex-shrink:0;
+        }
+
+        .icon-box.bg-primary{
+            background:#1a73e8;
+        }
+
+        .icon-box.bg-warning{
+            background:#f59e0b;
+        }
+
+        /* ===== Card Histori ===== */
+
+        .history-card{
+            background:#fff;
+            border-radius:18px;
+            padding:16px;
+            margin-bottom:14px;
+            box-shadow:0 4px 16px rgba(0,0,0,.06);
+            border:1px solid #eef2f7;
+        }
+
+        .history-header{
+            display:flex;
+            align-items:center;
+            gap:12px;
+            margin-bottom:12px;
+        }
+
+        .history-photo{
+            width:48px;
+            height:48px;
+            border-radius:50%;
+            object-fit:cover;
+        }
+
+        .history-icon{
+            width:48px;
+            height:48px;
+            border-radius:50%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#fff;
+            font-size:24px;
+        }
+
+        .history-date{
+            font-size:16px;
+            font-weight:700;
+            color:#222;
+        }
+
+        .history-info{
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            margin-top:10px;
+        }
+
+        .info-box{
+            flex:1;
+            text-align:center;
+            background:#f8fafc;
+            border-radius:12px;
+            padding:10px;
+        }
+
+        .info-title{
+            font-size:11px;
+            color:#94a3b8;
+            margin-bottom:4px;
+        }
+
+        .info-value{
+            font-size:15px;
+            font-weight:700;
+        }
+
+        .status-box{
+            margin-top:14px;
+        }
+
+        .status-text{
+            display:inline-block;
+            padding:7px 14px;
+            border-radius:30px;
+            font-size:13px;
+            font-weight:700;
+        }
+
+        .status-success{
+            background:#dcfce7;
+            color:#15803d;
+        }
+
+        .status-warning{
+            background:#fef3c7;
+            color:#b45309;
+        }
+
+        /* Alpa */
+        .status-danger{
+            background:#FEE2E2;
+            color:#DC2626;
+        }
+
+        /* Izin */
+        .status-izin{
+            background:#FFF3E8;
+            color:#F97316;
+        }
+
+        .history-icon.status-izin{
+            background:#FFF3E8;
+            color:#F97316;
+        }
+
+        /* Sakit */
+        .status-sakit{
+            background:#FEECEC;
+            color:#EF4444;
+        }
+
+        .history-icon.status-sakit{
+            background:#FEECEC;
+            color:#EF4444;
+        }
+
+        .history-note{
+            color:#64748b;
+            font-size:13px;
+            line-height:1.5;
+            margin-top:8px;
+        }
+
+        .history-filter{
+            display:flex;
+            gap:10px;
+            overflow-x:auto;
+            margin-top:15px;
+            padding-bottom:4px;
+        }
+
+        .history-filter::-webkit-scrollbar{
+            display:none;
+        }
+
+        .filter-chip{
+
+            border:none;
+            border-radius:30px;
+            padding:8px 16px;
+
+            font-size:13px;
+            font-weight:600;
+
+            white-space:nowrap;
+
+            background:#F3F4F6;
+            color:#374151;
+
+            transition:.25s;
+
+        }
+
+        .filter-chip.active{
+            background:#1A73E8;
+            color:white;
+        }
+
         @keyframes spin {
             from {
                 transform: rotate(0deg);
@@ -239,6 +420,31 @@
                 <ion-icon name="search-outline"></ion-icon>
                 Tampilkan Histori
             </button>
+            <div class="history-filter mt-3">
+
+                <button class="filter-chip active" data-status="semua">
+                    Semua
+                </button>
+
+                <button class="filter-chip" data-status="presensi">
+                    Hadir
+                </button>
+
+                <button class="filter-chip" data-status="izin">
+                    Izin
+                </button>
+
+                <button class="filter-chip" data-status="sakit">
+                    Sakit
+                </button>
+
+                <button class="filter-chip" data-status="alpa">
+                    Alpa
+                </button>
+
+            </div>
+
+            <input type="hidden" id="status" value="semua">
         </div>
 
         {{-- Result --}}
@@ -269,6 +475,16 @@
     <script>
         $(function () {
 
+            $(".filter-chip").click(function(){
+
+                $(".filter-chip").removeClass("active");
+
+                $(this).addClass("active");
+
+                $("#status").val($(this).data("status"));
+
+            });
+
             $("#getdata").click(function () {
 
                 var bulan = $("#bulan").val();
@@ -298,7 +514,8 @@
                     data: {
                         _token: "{{ csrf_token() }}",
                         bulan: bulan,
-                        tahun: tahun
+                        tahun: tahun,
+                        status:$("#status").val()
                     },
                     cache: false,
 
