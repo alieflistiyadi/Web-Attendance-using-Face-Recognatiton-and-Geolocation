@@ -415,6 +415,12 @@
                         </option>
                     </select>
                 </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary btn-filter">
+                        <ion-icon name="filter-outline"></ion-icon>
+                        Terapkan Filter
+                    </button>
+                </div>
             </div>
         </form>
 
@@ -560,12 +566,6 @@
 @push('myscript')
 <script>
 $(document).ready(function () {
-
-    // Filter otomatis
-    $('.filter-select').change(function () {
-        $('#filterForm').submit();
-    });
-
 
     $('.btn-delete').click(function(e){
 

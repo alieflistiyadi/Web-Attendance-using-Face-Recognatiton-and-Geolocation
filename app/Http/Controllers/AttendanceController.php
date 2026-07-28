@@ -75,9 +75,8 @@ class AttendanceController extends Controller
         $jamMulaiPulang = $waktu->jam_mulai_pulang;
         $batasPulang = $waktu->batas_pulang;
         $lok_sekolah = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
-        $lok = explode(",", $lok_sekolah->lokasi_sekolah);
-        $latitudesekolah = $lok[0];
-        $longitudesekolah = $lok[1];
+        $latitudesekolah = $lok_sekolah->latitude;
+        $longitudesekolah = $lok_sekolah->longitude;
         $lokasi = $request->lokasi;
         $lokasiuser = explode(",", $lokasi);
         $latitudeuser = $lokasiuser[0];

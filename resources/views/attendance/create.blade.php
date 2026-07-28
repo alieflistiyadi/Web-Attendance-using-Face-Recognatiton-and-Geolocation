@@ -1985,10 +1985,8 @@
                 lokasi.value = position.coords.latitude + ',' + position.coords.longitude;
 
                 var map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 18);
-                var lokasi_sekolah = "{{ $lok_sekolah->lokasi_sekolah }}";
-                var lok = lokasi_sekolah.split(",");
-                var lat_sekolah = lok[0];
-                var long_sekolah = lok[1];
+                var lat_sekolah = "{{ $lok_sekolah->latitude }}";
+                var long_sekolah = "{{ $lok_sekolah->longitude }}";
                 var radius = "{{ $lok_sekolah->radius }}";
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
