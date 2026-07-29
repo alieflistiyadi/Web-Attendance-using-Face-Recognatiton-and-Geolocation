@@ -34,3 +34,5 @@ return new class extends Migration {
         //
     }
 };
+
+// ini 2026_07_27_110228_create_password_otps_table.php
