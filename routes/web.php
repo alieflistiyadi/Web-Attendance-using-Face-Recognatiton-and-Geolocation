@@ -14,15 +14,7 @@ Route::get('/', function () {
     return view('auth.login');
 })->name('login');
 
-route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
-route::post('/process-login', [App\Http\Controllers\AuthController::class, 'proseslogin'])->name('process-login');
 
-route::middleware('guest:siswa')->group(function () {
-    route::get('/', function () {
-        return view('auth.login');
-    })->name('login');
-    route::post('/process-login', [App\Http\Controllers\AuthController::class, 'proseslogin'])->name('process-login');
-});
 
 route::middleware('guest:siswa')->group(function () {
     route::get('/', function () {
@@ -35,16 +27,7 @@ route::middleware('guest:siswa')->group(function () {
     route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'submitForgotPassword'])->name('forgot-password.submit');
 });
 
-route::middleware('auth:siswa')->group(function () {
-    route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
-    route::get('/process-logout', [App\Http\Controllers\AuthController::class, 'proseslogout'])->name('process-logout');
 
-    route::get('/attendance/create', [App\Http\Controllers\AttendanceController::class, 'create'])->name('attendance.create');
-    route::post('/attendance/store', [App\Http\Controllers\AttendanceController::class, 'store'])->name('attendance.store');
-
-    route::get('/editprofile', [App\Http\Controllers\AttendanceController::class, 'editprofile'])->name('editprofile');
-    route::post('/attendance/{$nis}/updateprofile', [App\Http\Controllers\AttendanceController::class, 'updateprofile'])->name('updateprofile');
-});
 
 // ===================== KELOLA RESET PASSWORD - ADMIN =====================
 route::middleware('auth:user')->group(function () {
