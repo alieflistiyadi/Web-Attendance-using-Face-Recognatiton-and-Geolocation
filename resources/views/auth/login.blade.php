@@ -15,6 +15,29 @@
     <link rel="apple-touch-icon" sizes="180x180" href={{ asset('assets/img/icon/192x192.png') }}>
     <link rel="stylesheet" href={{ asset('assets/css/style.css') }}>
     <link rel="manifest" href="__manifest.json">
+    <style>
+        .input-wrapper {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            font-size: 22px;
+            color: #999;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .password-toggle ion-icon {
+            pointer-events: none;
+            /* biar kliknya ke parent i */
+        }
+    </style>
 </head>
 
 <body class="bg-white">
@@ -62,8 +85,8 @@
                         <div class="input-wrapper">
                             <input type="password" name="password" class="form-control" id="password"
                                 placeholder="Password">
-                            <i class="clear-input">
-                                <ion-icon name="close-circle"></ion-icon>
+                            <i class="password-toggle" id="togglePassword" style="cursor: pointer;">
+                                <ion-icon name="eye-outline" id="eyeIcon"></ion-icon>
                             </i>
                         </div>
                     </div>
@@ -102,6 +125,21 @@
     <script src={{ asset('assets/js/base.js') }}></script>
 
 
+    <script>
+        document.getElementById('togglePassword').addEventListener('click', function () {
+            const password = document.getElementById('password');
+            const eyeIcon = document.getElementById('eyeIcon');
+
+            if (password.type === 'password') {
+                password.type = 'text';
+                eyeIcon.setAttribute('name', 'eye-off-outline');
+            } else {
+                password.type = 'password';
+                eyeIcon.setAttribute('name', 'eye-outline');
+            }
+        });
+    </script>
 </body>
+
 
 </html>
