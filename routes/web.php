@@ -77,8 +77,8 @@ route::middleware('auth:siswa')->group(function () {
     route::get('/process-logout', [App\Http\Controllers\AuthController::class, 'proseslogout'])
         ->name('process-logout');
 
-    // ✅ Chatbot untuk SISWA
-    Route::post('/chatbot', [ChatbotController::class, 'chat']);
+
+    Route::post('/chatbot', [ChatbotController::class, 'chatSiswa']);
 
     // Attendance
     route::get('/attendance/create', [App\Http\Controllers\AttendanceController::class, 'create'])
@@ -126,8 +126,7 @@ Route::middleware(['auth:user'])->group(function () {
     Route::get('/panel/jurusan/{kode}', [DashboardController::class, 'kelas']);
     Route::get('/panel/rekap/{kode}/{kelas}/{bulan}/{tahun}', [DashboardController::class, 'rekapBulanan']);
 
-    // ✅ Chatbot untuk ADMIN (route berbeda agar tidak bentrok)
-    Route::post('/panel/chatbot', [ChatbotController::class, 'chat']);
+    Route::post('/panel/chatbot', [ChatbotController::class, 'chatAdmin']);
 
     // Siswa
     route::get('/siswa/kelas/{kelas}', [SiswaController::class, 'indexKelas'])->name('siswa.kelas');
