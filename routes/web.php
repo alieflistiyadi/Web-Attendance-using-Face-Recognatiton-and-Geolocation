@@ -165,4 +165,4 @@ Route::middleware(['auth:user'])->group(function () {
     Route::post('/panel/setting/update', [App\Http\Controllers\AdminController::class, 'updateSetting']);
 });
 
-// ini kode web.php
+// ini kode web.php 
