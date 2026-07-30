@@ -11,7 +11,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install & Build Frontend Assets
+        run: |
+          npm install
+          npm run build
+
+      - name: Sync code & install dependencies on server
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
@@ -20,26 +33,33 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.PROJECT_PATH }}
-
-            echo "========== Pull Latest Code =========="
-            git pull origin main
-
-            echo "========== Install Composer =========="
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
             composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-            echo "========== Clear Cache =========="
+      - name: Upload built assets to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          source: "public/build/"
+          target: "${{ secrets.PROJECT_PATH }}/public/build"
+          strip_components: 2
+
+      - name: Finalize deploy (cache & migrate)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.PROJECT_PATH }}
             php artisan optimize:clear
-
-            echo "========== Cache Config =========="
             php artisan config:cache
-
-            echo "========== Cache Route =========="
             php artisan route:cache || true
-
-            echo "========== Cache View =========="
             php artisan view:cache
-
-            echo "========== Migration =========="
             php artisan migrate --force
-
-            echo "========== Finished =========="
