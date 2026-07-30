@@ -33,7 +33,7 @@
             </div>
             <div class="section mt-1">
                 <h1>Lupa Password</h1>
-                <h4>Masukkan NIS dan No HP terdaftar untuk mengajukan reset password</h4>
+                <h4>Masukkan NIS untuk menerima kode OTP melalui WhatsApp yang terdaftar</h4>
             </div>
             <div class="section mt-1 mb-5">
 
@@ -59,7 +59,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('forgot-password.submit') }}" method="POST">
+                <form id="forgotPasswordForm">
                     @csrf
                     <div class="form-group boxed">
                         <div class="input-wrapper">
@@ -71,19 +71,13 @@
                         </div>
                     </div>
 
-                    <div class="form-group boxed">
-                        <div class="input-wrapper">
-                            <input type="text" name="no_hp" value="{{ old('no_hp') }}" class="form-control" id="no_hp"
-                                placeholder="No HP Terdaftar">
-                            <i class="clear-input">
-                                <ion-icon name="close-circle"></ion-icon>
-                            </i>
-                        </div>
-                    </div>
-
                     <div class="form-button-group">
-                        <button type="submit" class="btn btn-primary btn-block btn-lg">Ajukan Reset
-                            Password</button>
+                        <button
+                            type="button"
+                            id="btnCheckNis"
+                            class="btn btn-primary btn-block btn-lg">
+                            Kirim OTP
+                        </button>
                     </div>
                 </form>
 
@@ -113,8 +107,142 @@
     <script src={{ asset('assets/js/plugins/jquery-circle-progress/circle-progress.min.js') }}></script>
     <!-- Base Js File -->
     <script src={{ asset('assets/js/base.js') }}></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Forgot Password Script -->
+    <script>
 
+    $("#btnCheckNis").click(function(){
 
+        let nis = $("#nis").val();
+
+        if(nis=="")
+        {
+            Swal.fire({
+                icon:'warning',
+                title:'Perhatian',
+                text:'Silakan masukkan NIS terlebih dahulu.'
+            });
+
+            return;
+        }
+
+        $.ajax({
+
+            url:"{{ route('forgot.password.check') }}",
+
+            type:"POST",
+
+            data:{
+                _token:"{{ csrf_token() }}",
+                nis:nis
+            },
+
+            success:function(res){
+
+                if(!res.success)
+                {
+                    Swal.fire({
+                        icon:'error',
+                        title:'Gagal',
+                        text:res.message
+                    });
+
+                    return;
+                }
+
+                Swal.fire({
+
+                    title:'Konfirmasi OTP',
+
+                    html:`
+                    <p>Kode OTP akan dikirim ke WhatsApp berikut</p>
+
+                    <h3>${res.phone}</h3>
+
+                    <p>Pastikan nomor tersebut masih aktif.</p>
+
+                    <small style="color:red">
+                    Nomor sudah tidak aktif?<br>
+                    Hubungi admin sekolah untuk memperbarui nomor WhatsApp Anda.
+                    </small>
+                    `,
+
+                    icon:'question',
+
+                    showCancelButton:true,
+
+                    confirmButtonText:'Kirim OTP',
+
+                    cancelButtonText:'Batal'
+
+                }).then((result)=>{
+
+                    if(result.isConfirmed){
+
+                        $.ajax({
+
+                            url:"{{ route('forgot.password.sendotp') }}",
+
+                            type:"POST",
+
+                            data:{
+                                _token:"{{ csrf_token() }}",
+                                nis:nis
+                            },
+
+                            success:function(res){
+
+                                if(!res.success){
+                                    Swal.fire({
+                                        icon:'error',
+                                        title:'Gagal',
+                                        text:res.message
+                                    });
+                                    return;
+                                }
+
+                                Swal.fire({
+
+                                    icon:'success',
+
+                                    title:'OTP Berhasil Dikirim',
+
+                                    text:'Silakan cek WhatsApp Anda.'
+
+                                }).then(()=>{
+
+                                    window.location = res.redirect;
+
+                                });
+
+                            },
+
+                            error:function(xhr){
+
+                                Swal.fire({
+                                    icon:'error',
+                                    title:'Terjadi Kesalahan',
+                                    text:'Tidak dapat mengirim OTP.'
+                                });
+
+                                console.log(xhr.responseText);
+
+                            }
+
+                        });
+
+                    }
+
+                });
+
+            }
+
+        });
+
+    });
+
+    </script>
 </body>
 
 </html>

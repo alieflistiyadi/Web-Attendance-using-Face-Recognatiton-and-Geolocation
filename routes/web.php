@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\JurusanController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\ImportController;
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('auth.login');
@@ -33,6 +34,23 @@ route::middleware('guest:siswa')->group(function () {
     // Forgot Password - Siswa
     route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotPassword'])->name('forgot-password');
     route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'submitForgotPassword'])->name('forgot-password.submit');
+
+    // Cek NIS sebelum mengirim OTP
+    route::post('/forgot-password/check', [App\Http\Controllers\AuthController::class, 'checkForgotPassword'])->name('forgot.password.check');
+
+    // Kirim OTP
+    route::post('/forgot-password/send-otp', [App\Http\Controllers\AuthController::class, 'sendOtp'])->name('forgot.password.sendotp');
+
+    // Halaman Verifikasi OTP
+    route::get('/verify-otp', [App\Http\Controllers\AuthController::class, 'showVerifyOtp'])->name('verify.otp');
+    route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify.otp.submit');
+
+    // Kirim ulang OTP ke WhatsApp
+    route::post('/resend-otp', [AuthController::class, 'resendOtp'])->name('otp.resend');
+
+    // Reset Password
+    route::get('/reset-password', [AuthController::class,'showResetPassword'])->name('reset.password');
+    route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('reset.password.update');
 });
 
 route::middleware('auth:siswa')->group(function () {

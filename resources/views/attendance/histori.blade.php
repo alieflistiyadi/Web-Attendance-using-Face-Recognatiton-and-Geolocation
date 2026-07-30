@@ -391,16 +391,7 @@
                 Filter Data Presensi
             </div>
 
-            <select name="bulan" id="bulan" class="custom-select">
-                <option value="">📅 Pilih Bulan</option>
-
-                @for ($i = 1; $i <= 12; $i++)
-                    <option value="{{ $i }}" {{ date('m') == $i ? 'selected' : '' }}>
-                        {{ $namabulan[$i] }}
-                    </option>
-                @endfor
-            </select>
-
+            {{-- Tahun --}}
             <select name="tahun" id="tahun" class="custom-select">
                 <option value="">📆 Pilih Tahun</option>
 
@@ -412,6 +403,17 @@
                 @for ($tahun = $tahunmulai; $tahun <= $tahunskrg; $tahun++)
                     <option value="{{ $tahun }}" {{ date('Y') == $tahun ? 'selected' : '' }}>
                         {{ $tahun }}
+                    </option>
+                @endfor
+            </select>
+            
+            {{-- Bulan --}}
+            <select name="bulan" id="bulan" class="custom-select">
+                <option value="">📅 Pilih Bulan</option>
+
+                @for ($i = 1; $i <= 12; $i++)
+                    <option value="{{ $i }}" {{ date('m') == $i ? 'selected' : '' }}>
+                        {{ $namabulan[$i] }}
                     </option>
                 @endfor
             </select>
