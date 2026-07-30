@@ -1,7 +1,7 @@
 /* ==================== CHATBOT TOGGLER ==================== */
 #chatbot-toggler {
     position: fixed;
-    bottom: 30px;
+    bottom: calc(30px + var(--vvb-offset, 0px));
     right: 35px;
     border: none;
     height: 50px;
@@ -427,7 +427,7 @@ body.show-emoji-picker .chatbot-popup em-emoji-picker {
 /* ==================== MOBILE (768px ke bawah) ==================== */
 @media (max-width: 768px) {
     #chatbot-toggler {
-        bottom: 76px;
+        bottom: calc(76px + var(--vvb-offset, 0px));
         right: 16px;
         height: 46px;
         width: 46px;

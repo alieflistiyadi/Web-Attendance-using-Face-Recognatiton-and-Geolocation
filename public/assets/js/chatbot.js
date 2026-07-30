@@ -1,4 +1,23 @@
+// ==================== FIX: Kunci posisi toggler saat address bar collapse/expand ====================
+(function () {
+    if (!window.visualViewport) return; // browser lama, skip aman
+
+    const updateOffset = () => {
+        const vv = window.visualViewport;
+        const offset = window.innerHeight - vv.height - vv.offsetTop;
+        document.documentElement.style.setProperty(
+            "--vvb-offset",
+            Math.max(0, offset) + "px",
+        );
+    };
+
+    window.visualViewport.addEventListener("resize", updateOffset);
+    window.visualViewport.addEventListener("scroll", updateOffset);
+    updateOffset();
+})();
+
 document.addEventListener("DOMContentLoaded", () => {
+    // ... kode chatbot.js kamu yang sudah ada, tidak perlu diubah
     const chatBody = document.querySelector(".chat-body");
     const messageInput = document.querySelector(".message-input");
     const sendMessageButton = document.querySelector("#send-message");
