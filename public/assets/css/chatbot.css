@@ -202,6 +202,12 @@ body.show-chatbot .chatbot-popup {
     border-radius: 13px 13px 3px 13px;
 }
 
+.chatbot-popup .chat-body .user-message .attachment {
+    width: 50%;
+    margin-top: -7px;
+    border-radius: 13px 3px 13px 13px;
+}
+
 /* ==================== THINKING INDICATOR ==================== */
 .chatbot-popup .thinking-indicator {
     display: flex;
@@ -334,6 +340,73 @@ body.show-chatbot .chatbot-popup {
 }
 .chatbot-popup .chat-controls button:hover {
     background: #e8e8ff;
+}
+
+/* ==================== FILE UPLOAD ==================== */
+.chatbot-popup .file-upload-wrapper {
+    height: 34px;
+    width: 34px;
+    position: relative;
+    display: inline-block;
+}
+
+.chatbot-popup .file-upload-wrapper :where(img, button) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 50%;
+}
+
+.chatbot-popup .file-upload-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.chatbot-popup .file-upload-wrapper #file-cancel {
+    color: #ff0000;
+    background: #fff;
+    font-size: 0.9rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.chatbot-popup .file-upload-wrapper.file-uploaded #file-upload {
+    display: none;
+}
+.chatbot-popup .file-upload-wrapper.file-uploaded img {
+    display: block;
+}
+.chatbot-popup .file-upload-wrapper.file-uploaded:hover #file-cancel {
+    display: flex;
+}
+.chatbot-popup .file-upload-wrapper :where(img, #file-cancel) {
+    display: none;
+}
+
+/* ==================== EMOJI PICKER ==================== */
+.chatbot-popup em-emoji-picker {
+    position: absolute;
+    left: 50%;
+    bottom: 65px;
+    width: 100%;
+    max-width: 320px;
+    max-height: 300px;
+    visibility: hidden;
+    transform: translateX(-50%);
+    z-index: 100;
+}
+
+body.show-emoji-picker .chatbot-popup em-emoji-picker {
+    visibility: visible;
 }
 
 /* ==================== SCROLLBAR ==================== */

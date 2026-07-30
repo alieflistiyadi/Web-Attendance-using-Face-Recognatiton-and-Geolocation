@@ -45,6 +45,21 @@
             <textarea class="message-input" required placeholder="Type your message..." required></textarea>
 
             <div class="chat-controls">
+                <!-- PERBAIKI CLASS ICON EMOJI -->
+                <button type="button" id="emoji-picker" class="material-symbols-rounded">
+                    <!-- <-- GANTI dari material-symbols-outlined -->
+                    sentiment_satisfied
+                </button>
+                <div class="file-upload-wrapper">
+                    <input type="file" accept="image/*" id="file-input" hidden />
+                    <img src="#" />
+                    <button type="button" id="file-upload" class="material-symbols-rounded">
+                        attach_file
+                    </button>
+                    <button type="button" id="file-cancel" class="material-symbols-rounded">
+                        close
+                    </button>
+                </div>
                 <button type="submit" id="send-message" class="material-symbols-rounded">
                     arrow_upward
                 </button>
