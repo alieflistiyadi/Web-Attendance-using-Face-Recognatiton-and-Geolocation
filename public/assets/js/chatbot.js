@@ -2,6 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatBody = document.querySelector(".chat-body");
     const messageInput = document.querySelector(".message-input");
     const sendMessageButton = document.querySelector("#send-message");
+    const fileInput = document.querySelector("#file-input");
+    const fileUploadwrapper = document.querySelector(".file-upload-wrapper");
+    const fileCancelButton = document.querySelector("#file-cancel");
     const chatbotToggler = document.querySelector("#chatbot-toggler");
     const closeChatbot = document.querySelector("#close-chatbot");
     const chatForm = document.querySelector(".chat-form");
@@ -13,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? "/panel/chatbot"
         : "/chatbot";
 
-    const userData = { message: null };
+    const userData = { message: null, file: { data: null, mime_type: null } };
     const chatHistory = [];
 
     const autoResizeTextarea = () => {
@@ -74,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
             messageElement.innerText = "⚠️ " + error.message;
             messageElement.style.color = "#ff0000";
         } finally {
+            userData.file = {};
             incomingMessageDIV.classList.remove("thinking");
             chatBody.scrollTo({
                 top: chatBody.scrollHeight,
@@ -87,7 +91,10 @@ document.addEventListener("DOMContentLoaded", () => {
         userData.message = messageInput.value.trim();
         if (!userData.message) return;
 
-        const outgoingContent = `<div class="message-text"></div>`;
+        fileUploadwrapper.classList.remove("file-uploaded");
+
+        const outgoingContent = `<div class="message-text"></div>
+            ${userData.file.data ? `<img src="data:${userData.file.mime_type};base64,${userData.file.data}" class="attachment" />` : ""}`;
 
         const outgoingMessageDIV = createMessageElement(
             outgoingContent,
@@ -138,12 +145,59 @@ document.addEventListener("DOMContentLoaded", () => {
         handleOutgoingMessage(e),
     );
 
+    fileInput.addEventListener("change", () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            fileUploadwrapper.querySelector("img").src = e.target.result;
+            fileUploadwrapper.classList.add("file-uploaded");
+            userData.file = {
+                data: e.target.result.split(",")[1],
+                mime_type: file.type,
+            };
+            fileInput.value = "";
+        };
+        reader.readAsDataURL(file);
+    });
+
+    fileCancelButton.addEventListener("click", () => {
+        userData.file = {};
+        fileUploadwrapper.classList.remove("file-uploaded");
+    });
+
+    document
+        .querySelector("#file-upload")
+        ?.addEventListener("click", () => fileInput.click());
     chatbotToggler.addEventListener("click", () =>
         document.body.classList.toggle("show-chatbot"),
     );
     closeChatbot.addEventListener("click", () =>
         document.body.classList.remove("show-chatbot"),
     );
+
+    if (typeof EmojiMart !== "undefined") {
+        const picker = new EmojiMart.Picker({
+            theme: "light",
+            skinTonePosition: "none",
+            previewPosition: "none",
+            onEmojiSelect: (emoji) => {
+                const { selectionStart: start, selectionEnd: end } =
+                    messageInput;
+                messageInput.setRangeText(emoji.native, start, end, "end");
+                messageInput.focus();
+                setTimeout(autoResizeTextarea, 10);
+            },
+            onClickOutside: (e) => {
+                if (e.target.id === "emoji-picker") {
+                    document.body.classList.toggle("show-emoji-picker");
+                } else {
+                    document.body.classList.remove("show-emoji-picker");
+                }
+            },
+        });
+        document.querySelector(".chat-form")?.appendChild(picker);
+    }
 
     autoResizeTextarea();
 });
