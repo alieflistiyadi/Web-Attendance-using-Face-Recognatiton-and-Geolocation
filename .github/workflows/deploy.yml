@@ -1,4 +1,4 @@
-  name: Deploy Laravel to Hostinger
+name: Deploy Laravel to Hostinger
 
 on:
   push:
@@ -7,34 +7,39 @@ on:
 
 jobs:
   deploy:
+    name: Deploy to Hostinger
     runs-on: ubuntu-latest
 
     steps:
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.PORT }}
-
           script: |
             cd ${{ secrets.PROJECT_PATH }}
 
-            echo "== Pull latest code =="
+            echo "========== Pull Latest Code =========="
             git pull origin main
 
-            echo "== Install Composer =="
-            composer install --no-interaction --prefer-dist --optimize-autoloader
+            echo "========== Install Composer =========="
+            composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
-            echo "== Clear Cache =="
+            echo "========== Clear Cache =========="
             php artisan optimize:clear
 
-            echo "== Cache Config =="
+            echo "========== Cache Config =========="
             php artisan config:cache
 
-            echo "== Cache Routes =="
+            echo "========== Cache Route =========="
             php artisan route:cache || true
 
-            echo "== Cache Views =="
+            echo "========== Cache View =========="
             php artisan view:cache
+
+            echo "========== Migration =========="
+            php artisan migrate --force
+
+            echo "========== Finished =========="
