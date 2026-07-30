@@ -1,0 +1,66 @@
+name: Deploy Laravel to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Hostinger
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install & Build Frontend Assets
+        run: |
+          npm install
+          npm run build
+
+      - name: Sync code & install dependencies on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.PROJECT_PATH }}
+            git fetch origin
+            git reset --hard origin/main
+            git clean -fd
+            composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --no-scripts
+            php artisan package:discover --ansi
+
+      - name: Upload built assets to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          source: "public/build/"
+          target: "${{ secrets.PROJECT_PATH }}/public/build"
+          strip_components: 2
+
+      - name: Finalize deploy (cache & migrate)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PORT }}
+          script: |
+            cd ${{ secrets.PROJECT_PATH }}
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache || true
+            php artisan view:cache
+            php artisan migrate --force

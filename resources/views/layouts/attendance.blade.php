@@ -22,7 +22,7 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
     <style></style>
     <link rel="manifest" href="__manifest.json">
-    @include('layouts.admin.chatbot')
+
 </head>
 <style>
     #user-detail {
@@ -60,11 +60,9 @@
 
     @include('layouts.bottomNav')
     @include('layouts.script')
+    @include('layouts.admin.chatbot')
 
-
-
+    <script src="{{ asset('assets/js/chatbot.js') }}"></script>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/emoji-mart@latest/dist/browser.js"></script>
-<script src="{{ asset('assets/js/chatbot.js') }}"></script>
 
 </html>
