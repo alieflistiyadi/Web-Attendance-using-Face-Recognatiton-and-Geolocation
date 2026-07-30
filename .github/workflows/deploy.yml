@@ -36,7 +36,8 @@ jobs:
             git fetch origin
             git reset --hard origin/main
             git clean -fd
-            composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader
+            composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader --no-scripts
+            php artisan package:discover --ansi
 
       - name: Upload built assets to server
         uses: appleboy/scp-action@v0.1.7
