@@ -18,8 +18,10 @@ class ChatbotController extends Controller
             $dbContext = $this->getDbContext($message, $originalMessage);
 
             $systemPrompt = $this->buildSystemPrompt($dbContext);
+            \Log::info('Groq Key: ' . env('GROQ_API_KEY'));
 
             $response = Http::withHeaders([
+
                 'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
                 'Content-Type' => 'application/json',
             ])->post('https://api.groq.com/openai/v1/chat/completions', [
@@ -38,15 +40,18 @@ class ChatbotController extends Controller
                     ]);
 
             $data = $response->json();
-
+            \Log::info('Groq Response', $data);
             if ($response->successful() && isset($data['choices'][0]['message']['content'])) {
                 return response()->json([
                     'reply' => $data['choices'][0]['message']['content']
                 ]);
             }
 
-            $errorMsg = $data['error']['message'] ?? 'Terjadi kesalahan pada API.';
-            return response()->json(['reply' => 'Error: ' . $errorMsg], 500);
+            return response()->json([
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'api_key' => env('GROQ_API_KEY')
+            ]);
 
         } catch (\Exception $e) {
             return response()->json(['reply' => 'Koneksi gagal: ' . $e->getMessage()], 500);
