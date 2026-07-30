@@ -18,11 +18,11 @@ class ChatbotController extends Controller
             $dbContext = $this->getDbContext($message, $originalMessage);
 
             $systemPrompt = $this->buildSystemPrompt($dbContext);
-            \Log::info('Groq Key: ' . env('GROQ_API_KEY'));
+            \Log::info('Groq Key: ' . config('services.groq.api_key'));
 
             $response = Http::withHeaders([
 
-                'Authorization' => 'Bearer ' . env('GROQ_API_KEY'),
+                'Authorization' => 'Bearer ' . config('services.groq.api_key'),
                 'Content-Type' => 'application/json',
             ])->post('https://api.groq.com/openai/v1/chat/completions', [
                         'model' => 'llama-3.3-70b-versatile',
@@ -50,7 +50,7 @@ class ChatbotController extends Controller
             return response()->json([
                 'status' => $response->status(),
                 'body' => $response->body(),
-                'api_key' => env('GROQ_API_KEY')
+                'api_key' => config('services.groq.api_key')
             ]);
 
         } catch (\Exception $e) {
