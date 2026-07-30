@@ -39,12 +39,12 @@
                                 <table class="table table-vcenter card-table">
                                     <thead>
                                         <tr>
-                                            <th>NIS</th>
-                                            <th>Nama</th>
-                                            <th>No HP</th>
-                                            <th>Status</th>
-                                            <th>Tanggal Ajuan</th>
-                                            <th class="w-1">Aksi</th>
+                                            <th class="fw-bold text-dark" style="font-size:13px;">NIS</th>
+                                            <th class="fw-bold text-dark" style="font-size:13px;">Nama</th>
+                                            <th class="fw-bold text-dark" style="font-size:13px;">No HP</th>
+                                            <th class="fw-bold text-dark" style="font-size:13px;">Status</th>
+                                            <th class="fw-bold text-dark" style="font-size:13px;">Tanggal Ajuan</th>
+                                            <th class="fw-bold text-dark w-1" style="font-size:13px;">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>

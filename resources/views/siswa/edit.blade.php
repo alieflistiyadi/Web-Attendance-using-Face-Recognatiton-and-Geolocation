@@ -116,30 +116,28 @@
 <script>
 $(function () {
 
-    // Kalau kosong, isi otomatis +62
-    if ($("#no_hp").val() == "") {
+    // Kalau kosong, isi +62
+    if ($("#no_hp").val().trim() == "") {
         $("#no_hp").val("+62");
     }
 
-    // Saat diketik
+    // Format nomor HP
     $("#no_hp").on("input", function () {
 
-        var value = $(this).val();
+        var nomor = $(this).val();
 
-        // Harus selalu diawali +62
-        if (!value.startsWith("+62")) {
-            value = "+62";
+        nomor = nomor.replace(/\D/g, '');
+
+        if (nomor.startsWith("0")) {
+            nomor = "62" + nomor.substring(1);
+        } else if (!nomor.startsWith("62")) {
+            nomor = "62" + nomor;
         }
 
-        // Sisakan hanya angka setelah +62
-        value = "+62" + value.substring(3).replace(/\D/g, "");
+        nomor = nomor.replace(/^620+/, "62");
 
-        // Maksimal 15 karakter (+62 + 12 digit)
-        if (value.length > 15) {
-            value = value.substring(0, 15);
-        }
+        $(this).val("+" + nomor);
 
-        $(this).val(value);
     });
 
     // Tidak boleh hapus +62
@@ -152,16 +150,17 @@ $(function () {
 
     });
 
-    // Validasi sebelum submit
+    // Validasi submit
     $("#formsiswa").submit(function(){
 
         var hp = $("#no_hp").val();
+        var nomor = hp.replace("+62", "");
 
-        if(!/^\+62\d{9,12}$/.test(hp)){
+        if(nomor.length < 9 || nomor.length > 15){
 
             Swal.fire({
                 title: 'Warning!',
-                text: 'Nomor HP harus diawali +62 dan terdiri dari 11-14 digit angka.',
+                text: 'Nomor HP harus terdiri dari 9 sampai 15 digit.',
                 icon: 'warning'
             });
 

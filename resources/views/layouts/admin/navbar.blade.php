@@ -34,7 +34,7 @@
               <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
               <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
             </svg>
-            @if($notifIzin > 0)
+            @if(isset($notifIzin) && $notifIzin > 0)
               <span class="badge bg-red">
                 {{ $notifIzin }}
               </span>
@@ -47,35 +47,35 @@
               </div>
               <div class="list-group list-group-flush list-group-hoverable">
 
-                @forelse($listNotif as $notif)
+                @forelse(($listNotif ?? []) as $notif)
 
-                  <a href="/attendance/izinsakit" class="list-group-item">
-                    <div class="row align-items-center">
+                    <a href="/attendance/izinsakit" class="list-group-item">
+                        <div class="row align-items-center">
 
-                      <div class="col-auto">
-                        <span class="status-dot status-dot-animated bg-red d-block"></span>
-                      </div>
+                            <div class="col-auto">
+                                <span class="status-dot status-dot-animated bg-red d-block"></span>
+                            </div>
 
-                      <div class="col text-truncate">
-                        <div class="text-body">
-                          {{ $notif->nama_lengkap }}
+                            <div class="col text-truncate">
+                                <div class="text-body">
+                                    {{ $notif->nama_lengkap }}
+                                </div>
+
+                                <div class="text-muted text-truncate">
+                                    Mengajukan
+                                    {{ $notif->status == 'i' ? 'Izin' : 'Sakit' }}
+                                    ({{ $notif->tanggal_izin }})
+                                </div>
+                            </div>
+
                         </div>
-
-                        <div class="text-muted text-truncate">
-                          Mengajukan
-                          {{ $notif->status == 'i' ? 'Izin' : 'Sakit' }}
-                          ({{ $notif->tanggal_izin }})
-                        </div>
-                      </div>
-
-                    </div>
-                  </a>
+                    </a>
 
                 @empty
 
-                  <div class="list-group-item text-center text-muted">
-                    Tidak ada notifikasi
-                  </div>
+                    <div class="list-group-item text-center text-muted">
+                        Tidak ada notifikasi
+                    </div>
 
                 @endforelse
 

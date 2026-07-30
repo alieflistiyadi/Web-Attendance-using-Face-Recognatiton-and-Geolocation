@@ -6,7 +6,7 @@
     <div class="row g-2 align-items-center">
       <div class="col">
         <h2 class="page-title">
-          Laporan Presensi
+          Laporan Presensi Siswa
         </h2>
       </div>
     </div>
@@ -16,7 +16,7 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row">
-        <div class="col-6">
+        <div class="col-lg-12">
             <div class="card">
                 <div class="card-body">
                     <form action="/attendance/cetaklaporan" target="_blank" method="POST">

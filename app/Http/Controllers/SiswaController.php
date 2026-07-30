@@ -57,12 +57,17 @@ class SiswaController extends Controller
     {
         $request->validate([
             'nis' => 'required|unique:siswa,nis',
-            'nama_lengkap' => 'required',
+            'nama_lengkap' => [
+                'required',
+                'regex:/^[A-Za-z\s]+$/'
+            ],
             'kelas' => 'required',
             'no_hp' => 'required',
             'kode_jurusan' => 'required'
         ], [
-            'nis.unique' => 'NIS sudah terdaftar, tidak bisa ditambahkan!'
+            'nis.unique' => 'NIS sudah terdaftar, tidak bisa ditambahkan!',
+            'nama_lengkap.required' => 'Nama siswa wajib diisi.',
+            'nama_lengkap.regex' => 'Nama hanya boleh berisi huruf dan spasi.'
         ]);
 
         $password = \Illuminate\Support\Facades\Hash::make('12345678');
@@ -102,6 +107,19 @@ class SiswaController extends Controller
 
     public function update(Request $request, $nis)
     {
+        $request->validate([
+            'nama_lengkap' => [
+                'required',
+                'regex:/^[A-Za-z\s]+$/'
+            ],
+            'kelas' => 'required',
+            'no_hp' => 'required',
+            'kode_jurusan' => 'required'
+        ], [
+            'nama_lengkap.required' => 'Nama siswa wajib diisi.',
+            'nama_lengkap.regex' => 'Nama hanya boleh berisi huruf dan spasi.'
+        ]);
+
         $nama_lengkap = $request->nama_lengkap;
         $kelas = $request->kelas;
         $no_hp = $request->no_hp;
