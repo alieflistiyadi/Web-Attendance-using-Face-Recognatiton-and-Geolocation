@@ -53,7 +53,7 @@
         }
 
         /* Saat foto hasil liveness ditampilkan, live video + canvas overlay + elemen
-                           debug disembunyikan agar user cuma lihat foto diam, bukan live feed */
+                                   debug disembunyikan agar user cuma lihat foto diam, bukan live feed */
         .webcam-capture.show-result-photo video,
         .webcam-capture.show-result-photo canvas.face-canvas,
         .webcam-capture.show-result-photo #face-status,
@@ -398,6 +398,39 @@
             font-weight: 600;
         }
 
+        /* ✅ BARU: overlay jeda (cooldown) setelah foto/layar terdeteksi, sebelum mengulang dari awal */
+        .liveness-cooldown-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(20, 8, 0, 0.9);
+            z-index: 35;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 24px;
+        }
+
+        .liveness-cooldown-overlay ion-icon {
+            font-size: 46px;
+            color: #ffab40;
+            margin-bottom: 10px;
+        }
+
+        .liveness-cooldown-overlay .cooldown-title {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .liveness-cooldown-overlay .cooldown-desc {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 12.5px;
+            line-height: 1.6;
+        }
+
         /* ══════════════════════════════ */
         /* ✅ ANTI-SPOOFING TAMBAHAN       */
         /* (Opsi 1: challenge arah acak,   */
@@ -527,6 +560,15 @@
                         </div>
                     </div>
 
+                    {{-- ✅ BARU: overlay jeda (cooldown) setelah foto/layar terdeteksi --}}
+                    <div class="liveness-cooldown-overlay" id="stageCooldownOverlay">
+                        <ion-icon name="hourglass-outline"></ion-icon>
+                        <div class="cooldown-title">Terdeteksi Foto/Layar</div>
+                        <div class="cooldown-desc" id="cooldownDescText">
+                            Bukan wajah asli langsung. Mengulang verifikasi sebentar lagi...
+                        </div>
+                    </div>
+
                     {{-- ✅ TAHAP BLOCKED: akun belum daftar wajah --}}
                     <div class="blocked-overlay" id="stageBlockedOverlay">
                         <ion-icon name="alert-circle-outline"></ion-icon>
@@ -643,6 +685,17 @@
             let myDescriptorRegistered = false;
             let livenessMismatchStreak = 0;
             const LIVENESS_MISMATCH_LIMIT = 6; // ~1.8 detik wajah tidak cocok berturut-turut -> reset progress
+
+            // ✅ BARU: Jeda (cooldown) setelah terdeteksi foto/layar, supaya flow-nya
+            // "deteksi -> jeda singkat dengan pesan jelas -> ulang dari awal", BUKAN
+            // ngulang-ngulang cepat/flicker seperti sebelumnya (karena dulu langsung
+            // resetLivenessProgress() setiap kali limit tercapai, dan begitu direset,
+            // deteksi jalan lagi seketika lalu bisa langsung ke-trigger lagi kalau
+            // foto/layar masih ada di depan kamera).
+            let inSpoofCooldown = false;
+            const SPOOF_COOLDOWN_MS = 2500; // 2.5 detik jeda tenang sebelum mengulang dari awal
+            const stageCooldownOverlay = document.getElementById('stageCooldownOverlay');
+            const cooldownDescText = document.getElementById('cooldownDescText');
 
             // ✅ Blink detection (Eye Aspect Ratio) — kalibrasi adaptif per pengguna
             let eyeState = 'open'; // 'open' | 'closed'
@@ -802,6 +855,33 @@
             function showRetryButton() {
                 stageReadyButton.style.display = 'flex';
                 $('#takeabsen').prop('disabled', false);
+            }
+
+            // ✅ BARU: Jalankan jeda (cooldown) rapi setelah foto/layar terdeteksi,
+            // lalu baru mengulang liveness dari awal — menggantikan pola lama yang
+            // langsung resetLivenessProgress() seketika (yang bisa terasa "ngulang-
+            // ngulang"/flicker kalau kondisi spoof masih terus terdeteksi begitu direset).
+            function triggerSpoofCooldownThenReset(message) {
+                if (inSpoofCooldown) return; // sudah dalam jeda, jangan ditumpuk lagi
+                inSpoofCooldown = true;
+
+                // Hentikan semua loop deteksi selama jeda
+                stopBlinkFastLoop();
+                clearBlinkRelaxTimer();
+                clearTimeout(livenessTimeoutTimer);
+
+                // Sembunyikan overlay liveness, tampilkan overlay jeda yang jelas & tenang
+                stageLivenessOverlay.style.display = 'none';
+                if (cooldownDescText) cooldownDescText.textContent = message;
+                stageCooldownOverlay.style.display = 'flex';
+
+                setTimeout(() => {
+                    stageCooldownOverlay.style.display = 'none';
+                    inSpoofCooldown = false;
+                    // Setelah jeda selesai, baru mulai ulang liveness dari awal (sub-tahap kedip)
+                    stageLivenessOverlay.style.display = 'flex';
+                    resetLivenessProgress();
+                }, SPOOF_COOLDOWN_MS);
             }
 
             // ✅ Ambil 1 frame dari video yang sedang berjalan, tampilkan sebagai foto
@@ -1272,6 +1352,7 @@
                 if (blinkLoopTimer) return;
                 blinkLoopTimer = setInterval(async () => {
                     if (blinkLoopBusy) return;
+                    if (inSpoofCooldown) return; // ✅ jangan proses apa pun selama jeda cooldown
                     if (stage !== 'liveness' || livenessSubStage !== 'blink') return;
                     if (!faceReady) return;
 
@@ -1315,7 +1396,8 @@
                                     livenessHint.classList.add('screen-warning');
 
                                     if (antiSpoofSuspicionStreak >= ANTISPOOF_SUSPICION_LIMIT) {
-                                        resetLivenessProgress();
+                                        // ✅ Jeda rapi dulu, baru mengulang dari awal (bukan reset seketika)
+                                        triggerSpoofCooldownThenReset('🖥️ Terdeteksi foto/layar/rekaman, bukan wajah asli. Mengulang sebentar lagi...');
                                     }
                                     return; // jangan proses blink kalau sedang mencurigakan
                                 } else if (antiSpoofSuspicionStreak > 0) {
@@ -1335,7 +1417,8 @@
                                     livenessHint.classList.add('screen-warning');
 
                                     if (moireSuspicionStreak >= MOIRE_SUSPICION_LIMIT) {
-                                        resetLivenessProgress();
+                                        // ✅ Jeda rapi dulu, baru mengulang dari awal
+                                        triggerSpoofCooldownThenReset('🖥️ Terdeteksi foto/layar/rekaman, bukan wajah asli. Mengulang sebentar lagi...');
                                     }
                                     return;
                                 } else if (moireSuspicionStreak > 0) {
@@ -1450,7 +1533,8 @@
                 }, LIVENESS_TIMEOUT_MS);
             }
 
-            // Reset total progress liveness (dipakai saat identitas mismatch berkepanjangan)
+            // Reset total progress liveness (dipakai saat identitas mismatch berkepanjangan,
+            // atau dipanggil otomatis oleh triggerSpoofCooldownThenReset() setelah jeda selesai)
             // -> kembali ke sub-tahap "kedip"
             function resetLivenessProgress() {
                 livenessMinYaw = 999;
@@ -1473,7 +1557,16 @@
                 livenessCircleWrap.classList.add('pulsing');
                 updateRingProgress(0);
                 updateChecklistUI(false, false);
+                livenessInstructionText.innerHTML = 'Kedipkan mata Anda sekali.';
+                livenessHint.textContent = 'Tatap kamera secara normal';
                 startBlinkFastLoop();
+
+                clearTimeout(livenessTimeoutTimer);
+                livenessTimeoutTimer = setTimeout(() => {
+                    if (stage === 'liveness' && !livenessPassed) {
+                        livenessHint.textContent = 'Belum terdeteksi gerakan/kedipan. Coba ulangi dengan lebih jelas.';
+                    }
+                }, LIVENESS_TIMEOUT_MS);
             }
 
             function showBlockedNoFaceRegistered() {
@@ -1623,6 +1716,7 @@
                 setInterval(async () => {
                     if (!faceReady) return;
                     if (stage === 'blocked') return;
+                    if (inSpoofCooldown) return; // ✅ jangan proses apa pun selama jeda cooldown
                     if (mainLoopBusy) return; // frame sebelumnya masih diproses, jangan numpuk
 
                     // Saat sedang di sub-tahap "blink", biarkan startBlinkFastLoop() (90ms, ringan:
@@ -1711,7 +1805,8 @@
                                                 livenessHint.classList.add('screen-warning');
 
                                                 if (antiSpoofSuspicionStreak >= ANTISPOOF_SUSPICION_LIMIT) {
-                                                    resetLivenessProgress();
+                                                    // ✅ Jeda rapi dulu, baru mengulang dari awal
+                                                    triggerSpoofCooldownThenReset('🖥️ Terdeteksi foto/layar/rekaman, bukan wajah asli. Mengulang sebentar lagi...');
                                                 }
                                                 return;
                                             }
@@ -1735,7 +1830,8 @@
                                             livenessHint.classList.add('screen-warning');
 
                                             if (moireSuspicionStreak >= MOIRE_SUSPICION_LIMIT) {
-                                                resetLivenessProgress();
+                                                // ✅ Jeda rapi dulu, baru mengulang dari awal
+                                                triggerSpoofCooldownThenReset('🖥️ Terdeteksi foto/layar/rekaman, bukan wajah asli. Mengulang sebentar lagi...');
                                             }
                                             return;
                                         }
