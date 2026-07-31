@@ -12,13 +12,17 @@ class DashboardController extends Controller
         $bulanini = date('m') * 1;
         $tahunini = date('Y');
         $nis = Auth::guard('siswa')->user()->nis;
-        $hari = now()->dayOfWeekIso; // Senin=1 ... Minggu=7
-        // Ambil konfigurasi waktu
-        $waktu = DB::table('konfigurasi_waktu')
-        ->where('hari', $hari)
-        ->first();
+        $hari = now()->dayOfWeekIso;
 
-        $batasTelat = $waktu->batas_telat;
+        if ($hari >= 6) {
+            $batasTelat = '07:15:00'; // atau redirect / tampilkan pesan libur
+        } else {
+            $waktu = DB::table('konfigurasi_waktu')
+                ->where('hari', $hari)
+                ->first();
+
+            $batasTelat = $waktu->batas_telat;
+        }
         // Data attendance hari ini milik siswa ini
         $attendancehariini = DB::table('attendance')
             ->where('nis', $nis)
@@ -123,11 +127,15 @@ class DashboardController extends Controller
         $hariini = date('Y-m-d');
         $hari = now()->dayOfWeekIso;
 
-        $waktu = DB::table('konfigurasi_waktu')
-            ->where('hari', $hari)
-            ->first();
-            
-        $batasTelat = $waktu->batas_telat;
+        if ($hari >= 6) {
+            $batasTelat = '07:15:00'; // atau redirect / tampilkan pesan libur
+        } else {
+            $waktu = DB::table('konfigurasi_waktu')
+                ->where('hari', $hari)
+                ->first();
+
+            $batasTelat = $waktu->batas_telat;
+        }
         // Statistik Hari Ini
         $rekapattendance = DB::table('attendance')
             ->selectRaw('
