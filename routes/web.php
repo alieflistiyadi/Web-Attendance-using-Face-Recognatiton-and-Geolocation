@@ -46,14 +46,7 @@ route::middleware('guest:siswa')->group(function () {
 });
 
 
-
-// ===================== KELOLA RESET PASSWORD - ADMIN =====================
-route::middleware('auth:user')->group(function () {
-    route::get('/panel/reset-password-siswa', [App\Http\Controllers\AuthController::class, 'listResetRequests'])->name('admin.resetpassword.list');
-    route::post('/panel/reset-password-siswa/{id}/approve', [App\Http\Controllers\AuthController::class, 'approveResetRequest'])->name('admin.resetpassword.approve');
-    route::post('/panel/reset-password-siswa/{id}/reject', [App\Http\Controllers\AuthController::class, 'rejectResetRequest'])->name('admin.resetpassword.reject');
-});
-
+//login admin
 route::middleware('guest:user')->group(function () {
     route::get('/panel', function () {
         return view('auth.loginadmin');

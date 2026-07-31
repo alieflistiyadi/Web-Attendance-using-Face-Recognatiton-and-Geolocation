@@ -391,9 +391,6 @@
                 <a class="dropdown-item" href="{{ route('konfigurasi.lokasisekolah') }}">
                   Lokasi Sekolah
                 </a>
-                <a class="dropdown-item" href="{{ route('admin.resetpassword.list') }}">
-                  Ubah Password Siswa
-                </a>
                 <a class="dropdown-item" href="{{ route('konfigurasi.waktu') }}">
                   Konfigurasi Waktu Presensi
                 </a>
