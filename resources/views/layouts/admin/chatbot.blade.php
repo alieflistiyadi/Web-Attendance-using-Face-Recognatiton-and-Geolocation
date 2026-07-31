@@ -34,7 +34,7 @@
             <div class="message-text">
                 Hai 👋
                 <br>
-                Ada yang bisa saya bantu hari ini?
+                Apa ada yang bisa saya bantu hari ini?
             </div>
         </div>
     </div>
