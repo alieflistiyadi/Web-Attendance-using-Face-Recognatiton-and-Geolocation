@@ -90,7 +90,7 @@
     <table style="width: 100%;">
         <tr>
             <td style="width: 30px;">
-                <img src="{{ asset('assets/img/login/smart-logo.png') }}" width="70" height="70" alt="">
+                <img src="{{ asset('assets/img/login/smksmart.png') }}" width="70" height="70" alt="">
             </td>   
             <td>
                 <span id="title">
