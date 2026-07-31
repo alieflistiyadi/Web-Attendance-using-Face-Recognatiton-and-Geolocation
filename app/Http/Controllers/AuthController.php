@@ -50,6 +50,11 @@ class AuthController extends Controller
 
     public function prosesloginadmin(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
         $credentials = [
             'email' => $request->email,
             'password' => $request->password,
@@ -64,8 +69,7 @@ class AuthController extends Controller
             return redirect()->intended('/panel/dashboardadmin');
         }
 
-        return redirect('/panel')
-            ->with('warning', 'Username atau Password salah!');
+        return back()->with('warning', 'Email atau Password salah!');
     }
 
     // ===================== FORGOT PASSWORD (SISWA) =====================

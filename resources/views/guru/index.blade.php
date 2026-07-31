@@ -169,6 +169,28 @@
 </div>
 
 @push('myscript')
+
+@if ($errors->any())
+<script>
+Swal.fire({
+    icon: 'error',
+    title: 'Gagal',
+    text: '{{ $errors->first() }}'
+});
+</script>
+@endif
+
+@if(session('success'))
+<script>
+Swal.fire({
+    icon: 'success',
+    title: 'Berhasil',
+    text: '{{ session("success") }}'
+});
+</script>
+@endif
+
+
 <script>
 $(function () {
 

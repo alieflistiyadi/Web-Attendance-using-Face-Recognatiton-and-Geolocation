@@ -19,7 +19,16 @@ class GuruController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email',
+                function ($attribute, $value, $fail) {
+                    if (!str_ends_with(strtolower($value), '@gmail.com')) {
+                        $fail('Email harus menggunakan domain @gmail.com.');
+                    }
+                },
+            ],
             'password' => 'required|min:8'
         ]);
 
@@ -47,7 +56,16 @@ class GuruController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:users,email,' . $id,
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email,' . $id,
+                function ($attribute, $value, $fail) {
+                    if (!str_ends_with(strtolower($value), '@gmail.com')) {
+                        $fail('Email harus menggunakan domain @gmail.com.');
+                    }
+                },
+            ],
             'password' => [
                 'required',
                 'min:8',
