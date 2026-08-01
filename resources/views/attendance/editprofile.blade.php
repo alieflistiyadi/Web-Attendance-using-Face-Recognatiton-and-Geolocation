@@ -1127,6 +1127,11 @@
 
             const descriptor = Array.from(detection.descriptor);
 
+            // ✅ Simpan descriptor ke server. Server akan mengecek apakah wajah ini
+            // sudah dipakai di akun lain (lihat AttendanceController::saveDescriptor).
+            // - 200 -> berhasil disimpan
+            // - 409 -> wajah sudah terdaftar di akun lain (duplikat)
+            // - 422 -> data descriptor tidak valid
             $.ajax({
                 url: '/siswa/save-descriptor',
                 type: 'POST',
@@ -1145,14 +1150,14 @@
 
                     // Update status pill → registered
                     document.getElementById('faceStatusPill').innerHTML = `
-                                                                                                                                        <div class="pill-icon registered">
-                                                                                                                                            <ion-icon name="checkmark-circle-outline"></ion-icon>
-                                                                                                                                        </div>
-                                                                                                                                        <div>
-                                                                                                                                            <div class="pill-text-main">Wajah Sudah Terdaftar</div>
-                                                                                                                                            <div class="pill-text-sub">Data wajah berhasil disimpan. Anda siap absensi!</div>
-                                                                                                                                        </div>
-                                                                                                                                    `;
+                            <div class="pill-icon registered">
+                                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                            </div>
+                            <div>
+                                <div class="pill-text-main">Wajah Sudah Terdaftar</div>
+                                <div class="pill-text-sub">Data wajah berhasil disimpan. Anda siap absensi!</div>
+                            </div>
+                        `;
 
                     btnScan.disabled = false;
                     btnScanIcon.setAttribute('name', 'refresh-outline');
@@ -1166,14 +1171,38 @@
                         confirmButtonColor: '#1a73e8'
                     });
                 },
-                error: function () {
+                error: function (xhr) {
+                    // ✅ Reset UI dan tampilkan pesan sesuai jenis error dari server
                     btnScan.disabled = false;
+                    setStep(2); // mundurkan indikator step karena penyimpanan gagal
+
+                    let judul = 'Gagal Menyimpan';
+                    let pesan = 'Terjadi kesalahan saat menyimpan data wajah. Silakan coba lagi.';
+                    let icon = 'error';
+
+                    if (xhr.status === 409) {
+                        // Wajah sudah terdaftar milik akun lain
+                        judul = 'Wajah Sudah Terdaftar';
+                        pesan = (xhr.responseJSON && xhr.responseJSON.message)
+                            ? xhr.responseJSON.message
+                            : 'Wajah ini sudah terdaftar pada akun lain. Satu wajah hanya boleh didaftarkan untuk satu akun.';
+                        icon = 'warning';
+                    } else if (xhr.status === 422) {
+                        // Data descriptor tidak valid
+                        judul = 'Data Tidak Valid';
+                        pesan = (xhr.responseJSON && xhr.responseJSON.message)
+                            ? xhr.responseJSON.message
+                            : 'Data wajah tidak valid. Silakan coba scan ulang.';
+                    }
+
                     btnScanIcon.setAttribute('name', 'scan-outline');
                     btnScanText.textContent = 'Coba Lagi';
+
                     Swal.fire({
-                        title: 'Gagal Menyimpan',
-                        text: 'Terjadi kesalahan saat menyimpan data wajah. Silakan coba lagi.',
-                        icon: 'error'
+                        title: judul,
+                        text: pesan,
+                        icon: icon,
+                        confirmButtonText: 'Mengerti'
                     });
                 }
             });

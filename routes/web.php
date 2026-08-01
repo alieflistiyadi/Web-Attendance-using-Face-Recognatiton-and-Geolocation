@@ -41,7 +41,7 @@ route::middleware('guest:siswa')->group(function () {
     route::post('/resend-otp', [AuthController::class, 'resendOtp'])->name('otp.resend');
 
     // Reset Password
-    route::get('/reset-password', [AuthController::class,'showResetPassword'])->name('reset.password');
+    route::get('/reset-password', [AuthController::class, 'showResetPassword'])->name('reset.password');
     route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('reset.password.update');
 });
 

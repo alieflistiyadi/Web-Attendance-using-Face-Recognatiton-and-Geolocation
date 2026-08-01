@@ -31,22 +31,33 @@ class AttendanceController extends Controller
 
         $hari = date('N');
 
-        $hari = date('N');
+        $libur = false;
+        $pesan_libur = null;
+        $waktu = null;
 
-        $waktu = DB::table('konfigurasi_waktu')
-            ->where('hari', $hari)
-            ->first();
+        // Sabtu & Minggu
+        if ($hari >= 6) {
+            $libur = true;
+            $pesan_libur = 'Hari ini adalah hari libur (Sabtu/Minggu). Absensi hanya dapat dilakukan pada hari Senin sampai Jumat.';
+        } else {
+            $waktu = DB::table('konfigurasi_waktu')
+                ->where('hari', $hari)
+                ->first();
 
-        if (!$waktu) {
-            echo "error|Konfigurasi waktu hari ini belum dibuat.|jam";
-            return;
+            if (!$waktu) {
+                $libur = true;
+                $pesan_libur = 'Konfigurasi waktu untuk hari ini belum dibuat. Silakan hubungi admin.';
+            }
         }
+
         return view(
             'attendance.create',
             compact(
                 'cek',
                 'lok_sekolah',
-                'waktu'
+                'waktu',
+                'libur',
+                'pesan_libur'
             )
         );
     }
@@ -56,6 +67,18 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
+        // =========================
+        // BLOK ABSENSI HARI SABTU & MINGGU
+        // =========================
+        $hari = date('N'); // Senin=1 ... Minggu=7
+        $waktu = DB::table('konfigurasi_waktu')
+            ->where('hari', $hari)
+            ->first();
+
+        if ($hari >= 6) {
+            echo "error|Hari ini adalah hari libur. Absensi hanya dapat dilakukan pada hari Senin sampai Jumat.|libur";
+            return;
+        }
 
         // =========================
         // ✅ VALIDASI FACE RECOGNITION
@@ -72,16 +95,6 @@ class AttendanceController extends Controller
             return;
         }
 
-        $hari = date('N');
-
-        $waktu = DB::table('konfigurasi_waktu')
-            ->where('hari', $hari)
-            ->first();
-
-        if (!$waktu) {
-            echo "error|Konfigurasi waktu untuk hari ini belum dibuat.|jam";
-            return;
-        }
 
         $jamMulaiMasuk = $waktu->jam_mulai_masuk;
         $batasTelat = $waktu->batas_telat;
@@ -182,13 +195,68 @@ class AttendanceController extends Controller
     }
 
     // ✅ Simpan face descriptor dari halaman profil
+    // ✅ Simpan face descriptor dari halaman profil
+// Mengecek dulu apakah wajah yang sama sudah terdaftar di akun siswa LAIN
+// sebelum menyimpan, supaya 1 wajah tidak bisa dipakai untuk >1 akun.
     public function saveDescriptor(Request $request)
     {
         $nis = Auth::guard('siswa')->user()->nis;
+
+        $newDescriptor = json_decode($request->descriptor, true);
+
+        if (!is_array($newDescriptor) || count($newDescriptor) !== 128) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data wajah tidak valid. Silakan coba scan ulang.'
+            ], 422);
+        }
+
+        // Ambil semua descriptor siswa LAIN (bukan diri sendiri) untuk dicek kemiripan
+        $existing = DB::table('siswa')
+            ->whereNotNull('face_descriptor')
+            ->where('face_descriptor', '!=', '')
+            ->where('nis', '!=', $nis)
+            ->select('nis', 'nama_lengkap', 'face_descriptor')
+            ->get();
+
+        // Threshold sama seperti FaceMatcher(labeledDescriptors, 0.5) di attendance/create.blade.php
+        $threshold = 0.5;
+
+        foreach ($existing as $s) {
+            $desc = json_decode($s->face_descriptor, true);
+            if (!is_array($desc) || count($desc) !== 128) {
+                continue;
+            }
+
+            $distance = $this->euclideanDistance($newDescriptor, $desc);
+
+            if ($distance < $threshold) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Wajah ini sudah terdaftar pada akun lain (NIS: {$s->nis} - {$s->nama_lengkap}). Satu wajah hanya boleh didaftarkan untuk satu akun."
+                ], 409);
+            }
+        }
+
         DB::table('siswa')->where('nis', $nis)->update([
-            'face_descriptor' => $request->descriptor // JSON string array 128 angka
+            'face_descriptor' => json_encode($newDescriptor)
         ]);
+
         return response()->json(['status' => 'success']);
+    }
+
+    // ✅ Hitung euclidean distance antar 2 face descriptor (128 dimensi)
+    private function euclideanDistance(array $a, array $b)
+    {
+        $sum = 0.0;
+        $count = min(count($a), count($b));
+
+        for ($i = 0; $i < $count; $i++) {
+            $diff = $a[$i] - $b[$i];
+            $sum += $diff * $diff;
+        }
+
+        return sqrt($sum);
     }
 
     // ✅ Ambil semua descriptor untuk matching di frontend
@@ -383,7 +451,7 @@ class AttendanceController extends Controller
 
                 $data = $izin[$tanggal];
 
-                $histori->push((object)[
+                $histori->push((object) [
                     'tgl_presensi' => $tanggal,
                     'jam_in' => null,
                     'jam_out' => null,
@@ -396,7 +464,7 @@ class AttendanceController extends Controller
             }
 
             // Alpa
-            $histori->push((object)[
+            $histori->push((object) [
                 'tgl_presensi' => $tanggal,
                 'jam_in' => null,
                 'jam_out' => null,
