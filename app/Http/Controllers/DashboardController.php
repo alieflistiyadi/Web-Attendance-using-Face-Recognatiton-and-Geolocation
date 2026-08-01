@@ -140,14 +140,27 @@ class DashboardController extends Controller
 
         $batasTelat = $waktu?->batas_telat;
         // Statistik Hari Ini
-        $rekapattendance = DB::table('attendance')
-            ->selectRaw('
-                COUNT(nis) as jmlhadir,
-                SUM(IF(jam_in > ?,1,0)) as jmlterlambat
-            ', [$batasTelat])
-            ->whereDate('tgl_presensi', $hariini)
-            ->first();
+        if ($batasTelat) {
 
+            $rekapattendance = DB::table('attendance')
+                ->selectRaw("
+            COUNT(nis) as jmlhadir,
+            SUM(IF(jam_in > ?,1,0)) as jmlterlambat
+        ", [$batasTelat])
+                ->whereDate('tgl_presensi', $hariini)
+                ->first();
+
+        } else {
+
+            $rekapattendance = DB::table('attendance')
+                ->selectRaw("
+            COUNT(nis) as jmlhadir,
+            0 as jmlterlambat
+        ")
+                ->whereDate('tgl_presensi', $hariini)
+                ->first();
+
+        }
         $rekapizin = DB::table('pengajuan_izin')
             ->selectRaw('
                 SUM(IF(status="i",1,0)) as jmlizin,
@@ -197,12 +210,17 @@ class DashboardController extends Controller
         $topTerlambat = DB::table('attendance')
             ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
             ->whereMonth('tgl_presensi', date('m'))
-            ->whereYear('tgl_presensi', date('Y'))
-            ->where('jam_in', '>', $batasTelat)
-            ->selectRaw('
-                siswa.nama_lengkap,
-                COUNT(*) as total
-            ')
+            ->whereYear('tgl_presensi', date('Y'));
+
+        if ($batasTelat) {
+            $topTerlambat->where('jam_in', '>', $batasTelat);
+        }
+
+        $topTerlambat = $topTerlambat
+            ->selectRaw("
+        siswa.nama_lengkap,
+        COUNT(*) as total
+    ")
             ->groupBy('siswa.nama_lengkap')
             ->orderByDesc('total')
             ->limit(5)
