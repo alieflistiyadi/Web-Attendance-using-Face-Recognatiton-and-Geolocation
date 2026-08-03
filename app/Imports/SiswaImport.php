@@ -46,23 +46,49 @@ class SiswaImport implements ToCollection
                 continue;
             }
 
-            // Nomor HP
-            $hp = preg_replace('/[^0-9]/', '', (string) $row[4]);
+            // ===========================
+            // Format Nomor HP
+            // ===========================
 
+            // Ambil angka saja
+            $hp = preg_replace('/\D/', '', (string) $row[4]);
+
+            // Jika diawali 620 -> ubah menjadi 62
+            if (str_starts_with($hp, '620')) {
+                $hp = '62' . substr($hp, 3);
+            }
+
+            // Jika diawali 0 -> ubah menjadi 62
+            elseif (str_starts_with($hp, '0')) {
+                $hp = '62' . substr($hp, 1);
+            }
+
+            // Jika belum diawali 62 -> tambahkan 62
+            elseif (!str_starts_with($hp, '62')) {
+                $hp = '62' . $hp;
+            }
+
+            // Validasi nomor HP
             if (!preg_match('/^62\d{9,13}$/', $hp)) {
                 $this->failed++;
                 $this->errors[] = "Nomor HP {$row[4]} tidak valid.";
                 continue;
             }
 
-            // Simpan data
+            // Tambahkan tanda +
+            $hp = '+' . $hp;
+
+            // ===========================
+            // Simpan Data
+            // ===========================
             Siswa::create([
-                'nis'           => $row[0],
-                'nama_lengkap'  => $row[1],
-                'kelas'         => $row[2],
-                'kode_jurusan'  => $row[3],
-                'no_hp'         => $hp,
-                'password'      => Hash::make($row[0]), // password default = NIS
+                'nis'                  => $row[0],
+                'nama_lengkap'         => $row[1],
+                'kelas'                => $row[2],
+                'kode_jurusan'         => $row[3],
+                'no_hp'                => $hp,
+                'password'             => Hash::make('12345678'),
+                'is_default_password'  => 1,
             ]);
 
             $this->success++;
