@@ -79,6 +79,26 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
   @stack('myscript')
+  @if(
+      Auth::guard('user')->check() &&
+      Auth::guard('user')->user()->must_change_password &&
+      !request()->is('panel/setting')
+    )
+    <script>
+      Swal.fire({
+        title: 'Password Default Terdeteksi',
+        text: 'Akun Anda masih menggunakan password default. Demi keamanan akun, segera ganti password Anda sekarang.',
+        icon: 'warning',
+        confirmButtonText: 'Ganti Password Sekarang',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "{{ url('/panel/setting') }}";
+        }
+      });
+    </script>
+  @endif
   @include('layouts.admin.chatbot')
   <script src="{{ asset('assets/js/chatbot.js') }}?v={{ filemtime(public_path('assets/js/chatbot.js')) }}"></script>
 </body>

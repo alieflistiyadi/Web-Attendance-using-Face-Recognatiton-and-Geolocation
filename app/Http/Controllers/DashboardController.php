@@ -12,17 +12,13 @@ class DashboardController extends Controller
         $bulanini = date('m') * 1;
         $tahunini = date('Y');
         $nis = Auth::guard('siswa')->user()->nis;
-        $hari = now()->dayOfWeekIso;
+        $hari = now()->dayOfWeekIso; // Senin=1 ... Minggu=7
+        // Ambil konfigurasi waktu
+        $waktu = DB::table('konfigurasi_waktu')
+            ->where('hari', $hari)
+            ->first();
 
-        if ($hari >= 6) {
-            $batasTelat = '07:15:00'; // atau redirect / tampilkan pesan libur
-        } else {
-            $waktu = DB::table('konfigurasi_waktu')
-                ->where('hari', $hari)
-                ->first();
-
-            $batasTelat = $waktu->batas_telat;
-        }
+        $batasTelat = $waktu?->batas_telat;
         // Data attendance hari ini milik siswa ini
         $attendancehariini = DB::table('attendance')
             ->where('nis', $nis)
@@ -38,16 +34,27 @@ class DashboardController extends Controller
             ->get();
 
         // Rekap hadir & terlambat bulan ini
-        $rekapattendance = DB::table('attendance')
-            ->selectRaw("
-        COUNT(nis) as jmlhadir,
-        SUM(IF(jam_in > ?,1,0)) as jmlterlambat
-    ", [$batasTelat])
-            ->where('nis', $nis)
-            ->whereRaw('MONTH(tgl_presensi) = "' . $bulanini . '"')
-            ->whereRaw('YEAR(tgl_presensi) = "' . $tahunini . '"')
-            ->first();
-
+        if ($batasTelat) {
+            $rekapattendance = DB::table('attendance')
+                ->selectRaw("
+            COUNT(nis) as jmlhadir,
+            SUM(IF(jam_in > ?,1,0)) as jmlterlambat
+        ", [$batasTelat])
+                ->where('nis', $nis)
+                ->whereMonth('tgl_presensi', $bulanini)
+                ->whereYear('tgl_presensi', $tahunini)
+                ->first();
+        } else {
+            $rekapattendance = DB::table('attendance')
+                ->selectRaw("
+            COUNT(nis) as jmlhadir,
+            0 as jmlterlambat
+        ")
+                ->where('nis', $nis)
+                ->whereMonth('tgl_presensi', $bulanini)
+                ->whereYear('tgl_presensi', $tahunini)
+                ->first();
+        }
         // Leaderboard hari ini
         $leaderboard = DB::table('attendance')
             ->leftJoin('siswa', 'attendance.nis', '=', 'siswa.nis')
@@ -127,24 +134,33 @@ class DashboardController extends Controller
         $hariini = date('Y-m-d');
         $hari = now()->dayOfWeekIso;
 
-        if ($hari >= 6) {
-            $batasTelat = '07:15:00'; // atau redirect / tampilkan pesan libur
-        } else {
-            $waktu = DB::table('konfigurasi_waktu')
-                ->where('hari', $hari)
-                ->first();
-
-            $batasTelat = $waktu->batas_telat;
-        }
-        // Statistik Hari Ini
-        $rekapattendance = DB::table('attendance')
-            ->selectRaw('
-                COUNT(nis) as jmlhadir,
-                SUM(IF(jam_in > ?,1,0)) as jmlterlambat
-            ', [$batasTelat])
-            ->whereDate('tgl_presensi', $hariini)
+        $waktu = DB::table('konfigurasi_waktu')
+            ->where('hari', $hari)
             ->first();
 
+        $batasTelat = $waktu?->batas_telat;
+        // Statistik Hari Ini
+        if ($batasTelat) {
+
+            $rekapattendance = DB::table('attendance')
+                ->selectRaw("
+            COUNT(nis) as jmlhadir,
+            SUM(IF(jam_in > ?,1,0)) as jmlterlambat
+        ", [$batasTelat])
+                ->whereDate('tgl_presensi', $hariini)
+                ->first();
+
+        } else {
+
+            $rekapattendance = DB::table('attendance')
+                ->selectRaw("
+            COUNT(nis) as jmlhadir,
+            0 as jmlterlambat
+        ")
+                ->whereDate('tgl_presensi', $hariini)
+                ->first();
+
+        }
         $rekapizin = DB::table('pengajuan_izin')
             ->selectRaw('
                 SUM(IF(status="i",1,0)) as jmlizin,
@@ -194,12 +210,17 @@ class DashboardController extends Controller
         $topTerlambat = DB::table('attendance')
             ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
             ->whereMonth('tgl_presensi', date('m'))
-            ->whereYear('tgl_presensi', date('Y'))
-            ->where('jam_in', '>', $batasTelat)
-            ->selectRaw('
-                siswa.nama_lengkap,
-                COUNT(*) as total
-            ')
+            ->whereYear('tgl_presensi', date('Y'));
+
+        if ($batasTelat) {
+            $topTerlambat->where('jam_in', '>', $batasTelat);
+        }
+
+        $topTerlambat = $topTerlambat
+            ->selectRaw("
+        siswa.nama_lengkap,
+        COUNT(*) as total
+    ")
             ->groupBy('siswa.nama_lengkap')
             ->orderByDesc('total')
             ->limit(5)

@@ -59,8 +59,22 @@ jobs:
           port: ${{ secrets.PORT }}
           script: |
             cd ${{ secrets.PROJECT_PATH }}
+
             php artisan optimize:clear
             php artisan config:cache
             php artisan route:cache || true
             php artisan view:cache
             php artisan migrate --force
+
+            rm -rf ../public_html/*
+            rm -rf ../public_html/.[!.]*
+
+            cp -a public/. ../public_html/
+
+            sed -i "s|__DIR__.'/../storage|__DIR__.'/../laravel/storage|g" ../public_html/index.php
+            sed -i "s|__DIR__.'/../vendor|__DIR__.'/../laravel/vendor|g" ../public_html/index.php
+            sed -i "s|__DIR__.'/../bootstrap|__DIR__.'/../laravel/bootstrap|g" ../public_html/index.php
+
+            chmod -R 755 ../public_html
+            chmod -R 775 storage
+            chmod -R 775 bootstrap/cache
