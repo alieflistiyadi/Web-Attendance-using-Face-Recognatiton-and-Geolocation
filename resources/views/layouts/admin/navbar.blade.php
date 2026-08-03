@@ -49,33 +49,33 @@
 
                 @forelse(($listNotif ?? []) as $notif)
 
-                    <a href="/attendance/izinsakit" class="list-group-item">
-                        <div class="row align-items-center">
+                  <a href="/attendance/izinsakit" class="list-group-item">
+                    <div class="row align-items-center">
 
-                            <div class="col-auto">
-                                <span class="status-dot status-dot-animated bg-red d-block"></span>
-                            </div>
+                      <div class="col-auto">
+                        <span class="status-dot status-dot-animated bg-red d-block"></span>
+                      </div>
 
-                            <div class="col text-truncate">
-                                <div class="text-body">
-                                    {{ $notif->nama_lengkap }}
-                                </div>
-
-                                <div class="text-muted text-truncate">
-                                    Mengajukan
-                                    {{ $notif->status == 'i' ? 'Izin' : 'Sakit' }}
-                                    ({{ $notif->tanggal_izin }})
-                                </div>
-                            </div>
-
+                      <div class="col text-truncate">
+                        <div class="text-body">
+                          {{ $notif->nama_lengkap }}
                         </div>
-                    </a>
+
+                        <div class="text-muted text-truncate">
+                          Mengajukan
+                          {{ $notif->status == 'i' ? 'Izin' : 'Sakit' }}
+                          ({{ $notif->tanggal_izin }})
+                        </div>
+                      </div>
+
+                    </div>
+                  </a>
 
                 @empty
 
-                    <div class="list-group-item text-center text-muted">
-                        Tidak ada notifikasi
-                    </div>
+                  <div class="list-group-item text-center text-muted">
+                    Tidak ada notifikasi
+                  </div>
 
                 @endforelse
 
@@ -91,7 +91,9 @@
           </span>
           <div class="d-none d-xl-block ps-2">
             <div>{{ Auth::guard('user')->user()->name }}</div>
-            <div class="mt-1 small text-muted">Administrator</div>
+            <div class="mt-1 small text-muted">
+              {{ Auth::guard('user')->user()->role === 'superadmin' ? 'Superadmin' : 'Guru' }}
+            </div>
           </div>
         </a>
         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">

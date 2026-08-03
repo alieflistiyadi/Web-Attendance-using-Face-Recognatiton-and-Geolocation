@@ -20,37 +20,33 @@ class AdminController extends Controller
     public function updateSetting(Request $request)
     {
         $request->validate([
-        'name' => 'required',
-        'email' => 'required|email',
-
-        'password' => [
-            'nullable',
-            Password::min(8)
-                ->mixedCase()
-                ->numbers()
-                ->symbols()
-        ]
-    ]);
-    
-        $id = Auth::user()->id;
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,' . Auth::guard('user')->id(),
+            'password' => [
+                'nullable',
+                'min:8',
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*#?&]/'
+            ]
+        ]);
 
         $data = [
-            'name'  => $request->name,
-            'email' => $request->email
+            'name' => $request->name,
+            'email' => $request->email,
+            'updated_at' => now(),
         ];
 
-        // kalau password diisi, baru update password
-        if (!empty($request->password)) {
+        if ($request->password) {
             $data['password'] = Hash::make($request->password);
+            $data['must_change_password'] = false;   // <-- TAMBAHKAN INI
         }
 
-        // update ke database
         DB::table('users')
-            ->where('id', $id)
+            ->where('id', Auth::guard('user')->id())
             ->update($data);
 
-        // balik ke dashboard admin
-        return redirect('/panel/dashboardadmin')
-            ->with('success', 'Setting berhasil diupdate');
+        return redirect('/panel/setting')->with('success', 'Data berhasil diupdate');
     }
 }

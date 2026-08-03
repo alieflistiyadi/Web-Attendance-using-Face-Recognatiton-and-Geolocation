@@ -7,18 +7,16 @@
     <h1 class="navbar-brand">
       <a href="." class="text-center text-decoration-none d-block">
 
-          <img src="{{ asset('assets/img/login/smksmart.png') }}"
-              alt="Logo"
-              class="navbar-brand-image"
-              style="width:80px;height:auto;">
+        <img src="{{ asset('assets/img/login/smksmart.png') }}" alt="Logo" class="navbar-brand-image"
+          style="width:80px;height:auto;">
 
-          <div class="fw-bold mt-2 text-white">
-              SMK SMART<br>
-              CIKARANG
-          </div>
+        <div class="fw-bold mt-2 text-white">
+          SMK SMART<br>
+          CIKARANG
+        </div>
 
       </a>
-  </h1>
+    </h1>
     <div class="navbar-nav flex-row d-lg-none">
       <div class="nav-item d-none d-lg-flex me-3">
         <div class="btn-list">
@@ -367,54 +365,74 @@
             </div>
           </div>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false"
-            role="button" aria-expanded="false">
-            <span class="nav-link-icon d-md-none d-lg-inline-block">
-              <!-- Download SVG icon from http://tabler-icons.io/i/package -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-settings">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path
-                  d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065" />
-                <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-              </svg>
-            </span>
-            <span class="nav-link-title">
-              Konfigurasi
-            </span>
-          </a>
-          <div class="dropdown-menu">
-            <div class="dropdown-menu-columns">
-              <div class="dropdown-menu-column">
-                <a class="dropdown-item" href="{{ route('konfigurasi.lokasisekolah') }}">
-                  Lokasi Sekolah
-                </a>
-                <a class="dropdown-item" href="{{ route('konfigurasi.waktu') }}">
-                  Konfigurasi Waktu Presensi
-                </a>
+
+        @if(Auth::guard('user')->user()->role === 'superadmin')
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false"
+              role="button" aria-expanded="false">
+              <span class="nav-link-icon d-md-none d-lg-inline-block">
+                <!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-settings">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path
+                    d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065" />
+                  <path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+                </svg>
+              </span>
+              <span class="nav-link-title">
+                Konfigurasi
+              </span>
+            </a>
+            <div class="dropdown-menu">
+              <div class="dropdown-menu-columns">
+                <div class="dropdown-menu-column">
+                  <a class="dropdown-item" href="{{ route('konfigurasi.lokasisekolah') }}">
+                    Konfigurasi Lokasi Sekolah
+                  </a>
+                  <a class="dropdown-item" href="{{ route('konfigurasi.waktu') }}">
+                    Konfigurasi Waktu Presensi
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="/guru">
-            <span
-              class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-user">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
-                <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
-              </svg>
-            </span>
-            <span class="nav-link-title">
-              Data Guru
-            </span>
-          </a>
-        </li>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/guru">
+              <span
+                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-user">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" />
+                  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+                </svg>
+              </span>
+              <span class="nav-link-title">
+                Manajemen Akun
+              </span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('reset-requests.index') }}">
+              <span class="nav-link-icon d-md-none d-lg-inline-block">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-lock-open">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M5 11m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+                  <path d="M8 11v-4a4 4 0 1 1 8 0" />
+                </svg>
+              </span>
+              <span class="nav-link-title">
+                Permintaan Reset Password
+              </span>
+            </a>
+          </li>
+        @endif
+
       </ul>
     </div>
   </div>

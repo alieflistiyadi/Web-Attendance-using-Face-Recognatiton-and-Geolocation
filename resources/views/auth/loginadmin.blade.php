@@ -94,7 +94,7 @@
               <button type="submit" class="btn btn-primary w-100">Login</button>
             </div>
             <span class="form-label d-flex justify-content-center mt-2">
-              <a href="./forgot-password.html">Lupa Password</a>
+              <a href="{{ route('forgot-password-admin') }}">Lupa Password</a>
             </span>
           </form>
         </div>
