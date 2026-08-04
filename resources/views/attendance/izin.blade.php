@@ -495,7 +495,7 @@
                     {{-- FILE --}}
                     @if($d->surat_izin != null)
                         <div class="izin-file-right">
-                            <a href="{{ asset('uploads/surat_izin/' . $d->surat_izin) }}" target="_blank">
+                            <a href="{{ asset('storage/uploads/surat_izin/' . $d->surat_izin) }}" target="_blank">
 
                                 <ion-icon name="document-attach-outline"></ion-icon>
                                 Surat
@@ -505,7 +505,7 @@
 
                     @if($d->surat_sakit != null)
                         <div class="izin-file-right">
-                            <a href="{{ asset('uploads/surat_sakit/' . $d->surat_sakit) }}" target="_blank">
+                            <a href="{{ asset('storage/uploads/surat_sakit/' . $d->surat_sakit) }}" target="_blank">
 
                                 <ion-icon name="document-attach-outline"></ion-icon>
                                 Surat
@@ -593,4 +593,3 @@
         });
     </script>
 @endpush
-ini kode izin.blade.php

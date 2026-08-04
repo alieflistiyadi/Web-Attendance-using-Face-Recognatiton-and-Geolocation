@@ -12,7 +12,7 @@
             @if($d->tipe == 'presensi')
 
                 @php
-
+                    $path = Storage::url('uploads/absensi/' . $d->foto_in);
 
                     $batas = strtotime('07:00:00');
                     $jamMasuk = strtotime($d->jam_in);
@@ -31,7 +31,7 @@
 
                     <div class="history-header">
 
-                        <img src="{{ asset('uploads/absensi/' . $d->foto_in) }}" class="history-photo">
+                        <img src="{{ url($path) }}" class="history-photo">
 
                         <div class="history-date">
                             {{ date('d-m-Y', strtotime($d->tgl_presensi)) }}
@@ -159,5 +159,3 @@
     </div>
 
 @endif
-
-ini kode gethistori.blade.php

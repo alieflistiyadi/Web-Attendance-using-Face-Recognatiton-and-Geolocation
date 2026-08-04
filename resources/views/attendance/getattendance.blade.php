@@ -15,7 +15,10 @@ function selisih($jam_masuk, $jam_keluar)
 }
 ?>
 @foreach ($presensi as $d)
-    
+    @php
+        $foto_in = Storage::url('uploads/absensi/' . $d->foto_in);
+        $foto_out = Storage::url('uploads/absensi/' . $d->foto_out);
+    @endphp
     <tr>
         <td>{{ $loop->iteration }}</td>
         <td>{{ $d->nis }}</td>
@@ -23,11 +26,13 @@ function selisih($jam_masuk, $jam_keluar)
         <td>{{ $d->nama_jurusan }}</td>
         <td>{{ $d->jam_in }}</td>
         <td>
-            <img src="{{ asset('uploads/absensi/' . $d->foto_in) }}" class="avatar" alt="">
+            <img src="{{ url($foto_in) }}" class="avatar" alt="">
         </td>
         <td>{!! $d->jam_out != null ? $d->jam_out : '<span class="badge -bg-danger">Belum Absen Pulang</span>' !!}</td>
         <td>
-           <img src="{{ asset('uploads/absensi/' . $d->foto_out) }}" class="avatar" alt="">
+            @if ($d->jam_out != null)
+                <img src="{{ url($foto_out) }}" class="avatar" alt="">
+            @else
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                     class="icon icon-tabler icons-tabler-outline icon-tabler-hourglass-high">
@@ -86,4 +91,3 @@ function selisih($jam_masuk, $jam_keluar)
         });
     });
 </script>
-ini kode getattendance.blade.php
