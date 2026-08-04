@@ -512,17 +512,9 @@
             {{-- MASUK --}}
             <div class="presence-card presence-blue">
 
-                <div class="presence-icon">
-                    @if ($attendancehariini != null)
-                        @php
-                            $path = Storage::url('/uploads/absensi/' . $attendancehariini->foto_in);
-                        @endphp
-
-                        <img src="{{ asset($path) }}">
-                    @else
-                        <ion-icon name="camera-outline"></ion-icon>
-                    @endif
-                </div>
+                @if ($attendancehariini != null)
+    <img src="{{ asset('uploads/absensi/' . $attendancehariini->foto_in) }}">
+@else
 
                 <div class="presence-title">
                     Jam Masuk
@@ -537,17 +529,9 @@
             {{-- PULANG --}}
             <div class="presence-card presence-red">
 
-                <div class="presence-icon">
-                    @if ($attendancehariini != null && $attendancehariini->jam_out != null)
-                        @php
-                            $path = Storage::url('/uploads/absensi/' . $attendancehariini->foto_out);
-                        @endphp
-
-                        <img src="{{ asset($path) }}">
-                    @else
-                        <ion-icon name="camera-outline"></ion-icon>
-                    @endif
-                </div>
+                @if ($attendancehariini != null && $attendancehariini->jam_out != null)
+    <img src="{{ asset('uploads/absensi/' . $attendancehariini->foto_out) }}">
+@else
 
                 <div class="presence-title">
                     Jam Pulang
@@ -818,3 +802,4 @@
         </script>
     @endpush
 @endsection
+ini kode dashboard.blade.php

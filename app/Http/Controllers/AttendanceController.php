@@ -8,10 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
-use Symfony\Component\HttpKernel\HttpCache\Store;
-
 
 class AttendanceController extends Controller
 {
@@ -67,6 +64,7 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
+
         // =========================
         // BLOK ABSENSI HARI SABTU & MINGGU
         // =========================
@@ -95,7 +93,6 @@ class AttendanceController extends Controller
             return;
         }
 
-
         $jamMulaiMasuk = $waktu->jam_mulai_masuk;
         $batasTelat = $waktu->batas_telat;
         $batasMasuk = $waktu->batas_masuk;
@@ -116,46 +113,43 @@ class AttendanceController extends Controller
 
         if ($cek > 0) {
             $ket = "out";
-            // Belum waktunya pulang
             if ($jam < $jamMulaiPulang) {
                 echo "error|Belum waktunya absensi pulang.|jam";
                 return;
             }
-
-            // Jam pulang sudah ditutup
             if ($jam > $batasPulang) {
                 echo "error|Jam absensi pulang sudah ditutup.|jam";
                 return;
             }
         } else {
             $ket = "in";
-
-            // Belum waktunya absen masuk
             if ($jam < $jamMulaiMasuk) {
                 echo "error|Belum waktunya absensi masuk.|jam";
                 return;
             }
-
-            // Jam absen masuk sudah ditutup
             if ($jam > $batasMasuk) {
                 echo "error|Jam absensi masuk sudah ditutup.|jam";
                 return;
             }
-
-            // Opsional: tandai telat kalau lewat batas_telat tapi belum lewat batas_masuk
-            // if ($jam > $batasTelat) {
-            //     $ket = "in_telat"; // atau simpan flag terpisah kalau mau dibedakan di tabel attendance
-            // }
         }
 
+        // =========================
+        // ✅ SIMPAN FOTO (TANPA SYMLINK)
+        // =========================
         $image = $request->image;
-        $folderPath = "public/uploads/absensi/";
+        $folderRelatif = "uploads/absensi/";
+        $destinationPath = public_path($folderRelatif);
+
+        if (!file_exists($destinationPath)) {
+            mkdir($destinationPath, 0755, true);
+        }
+
         $format_name = $nis . '-' . $tgl_presensi . '-' . $ket;
         $image_parts = explode(";base64,", $image);
         $image_base64 = base64_decode($image_parts[1]);
         $filename = $format_name . '.png';
-        $file = $folderPath . $filename;
-        Storage::put($file, $image_base64);
+
+        file_put_contents($destinationPath . $filename, $image_base64);
 
         if ($radius > $lok_sekolah->radius) {
             echo "error|maaf anda berada diluar radius, jarak anda " . $radius . " meter dari sekolah|radius";
@@ -170,7 +164,6 @@ class AttendanceController extends Controller
                 $update = DB::table('attendance')->where('tgl_presensi', $tgl_presensi)->where('nis', $nis)->update($data_pulang);
                 if ($update) {
                     echo "success|Terimakasih Hati-Hati Dijalan|out";
-                    Storage::put($file, $image_base64);
                 } else {
                     echo "error|Maaf Gagal Absen, Silakan Hubungi Admin|out";
                 }
@@ -186,7 +179,6 @@ class AttendanceController extends Controller
                 $simpan = DB::table('attendance')->insert($data);
                 if ($simpan) {
                     echo "success|Terimakasih Selamat Datang|in";
-                    Storage::put($file, $image_base64);
                 } else {
                     echo "error|Maaf Gagal Absen, Silakan Hubungi Admin|out";
                 }
@@ -195,9 +187,6 @@ class AttendanceController extends Controller
     }
 
     // ✅ Simpan face descriptor dari halaman profil
-    // ✅ Simpan face descriptor dari halaman profil
-// Mengecek dulu apakah wajah yang sama sudah terdaftar di akun siswa LAIN
-// sebelum menyimpan, supaya 1 wajah tidak bisa dipakai untuk >1 akun.
     public function saveDescriptor(Request $request)
     {
         $nis = Auth::guard('siswa')->user()->nis;
@@ -211,7 +200,6 @@ class AttendanceController extends Controller
             ], 422);
         }
 
-        // Ambil semua descriptor siswa LAIN (bukan diri sendiri) untuk dicek kemiripan
         $existing = DB::table('siswa')
             ->whereNotNull('face_descriptor')
             ->where('face_descriptor', '!=', '')
@@ -219,7 +207,6 @@ class AttendanceController extends Controller
             ->select('nis', 'nama_lengkap', 'face_descriptor')
             ->get();
 
-        // Threshold sama seperti FaceMatcher(labeledDescriptors, 0.5) di attendance/create.blade.php
         $threshold = 0.5;
 
         foreach ($existing as $s) {
@@ -245,7 +232,6 @@ class AttendanceController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    // ✅ Hitung euclidean distance antar 2 face descriptor (128 dimensi)
     private function euclideanDistance(array $a, array $b)
     {
         $sum = 0.0;
@@ -259,7 +245,6 @@ class AttendanceController extends Controller
         return sqrt($sum);
     }
 
-    // ✅ Ambil semua descriptor untuk matching di frontend
     public function getFaceDescriptors()
     {
         $siswas = DB::table('siswa')
@@ -271,7 +256,7 @@ class AttendanceController extends Controller
                 return [
                     'nis' => $s->nis,
                     'nama' => $s->nama_lengkap,
-                    'face_descriptor' => json_decode($s->face_descriptor), // array 128 float
+                    'face_descriptor' => json_decode($s->face_descriptor),
                 ];
             });
 
@@ -291,6 +276,7 @@ class AttendanceController extends Controller
         $meters = $kilometers * 1000;
         return compact('meters');
     }
+
     public function editprofile()
     {
         $nis = Auth::guard('siswa')->user()->nis;
@@ -306,9 +292,6 @@ class AttendanceController extends Controller
             ->where('nis', $nis)
             ->first();
 
-        // =========================
-        // VALIDASI GANTI PASSWORD
-        // =========================
         if (!empty($request->password_baru)) {
 
             $request->validate([
@@ -323,20 +306,13 @@ class AttendanceController extends Controller
                 'password_baru_confirmation.required' => 'Konfirmasi password wajib diisi.'
             ]);
 
-            // CEK PASSWORD LAMA
             if (!Hash::check($request->password_lama, $siswa->password)) {
-
                 return Redirect::back()->with([
                     'error' => 'Password lama yang Anda masukkan tidak sesuai.'
                 ]);
             }
         }
 
-        // =========================
-        // DATA UPDATE
-        // =========================
-        // Hanya password yang bisa diubah lewat form ini.
-        // nama_lengkap, no_hp, dan foto tidak lagi diedit di sini.
         if (empty($request->password_baru)) {
             return Redirect::back()->with([
                 'success' => 'Tidak ada perubahan yang disimpan'
@@ -389,7 +365,6 @@ class AttendanceController extends Controller
         $status = $request->status ?? 'semua';
         $nis = Auth::guard('siswa')->user()->nis;
 
-        // Presensi
         $presensi = DB::table('attendance')
             ->whereMonth('tgl_presensi', $bulan)
             ->whereYear('tgl_presensi', $tahun)
@@ -399,7 +374,6 @@ class AttendanceController extends Controller
                 return $item->tgl_presensi;
             });
 
-        // Izin / Sakit yang disetujui
         $izin = DB::table('pengajuan_izin')
             ->whereMonth('tanggal_izin', $bulan)
             ->whereYear('tanggal_izin', $tahun)
@@ -411,9 +385,7 @@ class AttendanceController extends Controller
             });
 
         $histori = collect();
-
         $today = Carbon::today();
-
         $tanggalDipilih = Carbon::create($tahun, $bulan, 1);
 
         if ($tanggalDipilih->startOfMonth()->gt($today->copy()->startOfMonth())) {
@@ -431,26 +403,19 @@ class AttendanceController extends Controller
             $tanggal = Carbon::create($tahun, $bulan, $i)->format('Y-m-d');
             $hari = Carbon::create($tahun, $bulan, $i)->dayOfWeek;
 
-            // Lewati Sabtu (6) & Minggu (0)
             if ($hari == Carbon::SATURDAY || $hari == Carbon::SUNDAY) {
                 continue;
             }
 
-            // Presensi
             if ($presensi->has($tanggal)) {
-
                 $data = $presensi[$tanggal];
                 $data->tipe = 'presensi';
-
                 $histori->push($data);
                 continue;
             }
 
-            // Izin / Sakit
             if ($izin->has($tanggal)) {
-
                 $data = $izin[$tanggal];
-
                 $histori->push((object) [
                     'tgl_presensi' => $tanggal,
                     'jam_in' => null,
@@ -459,11 +424,9 @@ class AttendanceController extends Controller
                     'foto_out' => null,
                     'tipe' => $data->status == 'i' ? 'izin' : 'sakit',
                 ]);
-
                 continue;
             }
 
-            // Alpa
             $histori->push((object) [
                 'tgl_presensi' => $tanggal,
                 'jam_in' => null,
@@ -490,12 +453,10 @@ class AttendanceController extends Controller
         $query = DB::table('pengajuan_izin')
             ->where('nis', $nis);
 
-        // Filter jenis
         if ($request->filled('jenis')) {
             $query->where('status', $request->jenis);
         }
 
-        // Filter status approval
         if ($request->filled('approve')) {
             $query->where('status_approved', $request->approve);
         }
@@ -509,19 +470,19 @@ class AttendanceController extends Controller
 
     public function buatizin()
     {
-
         return view('attendance.buatizin');
     }
 
+    // =========================
+    // ✅ SIMPAN SURAT IZIN/SAKIT (TANPA SYMLINK)
+    // =========================
     public function storeizin(Request $request)
     {
-
         $nis = Auth::guard('siswa')->user()->nis;
         $tanggal_izin = date('Y-m-d', strtotime($request->tanggal_izin));
         $status = $request->status;
         $keterangan = $request->keterangan;
 
-        // validasi upload surat izin
         if ($status == "i" && !$request->hasFile('surat_izin')) {
             return redirect()->back()->with([
                 'error' => 'Surat izin wajib diupload'
@@ -531,15 +492,16 @@ class AttendanceController extends Controller
         $surat_izin = null;
 
         if ($request->hasFile('surat_izin')) {
-
             $file = $request->file('surat_izin');
-
             $surat_izin = time() . "_" . $file->getClientOriginalName();
 
-            $file->storeAs('public/uploads/surat_izin', $surat_izin);
+            $destinationPath = public_path('uploads/surat_izin/');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file->move($destinationPath, $surat_izin);
         }
 
-        // validasi upload surat sakit
         if ($status == "s" && !$request->hasFile('surat_sakit')) {
             return redirect()->back()->with([
                 'error' => 'Surat sakit wajib diupload'
@@ -549,12 +511,14 @@ class AttendanceController extends Controller
         $surat_sakit = null;
 
         if ($request->hasFile('surat_sakit')) {
-
             $file = $request->file('surat_sakit');
-
             $surat_sakit = time() . "_" . $file->getClientOriginalName();
 
-            $file->storeAs('public/uploads/surat_sakit', $surat_sakit);
+            $destinationPath = public_path('uploads/surat_sakit/');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file->move($destinationPath, $surat_sakit);
         }
 
         $data = [
@@ -614,24 +578,40 @@ class AttendanceController extends Controller
         if ($request->hasFile('surat_izin')) {
 
             if ($surat_izin != null) {
-                Storage::delete('public/uploads/surat_izin/' . $surat_izin);
+                $oldPath = public_path('uploads/surat_izin/' . $surat_izin);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
             }
 
             $file = $request->file('surat_izin');
             $surat_izin = time() . "_" . $file->getClientOriginalName();
-            $file->storeAs('public/uploads/surat_izin', $surat_izin);
+
+            $destinationPath = public_path('uploads/surat_izin/');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file->move($destinationPath, $surat_izin);
         }
 
         // Upload surat sakit
         if ($request->hasFile('surat_sakit')) {
 
             if ($surat_sakit != null) {
-                Storage::delete('public/uploads/surat_sakit/' . $surat_sakit);
+                $oldPath = public_path('uploads/surat_sakit/' . $surat_sakit);
+                if (file_exists($oldPath)) {
+                    unlink($oldPath);
+                }
             }
 
             $file = $request->file('surat_sakit');
             $surat_sakit = time() . "_" . $file->getClientOriginalName();
-            $file->storeAs('public/uploads/surat_sakit', $surat_sakit);
+
+            $destinationPath = public_path('uploads/surat_sakit/');
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+            $file->move($destinationPath, $surat_sakit);
         }
 
         $data = [
@@ -671,14 +651,18 @@ class AttendanceController extends Controller
                 ->with('error', 'Pengajuan sudah diproses dan tidak dapat dihapus.');
         }
 
-        // Hapus file surat izin
         if ($izin->surat_izin != null) {
-            Storage::delete('public/uploads/surat_izin/' . $izin->surat_izin);
+            $path = public_path('uploads/surat_izin/' . $izin->surat_izin);
+            if (file_exists($path)) {
+                unlink($path);
+            }
         }
 
-        // Hapus file surat sakit
         if ($izin->surat_sakit != null) {
-            Storage::delete('public/uploads/surat_sakit/' . $izin->surat_sakit);
+            $path = public_path('uploads/surat_sakit/' . $izin->surat_sakit);
+            if (file_exists($path)) {
+                unlink($path);
+            }
         }
 
         DB::table('pengajuan_izin')
@@ -725,6 +709,7 @@ class AttendanceController extends Controller
 
         return view('attendance.getattendance', compact('presensi'));
     }
+
     public function tampilkanpeta(Request $request)
     {
         $id = $request->id;
@@ -732,7 +717,6 @@ class AttendanceController extends Controller
             ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
             ->first();
         return view('attendance.showmap', compact('attendance'));
-
     }
 
     public function halamanlaporan()
@@ -778,10 +762,8 @@ class AttendanceController extends Controller
             "Desember"
         ];
 
-        // ambil jurusan dari database (kalau kamu punya tabel jurusan)
         $jurusan = DB::table('jurusan')->get();
 
-        // ambil kelas unik dari siswa
         $kelas = DB::table('siswa')
             ->select('kelas')
             ->groupBy('kelas')
@@ -835,7 +817,6 @@ class AttendanceController extends Controller
             ->groupByRaw('attendance.nis, nama_lengkap')
             ->get();
         return view('attendance.cetakrekap', compact('bulan', 'tahun', 'namabulan', 'rekap'));
-
     }
 
     public function izinsakit(Request $request)
@@ -959,7 +940,6 @@ class AttendanceController extends Controller
 
     public function listIzinSakitKelas(Request $request, $kelas)
     {
-        // Ambil data jurusan untuk dropdown filter
         $jurusan = DB::table('jurusan')->get();
 
         $query = DB::table('pengajuan_izin')
@@ -974,7 +954,6 @@ class AttendanceController extends Controller
             )
             ->where('siswa.kelas', $kelas);
 
-        // Filter tanggal
         if ($request->filled('dari')) {
             $dari = date('Y-m-d', strtotime($request->dari));
             $query->whereDate('pengajuan_izin.tanggal_izin', '>=', $dari);
@@ -985,22 +964,18 @@ class AttendanceController extends Controller
             $query->whereDate('pengajuan_izin.tanggal_izin', '<=', $sampai);
         }
 
-        // Filter NIS
         if ($request->filled('nis')) {
             $query->where('pengajuan_izin.nis', 'like', '%' . $request->nis . '%');
         }
 
-        // Filter Nama
         if ($request->filled('nama_lengkap')) {
             $query->where('siswa.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
         }
 
-        // Filter Jurusan
         if ($request->filled('kode_jurusan')) {
             $query->where('siswa.kode_jurusan', $request->kode_jurusan);
         }
 
-        // Filter Status Approval
         if ($request->filled('status_approved')) {
             $query->where('pengajuan_izin.status_approved', $request->status_approved);
         }
@@ -1019,6 +994,7 @@ class AttendanceController extends Controller
             )
         );
     }
+
     public function approveizinsakit(Request $request)
     {
         $status_approved = $request->status_approved;
@@ -1049,5 +1025,3 @@ class AttendanceController extends Controller
         return $cek;
     }
 }
-
-// ini kode attendacecontroller

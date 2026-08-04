@@ -2,7 +2,7 @@
 
 @section('header')
     <div class="appHeader text-light" style="background: linear-gradient(135deg,#1a73e8 0%,#0d47a1 100%);
-                box-shadow:0 2px 16px rgba(26,115,232,.18);">
+                    box-shadow:0 2px 16px rgba(26,115,232,.18);">
 
         <div class="left">
             <a href="javascript:;" class="headerButton goBack" style="color:#fff;">
@@ -82,74 +82,74 @@
 
         /* ===== FILTER ===== */
 
-        .filter-card{
-            background:#fff;
-            border-radius:22px;
-            padding:18px;
-            margin-bottom:18px;
-            box-shadow:var(--shadow);
+        .filter-card {
+            background: #fff;
+            border-radius: 22px;
+            padding: 18px;
+            margin-bottom: 18px;
+            box-shadow: var(--shadow);
         }
 
-        .filter-header{
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:15px;
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
 
-        .filter-title{
-            font-weight:700;
-            color:var(--text);
-            font-size:15px;
+        .filter-title {
+            font-weight: 700;
+            color: var(--text);
+            font-size: 15px;
         }
 
-        
-        .filter-select{
-            width:100%;
-            height:48px;
-            padding:0 40px 0 14px;
-            border:1px solid #E5E7EB;
-            border-radius:14px;
-            background:#fff;
-            font-size:14px;
-            overflow:hidden;
-            white-space:nowrap;
-            text-overflow:ellipsis;
+
+        .filter-select {
+            width: 100%;
+            height: 48px;
+            padding: 0 40px 0 14px;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            background: #fff;
+            font-size: 14px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
-        .filter-group{
-            margin-bottom:16px;
+        .filter-group {
+            margin-bottom: 16px;
         }
 
-        .filter-label{
-            display:block;
-            margin-bottom:8px;
-            font-size:13px;
-            font-weight:600;
-            color:#64748b;
+        .filter-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
         }
 
-        .filter-select{
-            width:100%;
-            height:50px;
-            border:1px solid #E5E7EB;
-            border-radius:14px;
-            padding:0 16px;
-            background:#fff;
-            font-size:14px;
+        .filter-select {
+            width: 100%;
+            height: 50px;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 0 16px;
+            background: #fff;
+            font-size: 14px;
         }
 
-        .filter-select:focus{
-            outline:none;
-            border-color:#1A73E8;
-            box-shadow:0 0 0 3px rgba(26,115,232,.12);
+        .filter-select:focus {
+            outline: none;
+            border-color: #1A73E8;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, .12);
         }
 
-        .btn-filter{
-            width:100%;
-            height:48px;
-            border-radius:14px;
-            font-weight:600;
+        .btn-filter {
+            width: 100%;
+            height: 48px;
+            border-radius: 14px;
+            font-weight: 600;
         }
 
         /* ===== ALERT ===== */
@@ -495,7 +495,7 @@
                     {{-- FILE --}}
                     @if($d->surat_izin != null)
                         <div class="izin-file-right">
-                            <a href="{{ asset('storage/uploads/surat_izin/' . $d->surat_izin) }}" target="_blank">
+                            <a href="{{ asset('uploads/surat_izin/' . $d->surat_izin) }}" target="_blank">
 
                                 <ion-icon name="document-attach-outline"></ion-icon>
                                 Surat
@@ -505,7 +505,7 @@
 
                     @if($d->surat_sakit != null)
                         <div class="izin-file-right">
-                            <a href="{{ asset('storage/uploads/surat_sakit/' . $d->surat_sakit) }}" target="_blank">
+                            <a href="{{ asset('uploads/surat_sakit/' . $d->surat_sakit) }}" target="_blank">
 
                                 <ion-icon name="document-attach-outline"></ion-icon>
                                 Surat
@@ -515,15 +515,13 @@
 
                     @if($d->status_approved == 0)
                         <div style="display:flex; gap:6px; margin-top:8px;">
-                            <a href="{{ route('attendance.editizin', $d->id) }}"
-                                class="btn btn-warning btn-sm">
+                            <a href="{{ route('attendance.editizin', $d->id) }}" class="btn btn-warning btn-sm">
 
                                 <ion-icon name="create-outline"></ion-icon>
                                 Edit
                             </a>
-                            <a href="{{ route('attendance.deleteizin',$d->id) }}"
-                                class="btn btn-danger btn-sm btn-delete">
-                                
+                            <a href="{{ route('attendance.deleteizin', $d->id) }}" class="btn btn-danger btn-sm btn-delete">
+
                                 <ion-icon name="trash-outline"></ion-icon>
                                 Delete
                             </a>
@@ -564,34 +562,35 @@
 @endsection
 
 @push('myscript')
-<script>
-$(document).ready(function () {
+    <script>
+        $(document).ready(function () {
 
-    $('.btn-delete').click(function(e){
+            $('.btn-delete').click(function (e) {
 
-        e.preventDefault();
+                e.preventDefault();
 
-        let url = $(this).attr('href');
+                let url = $(this).attr('href');
 
-        Swal.fire({
-            title: 'Hapus Pengajuan?',
-            text: 'Data yang dihapus tidak dapat dikembalikan.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Ya, Hapus',
-            cancelButtonText: 'Batal'
-        }).then((result) => {
+                Swal.fire({
+                    title: 'Hapus Pengajuan?',
+                    text: 'Data yang dihapus tidak dapat dikembalikan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
 
-            if(result.isConfirmed){
-                window.location.href = url;
-            }
+                    if (result.isConfirmed) {
+                        window.location.href = url;
+                    }
+
+                });
+
+            });
 
         });
-
-    });
-
-});
-</script>
+    </script>
 @endpush
+ini kode izin.blade.php

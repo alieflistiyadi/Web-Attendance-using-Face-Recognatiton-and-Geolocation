@@ -288,7 +288,8 @@
             </div>
 
             {{-- FORM --}}
-            <form id="frmIzin" action="{{ route('attendance.updateizin',$izin->id) }}" method="POST" enctype="multipart/form-data">
+            <form id="frmIzin" action="{{ route('attendance.updateizin', $izin->id) }}" method="POST"
+                enctype="multipart/form-data">
 
                 @csrf
 
@@ -300,7 +301,7 @@
                     </label>
 
                     <input type="text" id="tanggal_izin" name="tanggal_izin" class="custom-input datepicker"
-                        value="{{ date('d-m-Y',strtotime($izin->tanggal_izin)) }}">
+                        value="{{ date('d-m-Y', strtotime($izin->tanggal_izin)) }}">
                 </div>
 
                 {{-- STATUS --}}
@@ -316,13 +317,11 @@
                             Pilih Status
                         </option>
 
-                        <option value="i"
-                        @if($izin->status=="i") selected @endif>
+                        <option value="i" @if($izin->status == "i") selected @endif>
                             Izin
                         </option>
 
-                        <option value="s"
-                        @if($izin->status=="s") selected @endif>
+                        <option value="s" @if($izin->status == "s") selected @endif>
                             Sakit
                         </option>
                     </select>
@@ -337,18 +336,14 @@
                             Upload Surat Izin
                         </div>
 
-                        <input type="file"
-                            name="surat_izin"
-                            id="surat_izin"
-                            class="custom-file">
+                        <input type="file" name="surat_izin" id="surat_izin" class="custom-file">
 
                         @if($izin->surat_izin)
-                        <div class="helper-text">
-                            <a href="{{ asset('storage/uploads/surat_izin/'.$izin->surat_izin) }}"
-                            target="_blank">
-                                {{ $izin->surat_izin }}
-                            </a>
-                        </div>
+                            <div class="helper-text">
+                                <a href="{{ asset('uploads/surat_izin/' . $d->surat_izin) }}" target="_blank">
+                                    {{ $izin->surat_izin }}
+                                </a>
+                            </div>
                         @endif
 
                         <div class="upload-note">
@@ -368,15 +363,14 @@
                         </div>
 
                         <input type="file" name="surat_sakit" id="surat_sakit" class="custom-file">
-                        
+
                         @if($izin->surat_sakit)
-                        <div class="helper-text">
-                            File saat ini :
-                            <a href="{{ asset('storage/uploads/surat_sakit/'.$izin->surat_sakit) }}"
-                            target="_blank">
-                                {{ $izin->surat_sakit }}
-                            </a>
-                        </div>
+                            <div class="helper-text">
+                                File saat ini :
+                                <a href="{{ asset('storage/uploads/surat_sakit/' . $izin->surat_sakit) }}" target="_blank">
+                                    {{ $izin->surat_sakit }}
+                                </a>
+                            </div>
                         @endif
 
                         <div class="upload-note">
@@ -432,15 +426,15 @@
 
                 var status = $(this).val();
 
-                if(status == "i"){
+                if (status == "i") {
                     $("#formSuratIzin").slideDown(200);
                     $("#formSuratSakit").slideUp(200);
                 }
-                else if(status == "s"){
+                else if (status == "s") {
                     $("#formSuratSakit").slideDown(200);
                     $("#formSuratIzin").slideUp(200);
                 }
-                else{
+                else {
                     $("#formSuratIzin").slideUp(200);
                     $("#formSuratSakit").slideUp(200);
                 }
@@ -491,3 +485,5 @@
         });
     </script>
 @endpush
+
+ini kode editizin.blade.php
