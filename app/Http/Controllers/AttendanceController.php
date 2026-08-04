@@ -139,6 +139,7 @@ class AttendanceController extends Controller
         $image = $request->image;
         $folderRelatif = "uploads/absensi/";
         $destinationPath = public_path($folderRelatif);
+        dd($destinationPath);
 
         if (!file_exists($destinationPath)) {
             mkdir($destinationPath, 0755, true);
