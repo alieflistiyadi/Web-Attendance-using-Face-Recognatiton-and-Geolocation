@@ -164,6 +164,7 @@ class AuthController extends Controller
         $otp = rand(100000, 999999);
 
         // Kirim WhatsApp via Fonnte
+
         $response = Http::withHeaders([
             'Authorization' => env('FONNTE_TOKEN')
         ])->post('https://api.fonnte.com/send', [
@@ -171,14 +172,23 @@ class AuthController extends Controller
                     'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 2 menit.\nJangan berikan kode ini kepada siapa pun."
                 ]);
 
-
-
+        \Log::info('FONNTE RESPONSE', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
         if (!$response->successful()) {
+
+            \Log::info('Fonnte Error', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengirim OTP ke WhatsApp.'
+                'message' => $response->body(),
             ]);
         }
+
 
         $expiresAt = now()->addMinutes(2);
 
@@ -195,21 +205,6 @@ class AuthController extends Controller
                 'updated_at' => now(),
             ]
         );
-
-        // Kirim WhatsApp via Fonnte
-        $response = Http::withHeaders([
-            'Authorization' => env('FONNTE_TOKEN')
-        ])->post('https://api.fonnte.com/send', [
-                    'target' => $siswa->no_hp,
-                    'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
-                ]);
-
-        if (!$response->successful()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengirim OTP ke WhatsApp.'
-            ]);
-        }
 
         session([
             'forgot_nis' => $siswa->nis
@@ -242,12 +237,13 @@ class AuthController extends Controller
             ], 422);
         }
 
-        Log::info('OTP Verification', [
+        Log::info([
             'input_otp' => $request->otp,
             'db_otp' => $otpData->otp_code,
             'attempts' => $otpData->attempts,
             'expires_at' => $otpData->expires_at,
         ]);
+
         // OTP kadaluwarsa
         if (now()->gt($otpData->expires_at)) {
             return response()->json([
