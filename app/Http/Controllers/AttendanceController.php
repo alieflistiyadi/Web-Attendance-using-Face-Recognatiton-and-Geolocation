@@ -442,6 +442,37 @@ class AttendanceController extends Controller
                 $data = $presensi[$tanggal];
                 $data->tipe = 'presensi';
 
+                // ambil konfigurasi waktu hari tersebut
+                $hari = Carbon::parse($data->tgl_presensi)->dayOfWeekIso;
+
+                $waktu = DB::table('konfigurasi_waktu')
+                    ->where('hari', $hari)
+                    ->first();
+
+                if ($waktu) {
+
+                    $jamMasuk = strtotime($data->jam_in);
+                    $batasTelat = strtotime($waktu->batas_telat);
+
+                    if ($jamMasuk <= $batasTelat) {
+
+                        $data->tepat_waktu = true;
+                        $data->terlambat = 0;
+
+                    } else {
+
+                        $data->tepat_waktu = false;
+                        $data->terlambat = floor(($jamMasuk - $batasTelat) / 60);
+
+                    }
+
+                } else {
+
+                    $data->tepat_waktu = true;
+                    $data->terlambat = 0;
+
+                }
+
                 $histori->push($data);
                 continue;
             }
@@ -722,6 +753,53 @@ class AttendanceController extends Controller
         }
 
         $presensi = $presensi->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Hitung Status Kehadiran (Tepat Waktu / Terlambat)
+        |--------------------------------------------------------------------------
+        | Logika ini dipindahkan ke Controller agar:
+        | - Blade hanya bertugas menampilkan data (sesuai konsep MVC).
+        | - Tidak ada query database di Blade.
+        | - Perhitungan keterlambatan konsisten dengan histori siswa.
+        | - Jika admin mengubah konfigurasi waktu, seluruh sistem otomatis mengikuti.
+        |--------------------------------------------------------------------------
+        */
+
+        $presensi->transform(function ($item) {
+
+            $hari = Carbon::parse($item->tgl_presensi)->dayOfWeekIso;
+
+            $waktu = DB::table('konfigurasi_waktu')
+                ->where('hari', $hari)
+                ->first();
+
+            if ($waktu) {
+
+                $jamMasuk = strtotime($item->jam_in);
+                $batasTelat = strtotime($waktu->batas_telat);
+
+                if ($jamMasuk <= $batasTelat) {
+
+                    $item->tepat_waktu = true;
+                    $item->terlambat = 0;
+
+                } else {
+
+                    $item->tepat_waktu = false;
+                    $item->terlambat = floor(($jamMasuk - $batasTelat) / 60);
+
+                }
+
+            } else {
+
+                $item->tepat_waktu = true;
+                $item->terlambat = 0;
+
+            }
+
+            return $item;
+        });
 
         return view('attendance.getattendance', compact('presensi'));
     }

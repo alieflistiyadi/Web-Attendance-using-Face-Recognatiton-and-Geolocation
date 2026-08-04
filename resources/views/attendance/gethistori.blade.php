@@ -14,15 +14,11 @@
                 @php
                     $path = Storage::url('uploads/absensi/' . $d->foto_in);
 
-                    $batas = strtotime('07:00:00');
-                    $jamMasuk = strtotime($d->jam_in);
-
-                    if ($jamMasuk <= $batas) {
+                    if ($d->tepat_waktu) {
                         $status = "Tepat Waktu";
                         $class = "status-success";
                     } else {
-                        $selisih = floor(($jamMasuk - $batas) / 60);
-                        $status = "Terlambat " . $selisih . " Menit";
+                        $status = "Terlambat " . $d->terlambat . " Menit";
                         $class = "status-warning";
                     }
                 @endphp

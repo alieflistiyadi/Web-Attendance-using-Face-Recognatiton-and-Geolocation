@@ -19,6 +19,14 @@ function selisih($jam_masuk, $jam_keluar)
         $foto_in = Storage::url('uploads/absensi/' . $d->foto_in);
         $foto_out = Storage::url('uploads/absensi/' . $d->foto_out);
     @endphp
+
+    @php
+        $hari = \Carbon\Carbon::parse($d->tgl_presensi)->dayOfWeekIso;
+
+        $waktu = DB::table('konfigurasi_waktu')
+            ->where('hari', $hari)
+            ->first();
+    @endphp
     <tr>
         <td>{{ $loop->iteration }}</td>
         <td>{{ $d->nis }}</td>
@@ -43,14 +51,19 @@ function selisih($jam_masuk, $jam_keluar)
                 </svg>
             @endif
         </td>
+
+        {{-- Status sudah dihitung di AttendanceController --}}
+        {{-- Blade hanya menampilkan hasil perhitungan --}}
+        
         <td>
-            @if ($d->jam_in >= '07:00')
-                @php
-                    $jamterlambat = selisih('07:00:00', $d->jam_in);
-                @endphp
-                <span class="badge bg-danger">Terlambat {{ $jamterlambat }}</span>
+            @if($d->tepat_waktu)
+                <span class="badge bg-success">
+                    Tepat Waktu
+                </span>
             @else
-                <span class="badge bg-success">Tepat Waktu</span>
+                <span class="badge bg-danger">
+                    Terlambat {{ $d->terlambat }} Menit
+                </span>
             @endif
         </td>
         <td>
