@@ -155,6 +155,9 @@ class AuthController extends Controller
                 'message' => 'NIS tidak ditemukan.'
             ]);
         }
+        \Log::info('FONNTE TOKEN', [
+            'token' => config('services.fonnte.token'),
+        ]);
 
         // Generate OTP 6 digit
         $otp = rand(100000, 999999);
