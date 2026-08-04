@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 class AuthController extends Controller
 {
     // Password default yang diberikan ke siswa saat admin approve reset
-    const DEFAULT_RESET_PASSWORD = '12345678';
+    const DEFAULT_RESET_PASSWORD = 'User123!';
 
     public function prosesLogin(Request $request)
     {
@@ -128,16 +128,16 @@ class AuthController extends Controller
             ]);
         }
 
-        $phone=$siswa->no_hp;
+        $phone = $siswa->no_hp;
 
-        $maskedPhone=
-            substr($phone,0,4).
-            str_repeat('*',max(strlen($phone)-8,0)).
-            substr($phone,-4);
+        $maskedPhone =
+            substr($phone, 0, 4) .
+            str_repeat('*', max(strlen($phone) - 8, 0)) .
+            substr($phone, -4);
 
         return response()->json([
-            'success'=>true,
-            'phone'=>$maskedPhone
+            'success' => true,
+            'phone' => $maskedPhone
         ]);
     }
 
@@ -176,17 +176,23 @@ class AuthController extends Controller
         $response = Http::withHeaders([
             'Authorization' => env('FONNTE_TOKEN')
         ])->post('https://api.fonnte.com/send', [
-            'target' => $siswa->no_hp,
-            'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
-        ]);
+                    'target' => $siswa->no_hp,
+                    'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
+                ]);
 
         if (!$response->successful()) {
+
+            \Log::info('Fonnte Error', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengirim OTP ke WhatsApp.'
+                'message' => $response->body(),
             ]);
         }
-        
+
         session([
             'forgot_nis' => $siswa->nis
         ]);
@@ -334,9 +340,9 @@ class AuthController extends Controller
         $response = Http::withHeaders([
             'Authorization' => env('FONNTE_TOKEN')
         ])->post('https://api.fonnte.com/send', [
-            'target' => $siswa->no_hp,
-            'message' => "SMK SMART\n\nKode OTP baru Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
-        ]);
+                    'target' => $siswa->no_hp,
+                    'message' => "SMK SMART\n\nKode OTP baru Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
+                ]);
 
         if (!$response->successful()) {
 

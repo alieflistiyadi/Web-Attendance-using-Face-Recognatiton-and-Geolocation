@@ -70,7 +70,7 @@ class SiswaController extends Controller
             'nama_lengkap.regex' => 'Nama hanya boleh berisi huruf dan spasi.'
         ]);
 
-        $password = \Illuminate\Support\Facades\Hash::make('12345678');
+        $password = \Illuminate\Support\Facades\Hash::make('User123!'); // Password default untuk siswa baru
 
         try {
             Siswa::create([
