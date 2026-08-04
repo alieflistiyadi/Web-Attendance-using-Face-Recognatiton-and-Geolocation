@@ -177,12 +177,16 @@ class AuthController extends Controller
 
         // Kirim WhatsApp via Fonnte
         $response = Http::withHeaders([
-            'Authorization' => env('FONNTE_TOKEN')
+            'Authorization' => config('services.fonnte.token'),
         ])->post('https://api.fonnte.com/send', [
                     'target' => $siswa->no_hp,
-                    'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
+                    'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun.",
                 ]);
 
+        \Log::info('FONNTE RESPONSE', [
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
         if (!$response->successful()) {
 
             \Log::info('Fonnte Error', [
