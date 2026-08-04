@@ -340,7 +340,7 @@
 
                         @if($izin->surat_izin)
                             <div class="helper-text">
-                                <a href="{{ asset('uploads/surat_izin/' . $d->surat_izin) }}" target="_blank">
+                                <a href="{{ asset('storage/uploads/surat_izin/' . $izin->surat_izin) }}" target="_blank">
                                     {{ $izin->surat_izin }}
                                 </a>
                             </div>
@@ -485,5 +485,3 @@
         });
     </script>
 @endpush
-
-ini kode editizin.blade.php
