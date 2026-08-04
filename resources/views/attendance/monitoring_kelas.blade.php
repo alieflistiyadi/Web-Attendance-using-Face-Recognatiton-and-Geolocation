@@ -22,7 +22,7 @@
             <div class="row g-2 align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        Monitoring Attendance - Kelas {{ $kelas }}
+                        Pemantauan Kehadiran - Kelas {{ $kelas }}
                     </h2>
                 </div>
             </div>
@@ -78,16 +78,16 @@
                                     <table class="table table-striped table-hover">
                                         <thead>
                                             <tr>
-                                                <th>No.</th>
-                                                <th>NIS</th>
-                                                <th>Nama Siswa</th>
-                                                <th>Jurusan</th>
-                                                <th>Jam Masuk</th>
-                                                <th>Foto Masuk</th>
-                                                <th>Jam Pulang</th>
-                                                <th>Foto Pulang</th>
-                                                <th>Keterangan</th>
-                                                <th></th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">No.</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">NIS</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Nama Siswa</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Jurusan</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Jam Masuk</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Foto Masuk</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Jam Pulang</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Foto Pulang</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Keterangan</th>
+                                                
                                             </tr>
                                         </thead>
                                         <tbody id="loadattendance">

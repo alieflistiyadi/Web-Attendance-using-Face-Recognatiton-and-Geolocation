@@ -61,8 +61,8 @@
     @include('layouts.bottomNav')
     @include('layouts.script')
     @include('layouts.admin.chatbot')
-
-    <script src="{{ asset('assets/js/chatbot.js') }}"></script>
+    <script src="{{ asset('assets/js/chatbot.js') }}?v={{ filemtime(public_path('assets/js/chatbot.js')) }}"></script>
 </body>
 
 </html>
+<!-- ini attendance.blade.php -->

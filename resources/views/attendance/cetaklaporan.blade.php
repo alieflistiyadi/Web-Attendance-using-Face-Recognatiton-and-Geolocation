@@ -88,13 +88,13 @@
     <table style="width: 100%;">
         <tr>
             <td style="width: 30px;">
-                <img src="{{ asset('assets/img/login/smart-logo.png') }}" width="70" height="70" alt="">
+                <img src="{{ asset('assets/img/login/smksmart.png') }}" width="70" height="70" alt="">
             </td>   
             <td>
                 <span id="title">
                     LAPORAN PRESENSI SISWA <br>
                     PERIODE {{ strtoupper($namabulan[$bulan]) }} {{ $tahun }} <br>
-                    SMK SMART CIKARANG <br>
+                    SMK SMART CIKARANG <br> 
                 </span>
                 <span style="font-size: 12px;">
                     Perum vila Mutiara Cikarang 1 Blok D.8 No. 22, Ciantra, Cikarang Sel., Kabupaten Bekasi, Jawa Barat 17532
@@ -103,38 +103,52 @@
         </tr>
     </table>
     <table class="tabeldatasiswa">
+        @php
+            $fotoSiswa = $attendance->first();
+        @endphp
+
         <tr>
-            <td rowspan="6" style="width: 30%;">
-                @php
-                    $path = Storage::url('uploads/siswa/' .$siswa->foto);
-                @endphp
-                <img src="{{ url($path) }}" width="120" height="150" alt="">
+            <td rowspan="6" style="width:30%;">
+                @if($fotoSiswa && $fotoSiswa->foto_in)
+                    @php
+                        $path = Storage::url('uploads/absensi/' . $fotoSiswa->foto_in);
+                    @endphp
+
+                    <img src="{{ url($path) }}" width="120" height="150" alt="">
+                @else
+                    <img src="{{ asset('assets/img/no-photo.png') }}" width="120" height="150" alt="">
+                @endif
             </td>
         </tr>
+
         <tr>
-            <td> NIS</td>
+            <td>NIS</td>
             <td>:</td>
-            <td> {{ $siswa->nis }} </td>
+            <td>{{ $siswa->nis }}</td>
         </tr>
+
         <tr>
-            <td> Nama Lengkap</td>
+            <td>Nama Lengkap</td>
             <td>:</td>
-            <td> {{ $siswa->nama_lengkap }} </td>
+            <td>{{ $siswa->nama_lengkap }}</td>
         </tr>
+
         <tr>
-            <td> Kelas</td>
+            <td>Kelas</td>
             <td>:</td>
-            <td> {{ $siswa->kelas }} </td>
+            <td>{{ $siswa->kelas }}</td>
         </tr>
+
         <tr>
-            <td> Jurusan</td>
+            <td>Jurusan</td>
             <td>:</td>
-            <td> {{ $siswa->kode_jurusan }} </td>
+            <td>{{ $siswa->kode_jurusan }}</td>
         </tr>
+
         <tr>
-            <td> No. Hp</td>
+            <td>No. HP</td>
             <td>:</td>
-            <td> {{ $siswa->no_hp }} </td>
+            <td>{{ $siswa->no_hp }}</td>
         </tr>
     </table>
     <table class="tabelattendance">

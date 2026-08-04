@@ -23,8 +23,7 @@
   <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-  <link rel="stylesheet"
-  href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
   <link rel="stylesheet" href="{{ asset('assets/css/chatbot.css') }}">
   <link rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
@@ -80,8 +79,30 @@
     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
   @stack('myscript')
+  @if(
+      Auth::guard('user')->check() &&
+      Auth::guard('user')->user()->must_change_password &&
+      !request()->is('panel/setting')
+    )
+    <script>
+      Swal.fire({
+        title: 'Password Default Terdeteksi',
+        text: 'Akun Anda masih menggunakan password default. Demi keamanan akun, segera ganti password Anda sekarang.',
+        icon: 'warning',
+        confirmButtonText: 'Ganti Password Sekarang',
+        allowOutsideClick: false,
+        allowEscapeKey: false
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "{{ url('/panel/setting') }}";
+        }
+      });
+    </script>
+  @endif
   @include('layouts.admin.chatbot')
-  <script src="{{ asset('assets/js/chatbot.js') }}"></script>
+  <script src="{{ asset('assets/js/chatbot.js') }}?v={{ filemtime(public_path('assets/js/chatbot.js')) }}"></script>
 </body>
 
 </html>
+
+<!-- ini tabler.blade.php -->

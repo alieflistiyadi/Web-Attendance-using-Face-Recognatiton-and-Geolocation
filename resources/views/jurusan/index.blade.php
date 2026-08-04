@@ -70,10 +70,10 @@
                 <table class="table table-bordered">
           <thead>
             <tr>
-              <th>No</th>
-              <th>Kode Jurusan</th>
-              <th>Nama Jurusan</th>
-              <th>Aksi</th>
+              <th class="fw-bold text-dark" style="font-size:13px;">No</th>
+              <th class="fw-bold text-dark" style="font-size:13px;">Kode Jurusan</th>
+              <th class="fw-bold text-dark" style="font-size:13px;">Nama Jurusan</th>
+              <th class="fw-bold text-dark" style="font-size:13px;">Aksi</th>
             </tr>
           </thead>
           <tbody>

@@ -43,12 +43,12 @@
 
                                         <thead class="table-light">
                                             <tr class="text-center">
-                                                <th width="15%">Hari</th>
-                                                <th>Jam Mulai Masuk (WIB)</th>
-                                                <th>Batas Telat (WIB)</th>
-                                                <th>Jam Tutup Masuk (WIB)</th>
-                                                <th>Jam Mulai Pulang (WIB)</th>
-                                                <th>Jam Tutup Pulang (WIB)</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Hari</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Jam Mulai Masuk (WIB)</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Batas Telat (WIB)</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Jam Tutup Masuk (WIB)</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Jam Mulai Pulang (WIB)</th>
+                                                <th class="fw-bold text-dark" style="font-size:13px;">Jam Tutup Pulang (WIB)</th>
                                             </tr>
                                         </thead>
 
@@ -58,7 +58,7 @@
 
                                             <tr>
 
-                                                <td class="fw-bold">
+                                                <td class="fw-bold fs-4 text-center align-middle">
 
                                                     @php
                                                         $namaHari = [

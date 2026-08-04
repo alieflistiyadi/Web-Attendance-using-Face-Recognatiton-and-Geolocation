@@ -135,17 +135,16 @@
               <div class="row mt-2">
                 <div class="col-12">
                   <table class="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>No</th>
-                        <th>NIS</th>
-                        <th>Nama Lengkap</th>
-                        <th>Kelas</th>
-                        <th>No. Hp</th>
-
-                        <th>Jurusan</th>
-                        <th>Aksi</th>
-                      </tr>
+                    <thead class="table-light">
+                        <tr>
+                            <th class="fw-bold text-dark" style="font-size:13px;">No</th>
+                            <th class="fw-bold text-dark" style="font-size:13px;">NIS</th>
+                            <th class="fw-bold text-dark" style="font-size:13px;">Nama Lengkap</th>
+                            <th class="fw-bold text-dark" style="font-size:13px;">Kelas</th>
+                            <th class="fw-bold text-dark" style="font-size:13px;">No. HP</th>
+                            <th class="fw-bold text-dark" style="font-size:13px;">Jurusan</th>
+                            <th class="fw-bold text-dark" style="font-size:13px;">Aksi</th>
+                        </tr>
                     </thead>
                     <tbody>
                       @foreach ($siswa as $d)
@@ -288,7 +287,7 @@
                       </svg>
                     </span>
                     <input type="text" id="no_hp_modal" class="form-control" name="no_hp" placeholder="+628xxxxxxxxxx"
-                      maxlength="15">
+                      maxlength="18">
                   </div>
                 </div>
               </div>
@@ -374,24 +373,27 @@
         });
 
         // Format No HP
-        $("#no_hp_modal").on("input", function () {
+       $("#no_hp_modal").on("input", function () {
 
-          var nomor = $(this).val();
+            var nomor = $(this).val();
 
-          // Hanya angka
-          nomor = nomor.replace(/\D/g, '');
+            // Ambil angka saja
+            nomor = nomor.replace(/\D/g, '');
 
-          // Kalau diawali 0 -> ganti jadi 62
-          if (nomor.startsWith("0")) {
-            nomor = "62" + nomor.substring(1);
-          }
+            // Jika diawali 620 -> ubah menjadi 62
+            if (nomor.startsWith("620")) {
+                nomor = "62" + nomor.substring(3);
+            }
+            // Jika diawali 0 -> ubah menjadi 62
+            else if (nomor.startsWith("0")) {
+                nomor = "62" + nomor.substring(1);
+            }
+            // Jika belum diawali 62 -> tambahkan 62
+            else if (!nomor.startsWith("62")) {
+                nomor = "62" + nomor;
+            }
 
-          // Kalau bukan 62 -> tambahkan 62
-          if (!nomor.startsWith("62")) {
-            nomor = "62" + nomor;
-          }
-
-          $(this).val("+" + nomor);
+            $(this).val("+" + nomor);
 
         });
 
@@ -500,17 +502,20 @@
           // Validasi nomor HP
           var hp = no_hp.replace("+", "");
 
-          if (!/^62\d{9,18}$/.test(hp)) {
-            Swal.fire({
-              title: 'Warning!',
-              text: 'Nomor HP harus menggunakan format +62 dan terdiri dari 11 sampai 15 digit.',
-              icon: 'warning',
-              confirmButtonText: 'OK'
-            }).then(() => {
-              $("#no_hp_modal").focus();
-            });
+          // Hilangkan kode negara 62
+          var nomor = hp.substring(2);
 
-            return false;
+          if (nomor.length < 9 || nomor.length > 15) {
+              Swal.fire({
+                  title: 'Warning!',
+                  text: 'Nomor HP harus terdiri dari 9 sampai 15 digit.',
+                  icon: 'warning',
+                  confirmButtonText: 'OK'
+              }).then(() => {
+                  $("#no_hp_modal").focus();
+              });
+
+              return false;
           }
 
         });

@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class GuruController extends Controller
 {
     public function index()
     {
-        $guru = DB::table('users')->paginate(10);
+        $guru = DB::table('users')
+            ->whereIn('role', ['guru', 'superadmin'])
+            ->paginate(10);
 
         return view('guru.index', compact('guru'));
     }
@@ -18,26 +21,40 @@ class GuruController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8'
+            'name' => 'required|regex:/^[A-Za-z\s]+$/',
+            'email' => [
+                'required',
+                'email',
+                'unique:users,email',
+                function ($attribute, $value, $fail) {
+                    if (!str_ends_with(strtolower($value), '@gmail.com')) {
+                        $fail('Email harus menggunakan domain @gmail.com.');
+                    }
+                },
+            ],
+            'password' => 'required|min:8',
+            'role' => 'required|in:guru,superadmin',
+        ], [
+            'name.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
         ]);
 
         DB::table('users')->insert([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
             'created_at' => now(),
             'updated_at' => now()
         ]);
 
-        return redirect('/guru')->with('success', 'Guru berhasil ditambahkan');
+        return redirect('/guru')->with('success', 'Akun berhasil ditambahkan');
     }
 
     public function edit(Request $request)
     {
         $guru = DB::table('users')
             ->where('id', $request->id)
+            ->whereIn('role', ['guru', 'superadmin'])
             ->first();
 
         return view('guru.edit', compact('guru'));
@@ -46,24 +63,48 @@ class GuruController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,' . $id,
-            'password' => [
+            'name' => 'required|regex:/^[A-Za-z\s]+$/',
+            'email' => [
                 'required',
+                'email',
+                'unique:users,email,' . $id,
+                function ($attribute, $value, $fail) {
+                    if (!str_ends_with(strtolower($value), '@gmail.com')) {
+                        $fail('Email harus menggunakan domain @gmail.com.');
+                    }
+                },
+            ],
+            'role' => 'required|in:guru,superadmin',
+            'password' => [
+                'nullable',
                 'min:8',
-                'regex:/[a-z]/',      // huruf kecil
-                'regex:/[A-Z]/',      // huruf besar
-                'regex:/[0-9]/',      // angka
-                'regex:/[@$!%*#?&]/'  // simbol
+                'regex:/[a-z]/',
+                'regex:/[A-Z]/',
+                'regex:/[0-9]/',
+                'regex:/[@$!%*#?&]/'
             ]
-        ],[
+        ], [
+            'name.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
             'password.min' => 'Password minimal 8 karakter.',
             'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, angka, dan simbol.'
         ]);
 
+        // Proteksi: superadmin tidak boleh menurunkan role akunnya sendiri
+        $isSelf = (int) $id === (int) Auth::guard('user')->id();
+
+        if ($isSelf) {
+            $currentUser = DB::table('users')->where('id', $id)->first();
+
+            if ($currentUser->role === 'superadmin' && $request->role !== 'superadmin') {
+                return redirect('/guru')
+                    ->with('error', 'Anda tidak bisa mengubah role akun Anda sendiri dari Superadmin');
+            }
+        }
+
         $data = [
             'name' => $request->name,
             'email' => $request->email,
+            'role' => $request->role,
             'updated_at' => now()
         ];
 
@@ -73,20 +114,27 @@ class GuruController extends Controller
 
         DB::table('users')
             ->where('id', $id)
+            ->whereIn('role', ['guru', 'superadmin'])
             ->update($data);
 
         return redirect('/guru')
-            ->with('success', 'Data guru berhasil diupdate');
+            ->with('success', 'Data berhasil diupdate');
     }
 
     public function delete($id)
     {
+        // Cegah superadmin menghapus akunnya sendiri
+        if ((int) $id === (int) Auth::guard('user')->id()) {
+            return redirect('/guru')
+                ->with('error', 'Anda tidak bisa menghapus akun Anda sendiri');
+        }
+
         DB::table('users')
             ->where('id', $id)
+            ->whereIn('role', ['guru', 'superadmin'])
             ->delete();
 
         return redirect('/guru')
-            ->with('success', 'Data guru berhasil dihapus');
+            ->with('success', 'Data berhasil dihapus');
     }
-
 }

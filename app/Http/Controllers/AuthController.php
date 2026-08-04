@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 class AuthController extends Controller
 {
     // Password default yang diberikan ke siswa saat admin approve reset
-    const DEFAULT_RESET_PASSWORD = '12345678';
+    const DEFAULT_RESET_PASSWORD = 'User123!';
 
     public function prosesLogin(Request $request)
     {
@@ -51,6 +51,11 @@ class AuthController extends Controller
 
     public function prosesloginadmin(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
         $credentials = [
             'email' => $request->email,
             'password' => $request->password,
@@ -65,8 +70,7 @@ class AuthController extends Controller
             return redirect()->intended('/panel/dashboardadmin');
         }
 
-        return redirect('/panel')
-            ->with('warning', 'Username atau Password salah!');
+        return back()->with('warning', 'Email atau Password salah!');
     }
 
     // ===================== FORGOT PASSWORD (SISWA) =====================
@@ -125,16 +129,16 @@ class AuthController extends Controller
             ]);
         }
 
-        $phone=$siswa->no_hp;
+        $phone = $siswa->no_hp;
 
-        $maskedPhone=
-            substr($phone,0,4).
-            str_repeat('*',max(strlen($phone)-8,0)).
-            substr($phone,-4);
+        $maskedPhone =
+            substr($phone, 0, 4) .
+            str_repeat('*', max(strlen($phone) - 8, 0)) .
+            substr($phone, -4);
 
         return response()->json([
-            'success'=>true,
-            'phone'=>$maskedPhone
+            'success' => true,
+            'phone' => $maskedPhone
         ]);
     }
 
@@ -152,6 +156,9 @@ class AuthController extends Controller
                 'message' => 'NIS tidak ditemukan.'
             ]);
         }
+        \Log::info('FONNTE TOKEN', [
+            'token' => config('services.fonnte.token'),
+        ]);
 
         // Generate OTP 6 digit
         $otp = rand(100000, 999999);
@@ -188,6 +195,21 @@ class AuthController extends Controller
                 'updated_at' => now(),
             ]
         );
+
+        // Kirim WhatsApp via Fonnte
+        $response = Http::withHeaders([
+            'Authorization' => env('FONNTE_TOKEN')
+        ])->post('https://api.fonnte.com/send', [
+            'target' => $siswa->no_hp,
+            'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
+        ]);
+
+        if (!$response->successful()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim OTP ke WhatsApp.'
+            ]);
+        }
         
         session([
             'forgot_nis' => $siswa->nis
@@ -382,9 +404,9 @@ class AuthController extends Controller
         $response = Http::withHeaders([
             'Authorization' => env('FONNTE_TOKEN')
         ])->post('https://api.fonnte.com/send', [
-            'target' => $siswa->no_hp,
-            'message' => "SMK SMART\n\nKode OTP baru Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
-        ]);
+                    'target' => $siswa->no_hp,
+                    'message' => "SMK SMART\n\nKode OTP baru Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
+                ]);
 
         if (!$response->successful()) {
 
