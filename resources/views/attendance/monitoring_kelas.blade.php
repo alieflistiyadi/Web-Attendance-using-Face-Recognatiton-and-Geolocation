@@ -15,7 +15,7 @@
         $sisamenit2 = $sisamenit * 60;
         return $jam[0] . ":" . round($sisamenit2);
     }
-                    ?>
+                                        ?>
 
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -75,32 +75,35 @@
 
                             <div class="row">
                                 <div class="col-12">
-                                    <table class="table table-striped table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th class="fw-bold text-dark" style="font-size:13px;">No.</th>
-                                                <th class="fw-bold text-dark" style="font-size:13px;">NIS</th>
-                                                <th class="fw-bold text-dark" style="font-size:13px;">Nama Siswa</th>
-                                                <th class="fw-bold text-dark" style="font-size:13px;">Jurusan</th>
-                                                <th class="fw-bold text-dark" style="font-size:13px;">Jam Masuk</th>
-                                                <th class="fw-bold text-dark" style="font-size:13px;">Foto Masuk</th>
-                                                <th class="fw-bold text-dark" style="font-size:13px;">Jam Pulang</th>
-                                                <th class="fw-bold text-dark" style="font-size:13px;">Foto Pulang</th>
-                                                <th class="fw-bold text-dark" style="font-size:13px;">Keterangan</th>
-                                                
-                                            </tr>
-                                        </thead>
-                                        <tbody id="loadattendance">
-                                            <tr>
-                                                <td colspan="10" class="text-center text-muted">
-                                                    Pilih tanggal untuk melihat data
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">No.</th>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">NIS</th>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">Nama Siswa</th>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">Jurusan</th>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">Jam Masuk</th>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">Foto Masuk</th>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">Jam Pulang</th>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">Foto Pulang</th>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">Keterangan</th>
+                                                    <th class="fw-bold text-dark" style="font-size:13px;">Aksi</th>
 
+                                                </tr>
+                                            </thead>
+                                            <tbody id="loadattendance">
+                                                <tr>
+                                                    <td colspan="11" class="text-center text-muted">
+                                                        Pilih tanggal untuk melihat data
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -153,7 +156,7 @@
                     },
                     beforeSend: function () {
                         $("#loadattendance").html(
-                            "<tr><td colspan='10' class='text-center'>Loading...</td></tr>"
+                            "<tr><td colspan='11' class='text-center'>Loading...</td></tr>"
                         );
                     },
                     cache: false,

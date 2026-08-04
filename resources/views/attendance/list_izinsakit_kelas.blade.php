@@ -143,12 +143,20 @@
               @forelse ($izinsakit as $d)
                 <tr>
                   <td>{{ $loop->iteration + $izinsakit->firstItem() - 1 }}</td>
-                  <td>{{ date('d-m-Y', strtotime($d->tanggal_izin)) }}</td>
-                  <td>{{ $d->nama_lengkap }}</td>
-                  <td>{{ $d->kelas }}</td>
-                  <td>{{ $d->kode_jurusan }}</td>
-                  <td>{{ $d->status == 'i' ? 'Izin' : 'Sakit' }}</td>
-                  <td>{{ $d->keterangan }}</td>
+
+<td>{{ date('d-m-Y', strtotime($d->tanggal_izin)) }}</td>
+
+<td>{{ $d->nis }}</td>
+
+<td>{{ $d->nama_lengkap }}</td>
+
+<td>{{ $d->kelas }}</td>
+
+<td>{{ $d->nama_jurusan }}</td>
+
+<td>{{ $d->status == 'i' ? 'Izin' : 'Sakit' }}</td>
+
+<td>{{ $d->keterangan }}</td>
                   <td>
                     @if ($d->status_approved == 1)
                       <span class="badge bg-success">Disetujui</span>
