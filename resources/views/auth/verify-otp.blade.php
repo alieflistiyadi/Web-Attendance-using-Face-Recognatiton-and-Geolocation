@@ -20,6 +20,19 @@
                 <div class="section mt-1">
                     <h1>Verifikasi OTP</h1>
                     <h4>Masukkan kode OTP yang telah dikirim ke WhatsApp Anda.</h4>
+                    <div class="text-center mt-2">
+                        <small class="text-danger">
+                            OTP berlaku selama
+                        </small>
+
+                        <h3 id="countdown" class="text-danger font-weight-bold">
+                            02:00
+                        </h3>
+                    </div>
+                    <input
+                        type="hidden"
+                        id="expiresAt"
+                        value="{{ $expiresAt }}">
                 </div>
                 <div class="section mt-1 mb-5">
                     <form id="verifyOtpForm">
@@ -78,19 +91,37 @@
                         .text('Memverifikasi...');
                 },
                 success:function(res){
+                    if(!res.success){
+                        Swal.fire({
+                            icon:'error',
+                            title:'Gagal',
+                            text:res.message
+                        });
+                        return;
+                    }
                     Swal.fire({
                         icon:'success',
                         title:'Berhasil',
                         text:'OTP berhasil diverifikasi.'
                     }).then(function(){
-                        window.location=res.redirect;
+                        window.location = res.redirect;
                     });
                 },
                 error:function(xhr){
                     let message='Terjadi kesalahan.';
                     if(xhr.responseJSON){
                         message=xhr.responseJSON.message;
-                    }
+                        if(xhr.responseJSON.redirect){
+                            Swal.fire({
+                                icon:'warning',
+                                title:'Percobaan Habis',
+                                text:message
+                            }).then(function(){
+                                window.location = xhr.responseJSON.redirect;
+                            });
+                            return;
+                        }
+                    }   
                     Swal.fire({
                         icon:'error',
                         title:'Gagal',
@@ -119,6 +150,17 @@
                     $('#btnResendOtp').text('Mengirim...');
                 },
                 success:function(res){
+
+                    console.log(res);
+
+                    $('#otp').prop('disabled', false);
+                    $('#otp').val('');
+                    $('#btnVerifyOtp').prop('disabled', false);
+                    $('#expiresAt').val(res.expiresAt);
+
+                    console.log($('#expiresAt').val());
+                    
+                    startCountdown();
                     Swal.fire({
                         icon:'success',
                         title:'Berhasil',
@@ -141,6 +183,56 @@
                 }
             });
         });
+        </script>
+
+        <script>
+
+        let timer;
+
+        function startCountdown() {
+
+            clearInterval(timer);
+
+            const expiresAt = new Date($('#expiresAt').val()).getTime();
+
+            timer = setInterval(function () {
+
+                const now = new Date().getTime();
+
+                const distance = expiresAt - now;
+
+                if (distance <= 0) {
+
+                    clearInterval(timer);
+
+                    $('#countdown').text("00:00");
+                    $('#otp').prop('disabled', true);
+                    $('#btnVerifyOtp').prop('disabled', true);
+
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'OTP Kedaluwarsa',
+                        text: 'Silakan kirim ulang OTP.'
+                    });
+
+                    return;
+                }
+
+                const minutes = Math.floor(distance / 1000 / 60);
+                const seconds = Math.floor((distance / 1000) % 60);
+
+                $('#countdown').text(
+                    String(minutes).padStart(2, '0') +
+                    ':' +
+                    String(seconds).padStart(2, '0')
+                );
+
+            }, 1000);
+
+        }
+        
+        startCountdown();
+
         </script>
     </body>
 </html>

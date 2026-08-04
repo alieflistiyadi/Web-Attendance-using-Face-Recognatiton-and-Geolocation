@@ -15,8 +15,15 @@ class DashboardController extends Controller
         $hari = now()->dayOfWeekIso; // Senin=1 ... Minggu=7
         // Ambil konfigurasi waktu
         $waktu = DB::table('konfigurasi_waktu')
-        ->where('hari', $hari)
-        ->first();
+            ->where('hari', $hari)
+            ->first();
+
+        if (!$waktu) {
+            // jika hari Sabtu/Minggu gunakan batas telat Jumat
+            $waktu = DB::table('konfigurasi_waktu')
+                ->where('hari', 5)
+                ->first();
+        }
 
         $batasTelat = $waktu->batas_telat;
         // Data attendance hari ini milik siswa ini

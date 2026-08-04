@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -155,26 +156,15 @@ class AuthController extends Controller
         // Generate OTP 6 digit
         $otp = rand(100000, 999999);
 
-        // Simpan ke database
-        DB::table('password_otps')->updateOrInsert(
-            ['nis' => $siswa->nis],
-            [
-                'no_hp' => $siswa->no_hp,
-                'otp_code' => $otp,
-                'expires_at' => now()->addMinutes(5),
-                'is_verified' => 0,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]
-        );
-
         // Kirim WhatsApp via Fonnte
-        $response = Http::withHeaders([
-            'Authorization' => env('FONNTE_TOKEN')
-        ])->post('https://api.fonnte.com/send', [
-            'target' => $siswa->no_hp,
-            'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
-        ]);
+                $response = Http::withHeaders([
+                    'Authorization' => env('FONNTE_TOKEN')
+                ])->post('https://api.fonnte.com/send', [
+                    'target' => $siswa->no_hp,
+                    'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 2 menit.\nJangan berikan kode ini kepada siapa pun."
+                ]);
+
+        
 
         if (!$response->successful()) {
             return response()->json([
@@ -182,6 +172,22 @@ class AuthController extends Controller
                 'message' => 'Gagal mengirim OTP ke WhatsApp.'
             ]);
         }
+
+        $expiresAt = now()->addMinutes(2);
+
+        // Simpan ke database
+        DB::table('password_otps')->updateOrInsert(
+            ['nis' => $siswa->nis],
+            [
+                'no_hp' => $siswa->no_hp,
+                'otp_code' => $otp,
+                'expires_at' => now()->addMinutes(2),
+                'is_verified' => 0,
+                'attempts' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        );
         
         session([
             'forgot_nis' => $siswa->nis
@@ -202,36 +208,76 @@ class AuthController extends Controller
 
         $nis = session('forgot_nis');
 
-        $otp = DB::table('password_otps')
+        $otpData = DB::table('password_otps')
             ->where('nis', $nis)
-            ->where('otp_code', $request->otp)
-            ->where('is_verified', 0)
             ->first();
 
-        if (!$otp) {
+        // OTP belum ada
+        if (!$otpData) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kode OTP tidak valid.'
-            ]);
+                'message' => 'OTP tidak ditemukan.'
+            ], 422);
         }
 
-        if (now()->gt($otp->expires_at)) {
+        Log::info([
+            'input_otp' => $request->otp,
+            'db_otp' => $otpData->otp_code,
+            'attempts' => $otpData->attempts,
+            'expires_at' => $otpData->expires_at,
+        ]);
+                
+        // OTP kadaluwarsa
+        if (now()->gt($otpData->expires_at)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode OTP telah kadaluwarsa.'
+            ], 422);
+        }
+
+        // OTP salah
+        if ($otpData->otp_code != $request->otp) {
+
+            DB::table('password_otps')
+                ->where('nis', $nis)
+                ->increment('attempts');
+
+            $otpData = DB::table('password_otps')
+                ->where('nis', $nis)
+                ->first();
+
+            // Sudah terlalu banyak percobaan
+            if ($otpData->attempts >= 5) {
+
+                DB::table('password_otps')
+                    ->where('nis', $nis)
+                    ->delete();
+
+                return response()->json([
+                    'success' => false,
+                    'redirect' => route('forgot-password'),
+                    'message' => 'Anda telah 5 kali salah memasukkan OTP. Silakan kirim ulang OTP.'
+                ], 422);
+            }
+
+            $sisa = 5 - $otpData->attempts;
 
             return response()->json([
                 'success' => false,
-                'message' => 'Kode OTP telah kedaluwarsa.'
-            ]);
-
+                'message' => "Kode OTP salah. Sisa percobaan {$sisa} kali."
+            ], 422);            
         }
 
+        // OTP benar
         DB::table('password_otps')
-            ->where('id', $otp->id)
+            ->where('id', $otpData->id)
             ->update([
-                'is_verified' => 1
+                'is_verified' => 1,
+                'attempts' => 0
             ]);
 
         session([
-            'reset_nis' => $otp->nis
+            'reset_nis' => $otpData->nis
         ]);
 
         return response()->json([
@@ -251,17 +297,32 @@ class AuthController extends Controller
 
     public function showVerifyOtp()
     {
-        return view('auth.verify-otp');
+
+        $nis = session('forgot_nis');
+
+        $otp = DB::table('password_otps')
+            ->where('nis', $nis)
+            ->first();
+
+        return view('auth.verify-otp', [
+            'expiresAt' => $otp?->expires_at
+        ]);
     }
 
     public function updatePassword(Request $request)
     {
         $request->validate([
-            'password' => 'required|min:8|confirmed',
-        ], [
-            'password.required' => 'Password wajib diisi.',
-            'password.min' => 'Password minimal 8 karakter.',
-            'password.confirmed' => 'Konfirmasi password tidak sesuai.'
+            'password' => [
+                'required',
+                'confirmed',
+                'min:8',
+                'regex:/[A-Z]/',
+                'regex:/[a-z]/',
+                'regex:/[0-9]/',
+                'regex:/[~!@#$%^&*()\-_+=\[\]{}\\:;"\'<>,.?\/]/'
+            ]
+        ],[
+            'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, angka, dan karakter spesial.'
         ]);
 
         $nis = session('reset_nis');
@@ -315,16 +376,7 @@ class AuthController extends Controller
 
         // Generate OTP baru
         $otp = rand(100000, 999999);
-
-        // Update OTP
-        DB::table('password_otps')
-            ->where('nis', $nis)
-            ->update([
-                'otp_code' => $otp,
-                'expires_at' => now()->addMinutes(5),
-                'is_verified' => 0,
-                'updated_at' => now()
-            ]);
+        $expiresAt = now()->addMinutes(2);
 
         // Kirim WhatsApp
         $response = Http::withHeaders([
@@ -343,9 +395,22 @@ class AuthController extends Controller
 
         }
 
+        $expiresAt = now()->addMinutes(2);
+
+        DB::table('password_otps') // Update OTP
+            ->where('nis', $nis)
+            ->update([
+                'otp_code' => $otp,
+                'expires_at' => $expiresAt,
+                'is_verified' => 0,
+                'attempts' => 0,
+                'updated_at' => now()
+            ]);
+
         return response()->json([
             'success' => true,
-            'message' => 'OTP baru berhasil dikirim ke WhatsApp.'
+            'message' => 'OTP baru berhasil dikirim ke WhatsApp.',
+            'expiresAt' => $expiresAt->toIso8601String()
         ]);
     }
 
