@@ -164,14 +164,14 @@ class AuthController extends Controller
         $otp = rand(100000, 999999);
 
         // Kirim WhatsApp via Fonnte
-                $response = Http::withHeaders([
-                    'Authorization' => env('FONNTE_TOKEN')
-                ])->post('https://api.fonnte.com/send', [
+        $response = Http::withHeaders([
+            'Authorization' => env('FONNTE_TOKEN')
+        ])->post('https://api.fonnte.com/send', [
                     'target' => $siswa->no_hp,
                     'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 2 menit.\nJangan berikan kode ini kepada siapa pun."
                 ]);
 
-        
+
 
         if (!$response->successful()) {
             return response()->json([
@@ -200,9 +200,9 @@ class AuthController extends Controller
         $response = Http::withHeaders([
             'Authorization' => env('FONNTE_TOKEN')
         ])->post('https://api.fonnte.com/send', [
-            'target' => $siswa->no_hp,
-            'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
-        ]);
+                    'target' => $siswa->no_hp,
+                    'message' => "SMK SMART\n\nKode OTP Anda adalah: {$otp}\n\nKode ini berlaku selama 5 menit.\nJangan berikan kode ini kepada siapa pun."
+                ]);
 
         if (!$response->successful()) {
             return response()->json([
@@ -210,7 +210,7 @@ class AuthController extends Controller
                 'message' => 'Gagal mengirim OTP ke WhatsApp.'
             ]);
         }
-        
+
         session([
             'forgot_nis' => $siswa->nis
         ]);
@@ -242,13 +242,12 @@ class AuthController extends Controller
             ], 422);
         }
 
-        Log::info([
+        Log::info('OTP Verification', [
             'input_otp' => $request->otp,
             'db_otp' => $otpData->otp_code,
             'attempts' => $otpData->attempts,
             'expires_at' => $otpData->expires_at,
         ]);
-                
         // OTP kadaluwarsa
         if (now()->gt($otpData->expires_at)) {
             return response()->json([
@@ -287,7 +286,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => "Kode OTP salah. Sisa percobaan {$sisa} kali."
-            ], 422);            
+            ], 422);
         }
 
         // OTP benar
@@ -343,7 +342,7 @@ class AuthController extends Controller
                 'regex:/[0-9]/',
                 'regex:/[~!@#$%^&*()\-_+=\[\]{}\\:;"\'<>,.?\/]/'
             ]
-        ],[
+        ], [
             'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, angka, dan karakter spesial.'
         ]);
 
