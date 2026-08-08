@@ -256,15 +256,19 @@
 
               <div class="row mt-2">
                 <div class="col-12">
-                  <label class="form-label">Jurusan</label>
-                  <select name="kode_jurusan" id="kode_jurusan_modal" class="form-select">
-                    <option value="">Pilih Jurusan</option>
-                    @foreach ($jurusan as $d)
-                      <option value="{{ $d->kode_jurusan }}">{{ $d->nama_jurusan }}</option>
-                    @endforeach
-                  </select>
+                    <label class="form-label">Jurusan</label>
+                    <input type="text"
+                          id="nama_jurusan_modal"
+                          class="form-control"
+                          value=""
+                          placeholder="Jurusan otomatis mengikuti kelas"
+                          readonly>
+                    <input type="hidden"
+                          name="kode_jurusan"
+                          id="kode_jurusan_modal"
+                          value="">
                 </div>
-              </div>
+            </div>
 
               {{-- Info kelas otomatis --}}
               <div class="row mt-2">
@@ -371,6 +375,77 @@
         $("#btnImport").click(function () {
           $("#modal-import").modal("show");
         });
+
+        // ==========================================
+        // MAPPING KELAS -> JURUSAN
+        // ==========================================
+
+        var mappingJurusan = {
+
+            "10-1": {
+                kode: "MP",
+                nama: "Manajemen Perkantoran"
+            },
+
+            "10-2": {
+                kode: "TJKT",
+                nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+            },
+
+            "10-3": {
+                kode: "TM",
+                nama: "Teknik Mesin"
+            },
+
+            "11-1": {
+                kode: "MP",
+                nama: "Manajemen Perkantoran"
+            },
+
+            "11-2": {
+                kode: "TJKT",
+                nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+            },
+
+            "11-3": {
+                kode: "TM",
+                nama: "Teknik Mesin"
+            },
+
+            "12-1": {
+                kode: "MP",
+                nama: "Manajemen Perkantoran"
+            },
+
+            "12-2": {
+                kode: "TJKT",
+                nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+            },
+
+            "12-3": {
+                kode: "TM",
+                nama: "Teknik Mesin"
+            }
+
+        };
+
+
+        // Kelas halaman saat ini
+        var kelasSekarang = "{{ $kelas }}";
+
+
+        // Isi jurusan otomatis
+        if (mappingJurusan[kelasSekarang]) {
+
+            $("#nama_jurusan_modal").val(
+                mappingJurusan[kelasSekarang].nama
+            );
+
+            $("#kode_jurusan_modal").val(
+                mappingJurusan[kelasSekarang].kode
+            );
+
+        }
 
         // Format No HP
        $("#no_hp_modal").on("input", function () {

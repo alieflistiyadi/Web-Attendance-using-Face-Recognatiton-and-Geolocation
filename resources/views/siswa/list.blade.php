@@ -211,25 +211,37 @@
             <div class="row mt-2">
                 <div class="col-12">
                     <label class="form-label">Jurusan</label>
-                    <select name="kode_jurusan" id="kode_jurusan" class="form-select">
-                        <option value="">Pilih Jurusan</option>
-                        @foreach ($jurusan as $d)
-                            <option value="{{ $d->kode_jurusan }}">
-                                {{ $d->nama_jurusan }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <input type="text"
+                          id="nama_jurusan"
+                          class="form-control"
+                          value=""
+                          placeholder="Jurusan akan otomatis mengikuti kelas"
+                          readonly>
+                    <input type="hidden"
+                          name="kode_jurusan"
+                          id="kode_jurusan">
                 </div>
             </div>
-
             <div class="row mt-2">
                 <div class="col-12">
                     <label class="form-label">Kelas</label>
-                    <select name="kelas" id="kelas" class="form-select">
+                    <select name="kelas" id="kelas" class="form-select" required>
                         <option value="">Pilih Kelas</option>
-                        <option value="10">Kelas 10</option>
-                        <option value="11">Kelas 11</option>
-                        <option value="12">Kelas 12</option>
+                        <optgroup label="Kelas 10">
+                            <option value="10-1">Kelas 10-1</option>
+                            <option value="10-2">Kelas 10-2</option>
+                            <option value="10-3">Kelas 10-3</option>
+                        </optgroup>
+                        <optgroup label="Kelas 11">
+                            <option value="11-1">Kelas 11-1</option>
+                            <option value="11-2">Kelas 11-2</option>
+                            <option value="11-3">Kelas 11-3</option>
+                        </optgroup>
+                        <optgroup label="Kelas 12">
+                            <option value="12-1">Kelas 12-1</option>
+                            <option value="12-2">Kelas 12-2</option>
+                            <option value="12-3">Kelas 12-3</option>
+                        </optgroup>
                     </select>
                 </div>
             </div>
@@ -335,6 +347,76 @@
           }
         });
       });
+
+      // ===============================
+      // MAPPING KELAS DAN JURUSAN
+      // ===============================
+      $("#kelas").change(function () {
+
+          var kelas = $(this).val();
+
+          var mappingJurusan = {
+
+              "10-1": {
+                  kode: "MP",
+                  nama: "Manajemen Perkantoran"
+              },
+
+              "10-2": {
+                  kode: "TJKT",
+                  nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+              },
+
+              "10-3": {
+                  kode: "TM",
+                  nama: "Teknik Mesin"
+              },
+
+              "11-1": {
+                  kode: "MP",
+                  nama: "Manajemen Perkantoran"
+              },
+
+              "11-2": {
+                  kode: "TJKT",
+                  nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+              },
+
+              "11-3": {
+                  kode: "TM",
+                  nama: "Teknik Mesin"
+              },
+
+              "12-1": {
+                  kode: "MP",
+                  nama: "Manajemen Perkantoran"
+              },
+
+              "12-2": {
+                  kode: "TJKT",
+                  nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+              },
+
+              "12-3": {
+                  kode: "TM",
+                  nama: "Teknik Mesin"
+              }
+
+          };
+          if (mappingJurusan[kelas]) {
+              $("#kode_jurusan").val(mappingJurusan[kelas].kode);
+              $("#nama_jurusan").val(mappingJurusan[kelas].nama
+              );
+          } else {
+              $("#kode_jurusan").val("");
+              $("#nama_jurusan").val("");
+
+          }
+      });
+
+      // ===============================
+      // VALIDASI FORM
+      // ===============================
 
       $("#formsiswa").submit(function () {
         var nis = $("#formsiswa").find("#nis").val();

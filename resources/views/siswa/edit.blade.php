@@ -16,7 +16,12 @@
                         <path d="M14 12h4" />
                     </svg>
                 </span>
-
+                <style>
+                    #kelas {
+                        padding-left: 40px;
+                        height: 38px;
+                    }
+                </style>
                 <input type="text" readonly value="{{ $siswa->nis }}" id="nis" class="form-control" name="nis"
                     placeholder="NIS">
             </div>
@@ -44,19 +49,70 @@
 
     <div class="row">
         <div class="col-12">
-            <div class="input-icon mb-3">
-                <span class="input-icon-addon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        class="icon icon-tabler icons-tabler-outline icon-tabler-briefcase-2">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M3 9a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9" />
-                        <path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
-                    </svg>
-                </span>
-
-                <input type="text" value="{{ $siswa->kelas }}" id="kelas" class="form-control" name="kelas"
-                    placeholder="Kelas">
+            <div class="mb-3">
+                <label class="form-label">Kelas</label>
+                <div class="input-icon">
+                    <span class="input-icon-addon">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="icon icon-tabler icons-tabler-outline icon-tabler-briefcase-2">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M3 9a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9" />
+                            <path d="M8 7v-2a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                    </span>
+                <select name="kelas" id="kelas" class="form-select">
+                    <option value="">Pilih Kelas</option>
+                    <optgroup label="Kelas 10">
+                        <option value="10-1"
+                            {{ $siswa->kelas == '10-1' ? 'selected' : '' }}>
+                            Kelas 10-1
+                        </option>
+                        <option value="10-2"
+                            {{ $siswa->kelas == '10-2' ? 'selected' : '' }}>
+                            Kelas 10-2
+                        </option>
+                        <option value="10-3"
+                            {{ $siswa->kelas == '10-3' ? 'selected' : '' }}>
+                            Kelas 10-3
+                        </option>
+                    </optgroup>
+                    <optgroup label="Kelas 11">
+                        <option value="11-1"
+                            {{ $siswa->kelas == '11-1' ? 'selected' : '' }}>
+                            Kelas 11-1
+                        </option>
+                        <option value="11-2"
+                            {{ $siswa->kelas == '11-2' ? 'selected' : '' }}>
+                            Kelas 11-2
+                        </option>
+                        <option value="11-3"
+                            {{ $siswa->kelas == '11-3' ? 'selected' : '' }}>
+                            Kelas 11-3
+                        </option>
+                    </optgroup>
+                    <optgroup label="Kelas 12">
+                        <option value="12-1"
+                            {{ $siswa->kelas == '12-1' ? 'selected' : '' }}>
+                            Kelas 12-1
+                        </option>
+                        <option value="12-2"
+                            {{ $siswa->kelas == '12-2' ? 'selected' : '' }}>
+                            Kelas 12-2
+                        </option>
+                        <option value="12-3"
+                            {{ $siswa->kelas == '12-3' ? 'selected' : '' }}>
+                            Kelas 12-3
+                        </option>
+                    </optgroup>
+                </select>
             </div>
         </div>
     </div>
@@ -89,16 +145,16 @@
         <div class="col-12">
             <div class="mb-3">
                 <label class="form-label">Jurusan</label>
-
-                <select name="kode_jurusan" id="kode_jurusan" class="form-select">
-                    <option value="">Pilih Jurusan</option>
-
-                    @foreach ($jurusan as $d)
-                        <option value="{{ $d->kode_jurusan }}" {{ $siswa->kode_jurusan == $d->kode_jurusan ? 'selected' : '' }}>
-                            {{ $d->nama_jurusan }}
-                        </option>
-                    @endforeach
-                </select>
+                <input type="text"
+                    id="nama_jurusan"
+                    class="form-control"
+                    value=""
+                    placeholder="Jurusan otomatis mengikuti kelas"
+                    readonly>
+                <input type="hidden"
+                    name="kode_jurusan"
+                    id="kode_jurusan"
+                    value="{{ $siswa->kode_jurusan }}">
             </div>
         </div>
     </div>
@@ -149,6 +205,87 @@ $(function () {
         }
 
     });
+
+    // MAPPING KELAS -> JURUSAN
+
+    var mappingJurusan = {
+
+        "10-1": {
+            kode: "MP",
+            nama: "Manajemen Perkantoran"
+        },
+
+        "10-2": {
+            kode: "TJKT",
+            nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+        },
+
+        "10-3": {
+            kode: "TM",
+            nama: "Teknik Mesin"
+        },
+
+        "11-1": {
+            kode: "MP",
+            nama: "Manajemen Perkantoran"
+        },
+
+        "11-2": {
+            kode: "TJKT",
+            nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+        },
+
+        "11-3": {
+            kode: "TM",
+            nama: "Teknik Mesin"
+        },
+
+        "12-1": {
+            kode: "MP",
+            nama: "Manajemen Perkantoran"
+        },
+
+        "12-2": {
+            kode: "TJKT",
+            nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+        },
+
+        "12-3": {
+            kode: "TM",
+            nama: "Teknik Mesin"
+        }
+
+    };
+
+
+    // Ketika kelas berubah
+    $("#kelas").on("change", function () {
+
+        var kelas = $(this).val();
+
+        if (mappingJurusan[kelas]) {
+
+            $("#nama_jurusan").val(
+                mappingJurusan[kelas].nama
+            );
+
+            $("#kode_jurusan").val(
+                mappingJurusan[kelas].kode
+            );
+
+        } else {
+
+            $("#nama_jurusan").val("");
+
+            $("#kode_jurusan").val("");
+
+        }
+
+    });
+
+
+    // Jalankan otomatis saat form Edit dibuka
+    $("#kelas").trigger("change");
 
     // Validasi submit
     $("#formsiswa").submit(function(){

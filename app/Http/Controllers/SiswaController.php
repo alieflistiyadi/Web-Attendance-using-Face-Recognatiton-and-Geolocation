@@ -72,13 +72,35 @@ class SiswaController extends Controller
 
         $password = \Illuminate\Support\Facades\Hash::make('User123!'); // Password default untuk siswa baru
 
+        $mappingJurusan = [
+            '10-1' => 'MP',
+            '10-2' => 'TJKT',
+            '10-3' => 'TM',
+
+            '11-1' => 'MP',
+            '11-2' => 'TJKT',
+            '11-3' => 'TM',
+
+            '12-1' => 'MP',
+            '12-2' => 'TJKT',
+            '12-3' => 'TM',
+        ];
+
+        $kodeJurusan = $mappingJurusan[$request->kelas] ?? null;
+
+        if (!$kodeJurusan) {
+            return back()
+                ->withInput()
+                ->with('warning', 'Kelas yang dipilih tidak memiliki mapping jurusan.');
+        }
+
         try {
             Siswa::create([
                 'nis' => $request->nis,
                 'nama_lengkap' => $request->nama_lengkap,
                 'kelas' => $request->kelas,
                 'no_hp' => $request->no_hp,
-                'kode_jurusan' => $request->kode_jurusan,
+                'kode_jurusan' => $kodeJurusan,
                 'password' => $password,
                 'is_default_password' => 1
             ]);
@@ -123,10 +145,28 @@ class SiswaController extends Controller
         $nama_lengkap = $request->nama_lengkap;
         $kelas = $request->kelas;
         $no_hp = $request->no_hp;
-        $kode_jurusan = $request->kode_jurusan;
 
+        $mappingJurusan = [
+            '10-1' => 'MP',
+            '10-2' => 'TJKT',
+            '10-3' => 'TM',
 
+            '11-1' => 'MP',
+            '11-2' => 'TJKT',
+            '11-3' => 'TM',
 
+            '12-1' => 'MP',
+            '12-2' => 'TJKT',
+            '12-3' => 'TM',
+        ];
+
+        $kode_jurusan = $mappingJurusan[$kelas] ?? null;
+
+        if (!$kode_jurusan) {
+            return back()
+                ->withInput()
+                ->with('warning', 'Kelas yang dipilih tidak memiliki mapping jurusan.');
+        }
 
         try {
             $data = [

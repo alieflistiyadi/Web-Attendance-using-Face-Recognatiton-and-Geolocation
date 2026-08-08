@@ -234,14 +234,32 @@
           <div class="dropdown-menu">
             <div class="dropdown-menu-columns">
               <div class="dropdown-menu-column">
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/10') }}">
-                  Kelas 10
+                <a class="dropdown-item" href="{{ url('/siswa/kelas/10-1') }}">
+                    Kelas 10-1
                 </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/11') }}">
-                  Kelas 11
+                <a class="dropdown-item" href="{{ url('/siswa/kelas/10-2') }}">
+                    Kelas 10-2
                 </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/12') }}">
-                  Kelas 12
+                <a class="dropdown-item" href="{{ url('/siswa/kelas/10-3') }}">
+                    Kelas 10-3
+                </a>
+                <a class="dropdown-item" href="{{ url('/siswa/kelas/11-1') }}">
+                    Kelas 11-1
+                </a>
+                <a class="dropdown-item" href="{{ url('/siswa/kelas/11-2') }}">
+                    Kelas 11-2
+                </a>
+                <a class="dropdown-item" href="{{ url('/siswa/kelas/11-3') }}">
+                    Kelas 11-3
+                </a>
+                <a class="dropdown-item" href="{{ url('/siswa/kelas/12-1') }}">
+                    Kelas 12-1
+                </a>
+                <a class="dropdown-item" href="{{ url('/siswa/kelas/12-2') }}">
+                    Kelas 12-2
+                </a>
+                <a class="dropdown-item" href="{{ url('/siswa/kelas/12-3') }}">
+                    Kelas 12-3
                 </a>
               </div>
             </div>
