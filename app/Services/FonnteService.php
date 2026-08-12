@@ -16,7 +16,7 @@ class FonnteService
 
     public function sendOtp($no_hp, $otp)
     {
-        $message = "Kode OTP reset password Anda: {$otp}\nBerlaku 5 menit. Jangan berikan kode ini ke siapa pun.";
+        $message = "Kode OTP reset password Anda: {$otp}\nBerlaku 2 menit. Jangan berikan kode ini ke siapa pun.";
 
         return Http::withHeaders([
             'Authorization' => $this->token,

@@ -47,7 +47,7 @@
                         </td>
                         <td>{{ \Carbon\Carbon::parse($r->created_at)->format('d M Y H:i') }}</td>
                         <td>
-                            @if($r->status === 'pending')
+                            @   if($r->status === 'pending')
                             <form action="{{ url('/panel/reset-requests/' . $r->id . '/approve') }}" method="POST"
                                 class="approve-confirm">
                                 @csrf
