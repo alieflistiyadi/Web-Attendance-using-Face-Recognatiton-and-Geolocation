@@ -499,9 +499,7 @@
                   <a class="dropdown-item" href="{{ route('jadwal.index') }}">
                     Jadwal Pelajaran
                   </a>
-                  <a class="dropdown-item" href="{{ route('konfigurasi.wali_kelas') }}">
-                    Wali Kelas
-                  </a>
+                  <a class="dropdown-item" href="/konfigurasi/wali-kelas">Wali Kelas</a>
                 </div>
               </div>
             </div>
