@@ -196,8 +196,11 @@ class DashboardController extends Controller
             ? round(($jmlhadir / $totalSiswa) * 100, 1)
             : 0;
 
-        // Pending izin
-        $pendingIzin = DB::table('pengajuan_izin')
+        // Pending izin sesuai guru yang login
+        $guruId = Auth::guard('user')->user()->id;
+
+        $pendingIzin = DB::table('pengajuan_izin_detail')
+            ->where('guru_id', $guruId)
             ->where('status_approved', 0)
             ->count();
 

@@ -82,5 +82,81 @@ class KonfigurasiController extends Controller
 
         return back()->with('success', 'Konfigurasi waktu berhasil diperbarui.');
     }
+    // =========================
+    // KONFIGURASI WALI KELAS
+    // =========================
+
+    public function waliKelas()
+    {
+        // Ambil semua kelas
+        $kelas = DB::table('kelas')
+            ->leftJoin('users', 'kelas.wali_kelas_id', '=', 'users.id')
+            ->select(
+                'kelas.id',
+                'kelas.nama_kelas',
+                'kelas.kode_jurusan',
+                'kelas.tingkat',
+                'kelas.wali_kelas_id',
+                'users.name as nama_wali_kelas'
+            )
+            ->orderBy('kelas.tingkat')
+            ->orderBy('kelas.nama_kelas')
+            ->get();
+
+        // Ambil semua guru
+        $guru = DB::table('users')
+            ->where('role', 'guru')
+            ->orderBy('name')
+            ->get();
+
+        return view(
+            'konfigurasi.wali_kelas',
+            compact('kelas', 'guru')
+        );
+    }
+
+    public function updateWaliKelas(Request $request)
+    {
+        $request->validate([
+            'kelas_id' => 'required|integer|exists:kelas,id',
+            'wali_kelas_id' => 'required|integer|exists:users,id',
+        ]);
+
+        // Pastikan user yang dipilih benar-benar guru
+        $guru = DB::table('users')
+            ->where('id', $request->wali_kelas_id)
+            ->where('role', 'guru')
+            ->first();
+
+        if (!$guru) {
+            return back()->with('warning', 'User yang dipilih bukan guru.');
+        }
+
+        // Pastikan satu guru tidak menjadi wali kelas
+        // di lebih dari satu kelas
+        $waliSudahDipakai = DB::table('kelas')
+            ->where('wali_kelas_id', $request->wali_kelas_id)
+            ->where('id', '!=', $request->kelas_id)
+            ->exists();
+
+        if ($waliSudahDipakai) {
+            return back()->with(
+                'warning',
+                'Guru tersebut sudah menjadi wali kelas di kelas lain.'
+            );
+        }
+
+        DB::table('kelas')
+            ->where('id', $request->kelas_id)
+            ->update([
+                'wali_kelas_id' => $request->wali_kelas_id,
+                'updated_at' => now(),
+            ]);
+
+        return back()->with(
+            'success',
+            'Wali kelas berhasil diperbarui.'
+        );
+    }
 }
 // ini kode konfigurasi controller  

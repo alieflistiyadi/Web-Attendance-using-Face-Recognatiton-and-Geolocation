@@ -34,23 +34,58 @@ class SiswaController extends Controller
     public function indexKelas(Request $request, $kelas)
     {
         $query = Siswa::query();
-        $query->select('siswa.*', 'nama_jurusan');
-        $query->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan');
-        $query->where('siswa.kelas', $kelas);
-        $query->orderBy('nama_lengkap', 'asc');
+
+        $query->select(
+            'siswa.*',
+            'jurusan.nama_jurusan'
+        );
+
+        $query->join(
+            'jurusan',
+            'siswa.kode_jurusan',
+            '=',
+            'jurusan.kode_jurusan'
+        );
+
+        $query->where(
+            'siswa.kelas',
+            $kelas
+        );
 
         if (!empty($request->nama_lengkap)) {
-            $query->where('nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+            $query->where(
+                'siswa.nama_lengkap',
+                'like',
+                '%' . $request->nama_lengkap . '%'
+            );
         }
 
         if (!empty($request->kode_jurusan)) {
-            $query->where('siswa.kode_jurusan', $request->kode_jurusan);
+            $query->where(
+                'siswa.kode_jurusan',
+                $request->kode_jurusan
+            );
         }
 
-        $siswa = $query->paginate(10);
+        $query->orderBy(
+            'siswa.nama_lengkap',
+            'asc'
+        );
+
+        $siswa = $query
+            ->paginate(10)
+            ->appends($request->all());
+
         $jurusan = DB::table('jurusan')->get();
 
-        return view('siswa.index_kelas', compact('siswa', 'jurusan', 'kelas'));
+        return view(
+            'siswa.index_kelas',
+            compact(
+                'siswa',
+                'jurusan',
+                'kelas'
+            )
+        );
     }
 
     public function store(Request $request)
@@ -73,17 +108,15 @@ class SiswaController extends Controller
         $password = \Illuminate\Support\Facades\Hash::make('User123!'); // Password default untuk siswa baru
 
         $mappingJurusan = [
-            '10-1' => 'MP',
-            '10-2' => 'TJKT',
-            '10-3' => 'TM',
+            'X TJKT 1' => 'TJKT',
+            'X TJKT 2' => 'TJKT',
+            'X TM' => 'TM',
 
-            '11-1' => 'MP',
-            '11-2' => 'TJKT',
-            '11-3' => 'TM',
+            'XI TJKT' => 'TJKT',
+            'XI TM' => 'TM',
 
-            '12-1' => 'MP',
-            '12-2' => 'TJKT',
-            '12-3' => 'TM',
+            'XII TJKT' => 'TJKT',
+            'XII TM' => 'TM',
         ];
 
         $kodeJurusan = $mappingJurusan[$request->kelas] ?? null;
@@ -114,7 +147,12 @@ class SiswaController extends Controller
             return redirect('/siswa')->with('success', 'Data berhasil ditambahkan');
 
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            return back()
+                ->withInput()
+                ->with(
+                    'warning',
+                    'Data gagal ditambahkan: ' . $e->getMessage()
+                );
         }
     }
 
@@ -147,17 +185,15 @@ class SiswaController extends Controller
         $no_hp = $request->no_hp;
 
         $mappingJurusan = [
-            '10-1' => 'MP',
-            '10-2' => 'TJKT',
-            '10-3' => 'TM',
+            'X TJKT 1' => 'TJKT',
+            'X TJKT 2' => 'TJKT',
+            'X TM' => 'TM',
 
-            '11-1' => 'MP',
-            '11-2' => 'TJKT',
-            '11-3' => 'TM',
+            'XI TJKT' => 'TJKT',
+            'XI TM' => 'TM',
 
-            '12-1' => 'MP',
-            '12-2' => 'TJKT',
-            '12-3' => 'TM',
+            'XII TJKT' => 'TJKT',
+            'XII TM' => 'TM',
         ];
 
         $kode_jurusan = $mappingJurusan[$kelas] ?? null;

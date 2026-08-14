@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pengajuanizin;
+use App\Models\PengajuanIzinDetail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -1047,13 +1048,14 @@ class AttendanceController extends Controller
 
     public function storeizin(Request $request)
     {
-
         $nis = Auth::guard('siswa')->user()->nis;
         $tanggal_izin = date('Y-m-d', strtotime($request->tanggal_izin));
         $status = $request->status;
         $keterangan = $request->keterangan;
 
-        // validasi upload surat izin
+        // =========================
+        // VALIDASI SURAT IZIN
+        // =========================
         if ($status == "i" && !$request->hasFile('surat_izin')) {
             return redirect()->back()->with([
                 'error' => 'Surat izin wajib diupload'
@@ -1063,15 +1065,19 @@ class AttendanceController extends Controller
         $surat_izin = null;
 
         if ($request->hasFile('surat_izin')) {
-
             $file = $request->file('surat_izin');
 
             $surat_izin = time() . "_" . $file->getClientOriginalName();
 
-            $file->storeAs('public/uploads/surat_izin', $surat_izin);
+            $file->storeAs(
+                'public/uploads/surat_izin',
+                $surat_izin
+            );
         }
 
-        // validasi upload surat sakit
+        // =========================
+        // VALIDASI SURAT SAKIT
+        // =========================
         if ($status == "s" && !$request->hasFile('surat_sakit')) {
             return redirect()->back()->with([
                 'error' => 'Surat sakit wajib diupload'
@@ -1081,32 +1087,111 @@ class AttendanceController extends Controller
         $surat_sakit = null;
 
         if ($request->hasFile('surat_sakit')) {
-
             $file = $request->file('surat_sakit');
 
             $surat_sakit = time() . "_" . $file->getClientOriginalName();
 
-            $file->storeAs('public/uploads/surat_sakit', $surat_sakit);
+            $file->storeAs(
+                'public/uploads/surat_sakit',
+                $surat_sakit
+            );
         }
 
-        $data = [
-            'nis' => $nis,
-            'tanggal_izin' => $tanggal_izin,
-            'status' => $status,
-            'keterangan' => $keterangan,
-            'surat_izin' => $surat_izin,
-            'surat_sakit' => $surat_sakit
-        ];
+        // =========================
+        // AMBIL DATA SISWA
+        // =========================
+        $siswa = DB::table('siswa')
+            ->where('nis', $nis)
+            ->first();
 
-        $simpan = DB::table('pengajuan_izin')->insert($data);
-
-        if ($simpan) {
+        if (!$siswa) {
             return redirect('/attendance/izin')
-                ->with(['success' => 'Data Berhasil Disimpan']);
-        } else {
-            return redirect('/attendance/izin')
-                ->with(['error' => 'Data Gagal Disimpan']);
+                ->with([
+                    'error' => 'Data siswa tidak ditemukan'
+                ]);
         }
+
+        // =========================
+        // CARI KELAS SISWA
+        // =========================
+        $kelas = DB::table('kelas')
+            ->where('nama_kelas', $siswa->kelas)
+            ->where('kode_jurusan', $siswa->kode_jurusan)
+            ->first();
+
+        if (!$kelas) {
+            return redirect('/attendance/izin')
+                ->with([
+                    'error' => 'Kelas siswa tidak ditemukan'
+                ]);
+        }
+
+        // =========================
+        // CARI WALI KELAS
+        // =========================
+        $waliKelasId = $kelas->wali_kelas_id;
+
+        if (!$waliKelasId) {
+            return redirect('/attendance/izin')
+                ->with([
+                    'error' => 'Kelas Anda belum memiliki wali kelas. Silakan hubungi admin.'
+                ]);
+        }
+
+        // =========================
+        // SIMPAN PENGAJUAN + DETAIL
+        // =========================
+        DB::transaction(function () use (
+            $nis,
+            $tanggal_izin,
+            $status,
+            $keterangan,
+            $surat_izin,
+            $surat_sakit,
+            $waliKelasId
+        ) {
+
+            // Pengajuan utama
+            $pengajuanId = DB::table('pengajuan_izin')
+                ->insertGetId([
+                    'nis' => $nis,
+                    'tanggal_izin' => $tanggal_izin,
+                    'status' => $status,
+                    'keterangan' => $keterangan,
+                    'status_approved' => 0,
+                    'surat_izin' => $surat_izin,
+                    'surat_sakit' => $surat_sakit,
+                ]);
+
+            // Approval untuk wali kelas
+            DB::table('pengajuan_izin_detail')
+                ->insert([
+                    'pengajuan_izin_id' => $pengajuanId,
+
+                    // Tidak menggunakan jadwal pelajaran
+                    'jadwal_pelajaran_id' => null,
+
+                    // ID guru yang menjadi wali kelas
+                    'guru_id' => $waliKelasId,
+
+                    // Tidak menggunakan mata pelajaran
+                    'mata_pelajaran_id' => null,
+
+                    // 0 = Menunggu
+                    'status_approved' => 0,
+
+                    'catatan' => null,
+                    'approved_at' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+        });
+
+        return redirect('/attendance/izin')
+            ->with([
+                'success' =>
+                    'Pengajuan izin/sakit berhasil disimpan dan dikirim kepada wali kelas.'
+            ]);
     }
 
     public function editizin($id)
@@ -1850,54 +1935,140 @@ class AttendanceController extends Controller
 
     public function listIzinSakitKelas(Request $request, $kelas)
     {
+        $guruId = Auth::guard('user')->id();
+
         // Ambil data jurusan untuk dropdown filter
         $jurusan = DB::table('jurusan')->get();
 
+        // Mapping angka kelas ke tingkat
+        $tingkat = [
+            '10' => 'X',
+            '11' => 'XI',
+            '12' => 'XII',
+        ];
+
+        $tingkatKelas = $tingkat[$kelas] ?? $kelas;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil kelas yang wali kelasnya adalah guru yang sedang login
+        |--------------------------------------------------------------------------
+        */
+        $kelasWali = DB::table('kelas')
+            ->where('wali_kelas_id', $guruId)
+            ->where('tingkat', $tingkatKelas)
+            ->pluck('nama_kelas');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Query pengajuan izin/sakit
+        |--------------------------------------------------------------------------
+        */
         $query = DB::table('pengajuan_izin')
-            ->join('siswa', 'pengajuan_izin.nis', '=', 'siswa.nis')
-            ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
+            ->join(
+                'siswa',
+                'pengajuan_izin.nis',
+                '=',
+                'siswa.nis'
+            )
+            ->join(
+                'jurusan',
+                'siswa.kode_jurusan',
+                '=',
+                'jurusan.kode_jurusan'
+            )
+            ->join(
+                'pengajuan_izin_detail',
+                'pengajuan_izin_detail.pengajuan_izin_id',
+                '=',
+                'pengajuan_izin.id'
+            )
             ->select(
                 'pengajuan_izin.*',
                 'siswa.nama_lengkap',
                 'siswa.kelas',
                 'siswa.kode_jurusan',
-                'jurusan.nama_jurusan'
+                'jurusan.nama_jurusan',
+                'pengajuan_izin_detail.guru_id',
+                'pengajuan_izin_detail.status_approved as detail_status_approved'
             )
-            ->where('siswa.kelas', $kelas);
+            // Hanya pengajuan yang ditujukan kepada guru login
+            ->where('pengajuan_izin_detail.guru_id', $guruId)
+            // Hanya kelas yang merupakan wali kelas guru login
+            ->whereIn('siswa.kelas', $kelasWali);
 
-        // Filter tanggal
+        /*
+        |--------------------------------------------------------------------------
+        | Filter tanggal
+        |--------------------------------------------------------------------------
+        */
         if ($request->filled('dari')) {
             $dari = date('Y-m-d', strtotime($request->dari));
-            $query->whereDate('pengajuan_izin.tanggal_izin', '>=', $dari);
+
+            $query->whereDate(
+                'pengajuan_izin.tanggal_izin',
+                '>=',
+                $dari
+            );
         }
 
         if ($request->filled('sampai')) {
             $sampai = date('Y-m-d', strtotime($request->sampai));
-            $query->whereDate('pengajuan_izin.tanggal_izin', '<=', $sampai);
+
+            $query->whereDate(
+                'pengajuan_izin.tanggal_izin',
+                '<=',
+                $sampai
+            );
         }
 
-        // Filter NIS
-        if ($request->filled('nis')) {
-            $query->where('pengajuan_izin.nis', 'like', '%' . $request->nis . '%');
-        }
-
-        // Filter Nama
+        /*
+        |--------------------------------------------------------------------------
+        | Filter Nama
+        |--------------------------------------------------------------------------
+        */
         if ($request->filled('nama_lengkap')) {
-            $query->where('siswa.nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+            $query->where(
+                'siswa.nama_lengkap',
+                'like',
+                '%' . $request->nama_lengkap . '%'
+            );
         }
 
-        // Filter Jurusan
+        /*
+        |--------------------------------------------------------------------------
+        | Filter Jurusan
+        |--------------------------------------------------------------------------
+        */
         if ($request->filled('kode_jurusan')) {
-            $query->where('siswa.kode_jurusan', $request->kode_jurusan);
+            $query->where(
+                'siswa.kode_jurusan',
+                $request->kode_jurusan
+            );
         }
 
-        // Filter Status Approval
+        /*
+        |--------------------------------------------------------------------------
+        | Filter Status Approval
+        |--------------------------------------------------------------------------
+        */
         if ($request->filled('status_approved')) {
-            $query->where('pengajuan_izin.status_approved', $request->status_approved);
+            $query->where(
+                'pengajuan_izin_detail.status_approved',
+                $request->status_approved
+            );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil data
+        |--------------------------------------------------------------------------
+        */
         $izinsakit = $query
-            ->orderBy('pengajuan_izin.tanggal_izin', 'desc')
+            ->orderBy(
+                'pengajuan_izin.tanggal_izin',
+                'desc'
+            )
             ->paginate(10)
             ->appends($request->all());
 
@@ -1912,24 +2083,140 @@ class AttendanceController extends Controller
     }
     public function approveizinsakit(Request $request)
     {
-        $status_approved = $request->status_approved;
-        $id_izinsakit_form = $request->id_izinsakit_form;
-        $update = DB::table('pengajuan_izin')->where('id', $id_izinsakit_form)->update(['status_approved' => $status_approved]);
-        if ($update) {
-            return redirect()->back()->with(['success' => 'Status berhasil diupdate']);
+        $user = Auth::guard('user')->user();
+
+        // Hanya guru yang boleh melakukan approval
+        if (!$user || $user->role !== 'guru') {
+            abort(403, 'Anda tidak memiliki hak untuk menyetujui pengajuan izin/sakit.');
+        }
+
+        $request->validate([
+            'id_izinsakit_form' => 'required|integer',
+            'status_approved' => 'required|in:1,2',
+        ]);
+
+        $guruId = $user->id;
+        $pengajuanIzinId = $request->id_izinsakit_form;
+        $statusApproved = $request->status_approved;
+
+        // Pastikan pengajuan memang ditujukan kepada guru yang sedang login
+        $detail = DB::table('pengajuan_izin_detail')
+            ->where('pengajuan_izin_id', $pengajuanIzinId)
+            ->where('guru_id', $guruId)
+            ->first();
+
+        if (!$detail) {
+            return redirect()->back()->with([
+                'warning' => 'Pengajuan ini bukan bagian dari tugas Anda.'
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update approval wali kelas
+        |--------------------------------------------------------------------------
+        */
+        $updateDetail = DB::table('pengajuan_izin_detail')
+            ->where('pengajuan_izin_id', $pengajuanIzinId)
+            ->where('guru_id', $guruId)
+            ->update([
+                'status_approved' => $statusApproved,
+                'approved_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+        if (!$updateDetail) {
+            return redirect()->back()->with([
+                'warning' => 'Status pengajuan gagal diupdate.'
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sinkronkan status pengajuan utama
+        |--------------------------------------------------------------------------
+        */
+        DB::table('pengajuan_izin')
+            ->where('id', $pengajuanIzinId)
+            ->update([
+                'status_approved' => $statusApproved,
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pesan berdasarkan status
+        |--------------------------------------------------------------------------
+        */
+        if ($statusApproved == 1) {
+
+            return redirect()->back()->with([
+                'success' => 'Pengajuan izin/sakit berhasil disetujui.'
+            ]);
+
         } else {
-            return redirect()->back()->with(['warning' => 'Status gagal diupdate']);
+
+            return redirect()->back()->with([
+                'success' => 'Pengajuan izin/sakit berhasil ditolak.'
+            ]);
         }
     }
 
+
     public function batalkanizinsakit($id)
     {
-        $update = DB::table('pengajuan_izin')->where('id', $id)->update(['status_approved' => 0]);
-        if ($update) {
-            return redirect()->back()->with(['success' => 'Izin/sakit berhasil dibatalkan']);
-        } else {
-            return redirect()->back()->with(['warning' => 'Gagal membatalkan izin/sakit']);
+        $user = Auth::guard('user')->user();
+
+        // Hanya guru yang boleh membatalkan approval
+        if (!$user || $user->role !== 'guru') {
+            abort(403, 'Anda tidak memiliki hak untuk membatalkan approval.');
         }
+
+        $guruId = $user->id;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Pastikan pengajuan memang milik wali kelas yang login
+        |--------------------------------------------------------------------------
+        */
+        $detail = DB::table('pengajuan_izin_detail')
+            ->where('pengajuan_izin_id', $id)
+            ->where('guru_id', $guruId)
+            ->first();
+
+        if (!$detail) {
+            return redirect()->back()->with([
+                'warning' => 'Anda tidak memiliki akses untuk membatalkan pengajuan ini.'
+            ]);
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Batalkan approval wali kelas
+        |--------------------------------------------------------------------------
+        */
+        DB::table('pengajuan_izin_detail')
+            ->where('pengajuan_izin_id', $id)
+            ->where('guru_id', $guruId)
+            ->update([
+                'status_approved' => 0,
+                'approved_at' => null,
+                'updated_at' => now(),
+            ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Sinkronkan status pengajuan utama
+        |--------------------------------------------------------------------------
+        */
+        DB::table('pengajuan_izin')
+            ->where('id', $id)
+            ->update([
+                'status_approved' => 0,
+            ]);
+
+        return redirect()->back()->with([
+            'success' => 'Persetujuan izin/sakit berhasil dibatalkan.'
+        ]);
     }
 
     public function cekpengajuanizin(Request $request)
