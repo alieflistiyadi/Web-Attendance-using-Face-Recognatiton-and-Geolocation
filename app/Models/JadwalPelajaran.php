@@ -36,3 +36,4 @@ class JadwalPelajaran extends Model
         );
     }
 }
+// jadwalpelajaran.php

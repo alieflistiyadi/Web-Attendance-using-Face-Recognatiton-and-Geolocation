@@ -53,7 +53,7 @@
         }
 
         /* Saat foto hasil liveness ditampilkan, live video + canvas overlay + elemen
-                                                                                debug disembunyikan agar user cuma lihat foto diam, bukan live feed */
+                                                                                    debug disembunyikan agar user cuma lihat foto diam, bukan live feed */
         .webcam-capture.show-result-photo video,
         .webcam-capture.show-result-photo canvas.face-canvas,
         .webcam-capture.show-result-photo #face-status,

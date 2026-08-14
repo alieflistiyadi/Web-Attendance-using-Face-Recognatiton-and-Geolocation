@@ -25,3 +25,4 @@ class Kelas extends Model
         );
     }
 }
+// kelas.php

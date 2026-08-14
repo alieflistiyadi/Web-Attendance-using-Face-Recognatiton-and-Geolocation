@@ -27,3 +27,4 @@ class MataPelajaran extends Model
         );
     }
 }
+// MataPelajaran.php

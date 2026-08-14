@@ -40,6 +40,7 @@ Route::middleware('guest:siswa')->group(function () {
     )->name('process-login');
 
 
+
     /*
     |--------------------------------------------------------------------------
     | Forgot Password - Siswa
@@ -801,3 +802,5 @@ Route::middleware([
         [AdminController::class, 'updateSetting']
     );
 });
+
+// <!-- ini kode web.php -->

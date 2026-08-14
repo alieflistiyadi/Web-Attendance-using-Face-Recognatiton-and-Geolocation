@@ -35,3 +35,5 @@ class GuruMataPelajaran extends Model
         return $this->hasMany(JadwalPelajaran::class, 'penugasan_id');
     }
 }
+
+// ini kode GuruMataPelajaran.php
