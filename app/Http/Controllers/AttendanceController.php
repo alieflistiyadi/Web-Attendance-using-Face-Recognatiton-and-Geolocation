@@ -18,44 +18,253 @@ class AttendanceController extends Controller
     public function create()
     {
         $hari_ini = date('Y-m-d');
+        $hari = (int) date('N');
+        $jam_sekarang = date('H:i:s');
+
         $nis = Auth::guard('siswa')->user()->nis;
 
-        $cek = DB::table('attendance')
+        // Ambil data siswa yang sedang login
+        $siswa = DB::table('siswa')
             ->where('nis', $nis)
-            ->where('tgl_presensi', $hari_ini)
-            ->count();
+            ->first();
 
         $lok_sekolah = DB::table('konfigurasi_lokasi')
             ->where('id', 1)
             ->first();
 
-        $hari = date('N');
-
         $libur = false;
         $pesan_libur = null;
-        $waktu = null;
 
-        // Sabtu & Minggu
-        if ($hari >= 6) {
+        // Jadwal yang sedang dipakai untuk halaman attendance
+        $jadwalAktif = null;
+
+        // modeAbsensi:
+        // none = tidak bisa absen
+        // in   = absen masuk
+        // out  = absen pulang
+        $modeAbsensi = 'none';
+
+        if (!$siswa) {
             $libur = true;
-            $pesan_libur = 'Hari ini adalah hari libur (Sabtu/Minggu). Absensi hanya dapat dilakukan pada hari Senin sampai Jumat.';
+            $pesan_libur = 'Data siswa tidak ditemukan. Silakan hubungi admin.';
+        } elseif ($hari >= 6) {
+            // Sabtu & Minggu
+            $libur = true;
+            $pesan_libur =
+                'Hari ini adalah hari libur (Sabtu/Minggu). Absensi hanya dapat dilakukan pada hari Senin sampai Jumat.';
         } else {
-            $waktu = DB::table('konfigurasi_waktu')
-                ->where('hari', $hari)
-                ->first();
 
-            if (!$waktu) {
+            /*
+            |--------------------------------------------------------------------------
+            | Ambil semua jadwal siswa hari ini
+            |--------------------------------------------------------------------------
+            | jadwal_pelajaran.penugasan_id mengarah ke guru_mata_pelajaran.id.
+            | Kelas siswa dicocokkan melalui kelas.nama_kelas + kelas.kode_jurusan.
+            |--------------------------------------------------------------------------
+            */
+            $jadwalHariIni = DB::table('jadwal_pelajaran')
+                ->join(
+                    'kelas',
+                    'jadwal_pelajaran.kelas_id',
+                    '=',
+                    'kelas.id'
+                )
+                ->join(
+                    'guru_mata_pelajaran',
+                    'jadwal_pelajaran.penugasan_id',
+                    '=',
+                    'guru_mata_pelajaran.id'
+                )
+                ->join(
+                    'mata_pelajaran',
+                    'guru_mata_pelajaran.mata_pelajaran_id',
+                    '=',
+                    'mata_pelajaran.id'
+                )
+                ->select(
+                    'jadwal_pelajaran.*',
+                    'kelas.tingkat',
+                    'kelas.nama_kelas',
+                    'kelas.kode_jurusan',
+                    'mata_pelajaran.nama_mapel'
+                )
+                ->where('jadwal_pelajaran.hari', $hari)
+                ->where('jadwal_pelajaran.status', 1)
+                ->where('kelas.nama_kelas', $siswa->kelas)
+                ->where('kelas.kode_jurusan', $siswa->kode_jurusan)
+                ->orderBy('jadwal_pelajaran.jam_mulai')
+                ->get();
+
+            if ($jadwalHariIni->isEmpty()) {
+
                 $libur = true;
-                $pesan_libur = 'Konfigurasi waktu untuk hari ini belum dibuat. Silakan hubungi admin.';
+                $pesan_libur =
+                    'Tidak ada jadwal pelajaran untuk kelas Anda hari ini. Silakan hubungi admin.';
+
+            } else {
+
+                /*
+                |--------------------------------------------------------------------------
+                | 1. Cari jadwal yang sedang berlangsung
+                |--------------------------------------------------------------------------
+                | Untuk absen MASUK:
+                | jam_mulai_absen <= jam sekarang <= jam_selesai
+                |--------------------------------------------------------------------------
+                */
+                $jadwalBerlangsung = $jadwalHariIni
+                    ->filter(function ($item) use ($jam_sekarang) {
+                        return $jam_sekarang >= $item->jam_mulai_absen
+                            && $jam_sekarang <= $item->jam_selesai;
+                    })
+                    ->sortBy('jam_mulai')
+                    ->first();
+
+                if ($jadwalBerlangsung) {
+
+                    $jadwalAktif = $jadwalBerlangsung;
+
+                    // Cek attendance untuk mata pelajaran/penugasan ini.
+                    $attendance = DB::table('attendance')
+                        ->where('nis', $nis)
+                        ->where('tgl_presensi', $hari_ini)
+                        ->where('penugasan_id', $jadwalAktif->penugasan_id)
+                        ->first();
+
+                    if (!$attendance) {
+
+                        // Belum pernah absen masuk untuk jadwal ini.
+                        $modeAbsensi = 'in';
+
+                    } elseif (empty($attendance->jam_out)) {
+
+                        /*
+                        | Attendance masuk sudah ada.
+                        | Sebelum jam selesai, siswa belum boleh absen pulang.
+                        */
+                        if ($jam_sekarang >= $jadwalAktif->jam_selesai) {
+                            $modeAbsensi = 'out';
+                        } else {
+                            $libur = true;
+                            $pesan_libur =
+                                'Anda sudah melakukan absensi masuk untuk '
+                                . $jadwalAktif->nama_mapel
+                                . '. Absensi pulang dapat dilakukan setelah jam pelajaran selesai '
+                                . date('H:i', strtotime($jadwalAktif->jam_selesai)) . '.';
+                        }
+
+                    } else {
+
+                        $libur = true;
+                        $pesan_libur =
+                            'Absensi untuk '
+                            . $jadwalAktif->nama_mapel
+                            . ' hari ini sudah lengkap.';
+                    }
+
+                } else {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | 2. Tidak ada jadwal yang sedang berlangsung.
+                    | Cari attendance masuk yang belum memiliki jam_out.
+                    | Ini memungkinkan siswa melakukan absen pulang setelah
+                    | jam_selesai walaupun halaman dibuka beberapa menit kemudian.
+                    |--------------------------------------------------------------------------
+                    */
+                    $jadwalBelumPulang = DB::table('attendance')
+                        ->join(
+                            'jadwal_pelajaran',
+                            'attendance.penugasan_id',
+                            '=',
+                            'jadwal_pelajaran.penugasan_id'
+                        )
+                        ->join(
+                            'kelas',
+                            'jadwal_pelajaran.kelas_id',
+                            '=',
+                            'kelas.id'
+                        )
+                        ->join(
+                            'guru_mata_pelajaran',
+                            'jadwal_pelajaran.penugasan_id',
+                            '=',
+                            'guru_mata_pelajaran.id'
+                        )
+                        ->join(
+                            'mata_pelajaran',
+                            'guru_mata_pelajaran.mata_pelajaran_id',
+                            '=',
+                            'mata_pelajaran.id'
+                        )
+                        ->select(
+                            'jadwal_pelajaran.*',
+                            'attendance.id as attendance_id',
+                            'attendance.jam_in',
+                            'attendance.jam_out',
+                            'kelas.tingkat',
+                            'kelas.nama_kelas',
+                            'kelas.kode_jurusan',
+                            'mata_pelajaran.nama_mapel'
+                        )
+                        ->where('attendance.nis', $nis)
+                        ->where('attendance.tgl_presensi', $hari_ini)
+                        ->whereNull('attendance.jam_out')
+                        ->where('jadwal_pelajaran.hari', $hari)
+                        ->where('jadwal_pelajaran.status', 1)
+                        ->where('kelas.nama_kelas', $siswa->kelas)
+                        ->where('kelas.kode_jurusan', $siswa->kode_jurusan)
+                        ->where('jadwal_pelajaran.jam_selesai', '<=', $jam_sekarang)
+                        ->orderByDesc('jadwal_pelajaran.jam_selesai')
+                        ->first();
+
+                    if ($jadwalBelumPulang) {
+
+                        $jadwalAktif = $jadwalBelumPulang;
+                        $modeAbsensi = 'out';
+
+                    } else {
+
+                        /*
+                        |--------------------------------------------------------------------------
+                        | 3. Belum masuk waktu jadwal.
+                        |--------------------------------------------------------------------------
+                        */
+                        $jadwalBerikutnya = $jadwalHariIni
+                            ->filter(function ($item) use ($jam_sekarang) {
+                                return $item->jam_mulai_absen > $jam_sekarang;
+                            })
+                            ->sortBy('jam_mulai_absen')
+                            ->first();
+
+                        if ($jadwalBerikutnya) {
+
+                            $libur = true;
+                            $pesan_libur =
+                                'Belum ada jadwal absensi yang aktif. '
+                                . 'Jadwal berikutnya adalah '
+                                . $jadwalBerikutnya->nama_mapel
+                                . ' pada pukul '
+                                . date('H:i', strtotime($jadwalBerikutnya->jam_mulai_absen))
+                                . '.';
+
+                        } else {
+
+                            $libur = true;
+                            $pesan_libur =
+                                'Tidak ada jadwal absensi yang aktif saat ini. '
+                                . 'Silakan kembali sesuai jadwal pelajaran Anda.';
+                        }
+                    }
+                }
             }
         }
 
         return view(
             'attendance.create',
             compact(
-                'cek',
                 'lok_sekolah',
-                'waktu',
+                'jadwalAktif',
+                'modeAbsensi',
                 'libur',
                 'pesan_libur'
             )
@@ -67,22 +276,83 @@ class AttendanceController extends Controller
         $nis = Auth::guard('siswa')->user()->nis;
         $tgl_presensi = date('Y-m-d');
         $jam = date('H:i:s');
-        // =========================
-        // BLOK ABSENSI HARI SABTU & MINGGU
-        // =========================
-        $hari = date('N'); // Senin=1 ... Minggu=7
-        $waktu = DB::table('konfigurasi_waktu')
-            ->where('hari', $hari)
+        $hari = (int) date('N');
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI JADWAL
+        |--------------------------------------------------------------------------
+        */
+        $jadwalId = $request->jadwal_id;
+
+        if (!$jadwalId) {
+            echo "error|Jadwal absensi tidak ditemukan. Silakan refresh halaman.|jadwal";
+            return;
+        }
+
+        $siswa = DB::table('siswa')
+            ->where('nis', $nis)
             ->first();
 
+        if (!$siswa) {
+            echo "error|Data siswa tidak ditemukan.|siswa";
+            return;
+        }
+
+        // Jadwal harus benar-benar milik kelas siswa yang sedang login.
+        $jadwal = DB::table('jadwal_pelajaran')
+            ->join(
+                'kelas',
+                'jadwal_pelajaran.kelas_id',
+                '=',
+                'kelas.id'
+            )
+            ->join(
+                'guru_mata_pelajaran',
+                'jadwal_pelajaran.penugasan_id',
+                '=',
+                'guru_mata_pelajaran.id'
+            )
+            ->join(
+                'mata_pelajaran',
+                'guru_mata_pelajaran.mata_pelajaran_id',
+                '=',
+                'mata_pelajaran.id'
+            )
+            ->select(
+                'jadwal_pelajaran.*',
+                'kelas.tingkat',
+                'kelas.nama_kelas',
+                'kelas.kode_jurusan',
+                'mata_pelajaran.nama_mapel'
+            )
+            ->where('jadwal_pelajaran.id', $jadwalId)
+            ->where('jadwal_pelajaran.hari', $hari)
+            ->where('jadwal_pelajaran.status', 1)
+            ->where('kelas.nama_kelas', $siswa->kelas)
+            ->where('kelas.kode_jurusan', $siswa->kode_jurusan)
+            ->first();
+
+        if (!$jadwal) {
+            echo "error|Jadwal tidak valid atau tidak sesuai dengan kelas Anda.|jadwal";
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | BLOK SABTU & MINGGU
+        |--------------------------------------------------------------------------
+        */
         if ($hari >= 6) {
             echo "error|Hari ini adalah hari libur. Absensi hanya dapat dilakukan pada hari Senin sampai Jumat.|libur";
             return;
         }
 
-        // =========================
-        // ✅ VALIDASI FACE RECOGNITION
-        // =========================
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI FACE RECOGNITION
+        |--------------------------------------------------------------------------
+        */
         $detected_nis = $request->detected_nis;
 
         if (empty($detected_nis)) {
@@ -95,102 +365,248 @@ class AttendanceController extends Controller
             return;
         }
 
-
-        $jamMulaiMasuk = $waktu->jam_mulai_masuk;
-        $batasTelat = $waktu->batas_telat;
-        $batasMasuk = $waktu->batas_masuk;
-        $jamMulaiPulang = $waktu->jam_mulai_pulang;
-        $batasPulang = $waktu->batas_pulang;
-        $lok_sekolah = DB::table('konfigurasi_lokasi')->where('id', 1)->first();
-        $latitudesekolah = $lok_sekolah->latitude;
-        $longitudesekolah = $lok_sekolah->longitude;
-        $lokasi = $request->lokasi;
-        $lokasiuser = explode(",", $lokasi);
-        $latitudeuser = $lokasiuser[0];
-        $longitudeuser = $lokasiuser[1];
-
-        $jarak = $this->distance($latitudesekolah, $longitudesekolah, $latitudeuser, $longitudeuser);
-        $radius = round($jarak["meters"]);
-
-        $cek = DB::table('attendance')->where('nis', $nis)->where('tgl_presensi', $tgl_presensi)->count();
-
-        if ($cek > 0) {
-            $ket = "out";
-            // Belum waktunya pulang
-            if ($jam < $jamMulaiPulang) {
-                echo "error|Belum waktunya absensi pulang.|jam";
-                return;
-            }
-
-            // Jam pulang sudah ditutup
-            if ($jam > $batasPulang) {
-                echo "error|Jam absensi pulang sudah ditutup.|jam";
-                return;
-            }
-        } else {
-            $ket = "in";
-
-            // Belum waktunya absen masuk
-            if ($jam < $jamMulaiMasuk) {
-                echo "error|Belum waktunya absensi masuk.|jam";
-                return;
-            }
-
-            // Jam absen masuk sudah ditutup
-            if ($jam > $batasMasuk) {
-                echo "error|Jam absensi masuk sudah ditutup.|jam";
-                return;
-            }
-
-            // Opsional: tandai telat kalau lewat batas_telat tapi belum lewat batas_masuk
-            // if ($jam > $batasTelat) {
-            //     $ket = "in_telat"; // atau simpan flag terpisah kalau mau dibedakan di tabel attendance
-            // }
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI LIVENESS
+        |--------------------------------------------------------------------------
+        */
+        if ((int) $request->liveness_passed !== 1) {
+            echo "error|Verifikasi liveness belum berhasil. Silakan ulangi verifikasi wajah.|wajah";
+            return;
         }
 
-        $image = $request->image;
-        $folderPath = "public/uploads/absensi/";
-        $format_name = $nis . '-' . $tgl_presensi . '-' . $ket;
-        $image_parts = explode(";base64,", $image);
-        $image_base64 = base64_decode($image_parts[1]);
-        $filename = $format_name . '.png';
-        $file = $folderPath . $filename;
-        Storage::put($file, $image_base64);
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI LOKASI
+        |--------------------------------------------------------------------------
+        */
+        $lok_sekolah = DB::table('konfigurasi_lokasi')
+            ->where('id', 1)
+            ->first();
+
+        if (!$lok_sekolah) {
+            echo "error|Konfigurasi lokasi sekolah belum tersedia. Hubungi admin.|lokasi";
+            return;
+        }
+
+        $lokasi = trim((string) $request->lokasi);
+
+        if (empty($lokasi) || !str_contains($lokasi, ',')) {
+            echo "error|Lokasi Anda tidak berhasil dibaca. Pastikan GPS aktif lalu coba lagi.|lokasi";
+            return;
+        }
+
+        $lokasiuser = array_map('trim', explode(',', $lokasi));
+
+        if (count($lokasiuser) < 2 || !is_numeric($lokasiuser[0]) || !is_numeric($lokasiuser[1])) {
+            echo "error|Koordinat lokasi tidak valid. Pastikan GPS aktif lalu coba lagi.|lokasi";
+            return;
+        }
+
+        $latitudeuser = (float) $lokasiuser[0];
+        $longitudeuser = (float) $lokasiuser[1];
+
+        /*
+        |--------------------------------------------------------------------------
+        | HITUNG JARAK SISWA KE SEKOLAH
+        |--------------------------------------------------------------------------
+        */
+        $jarak = $this->distance(
+            $lok_sekolah->latitude,
+            $lok_sekolah->longitude,
+            $latitudeuser,
+            $longitudeuser
+        );
+
+        $radius = round($jarak["meters"]);
 
         if ($radius > $lok_sekolah->radius) {
-            echo "error|maaf anda berada diluar radius, jarak anda " . $radius . " meter dari sekolah|radius";
+            echo "error|Maaf Anda berada di luar radius. Jarak Anda "
+                . $radius
+                . " meter dari sekolah.|radius";
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CEK ATTENDANCE BERDASARKAN PENUGASAN
+        |--------------------------------------------------------------------------
+        | Satu siswa boleh memiliki banyak attendance dalam satu hari,
+        | karena setiap mata pelajaran mempunyai penugasan_id sendiri.
+        |--------------------------------------------------------------------------
+        */
+        $attendance = DB::table('attendance')
+            ->where('nis', $nis)
+            ->where('tgl_presensi', $tgl_presensi)
+            ->where('penugasan_id', $jadwal->penugasan_id)
+            ->first();
+
+        /*
+        |--------------------------------------------------------------------------
+        | TENTUKAN MASUK / PULANG BERDASARKAN JADWAL
+        |--------------------------------------------------------------------------
+        */
+        if ($attendance) {
+
+            // Sudah masuk dan sudah pulang.
+            if (!empty($attendance->jam_out)) {
+                echo "error|Absensi untuk "
+                    . $jadwal->nama_mapel
+                    . " hari ini sudah lengkap.|selesai";
+                return;
+            }
+
+            // Pulang hanya boleh setelah jam pelajaran selesai.
+            if ($jam < $jadwal->jam_selesai) {
+                echo "error|Belum waktunya absensi pulang. Absensi pulang dapat dilakukan setelah pukul "
+                    . date('H:i', strtotime($jadwal->jam_selesai))
+                    . ".|jam";
+                return;
+            }
+
+            $ket = "out";
+
         } else {
 
-            if ($cek > 0) {
-                $data_pulang = [
-                    'jam_out' => $jam,
-                    'foto_out' => $filename,
-                    'location_out' => $lokasi,
-                ];
-                $update = DB::table('attendance')->where('tgl_presensi', $tgl_presensi)->where('nis', $nis)->update($data_pulang);
-                if ($update) {
-                    echo "success|Terimakasih Hati-Hati Dijalan|out";
-                    Storage::put($file, $image_base64);
-                } else {
-                    echo "error|Maaf Gagal Absen, Silakan Hubungi Admin|out";
-                }
+            // Belum masuk waktu mulai absensi.
+            if ($jam < $jadwal->jam_mulai_absen) {
+                echo "error|Belum waktunya absensi untuk "
+                    . $jadwal->nama_mapel
+                    . ". Absensi dibuka mulai pukul "
+                    . date('H:i', strtotime($jadwal->jam_mulai_absen))
+                    . ".|jam";
+                return;
+            }
+
+            // Jangan membuat attendance baru setelah pelajaran selesai.
+            if ($jam > $jadwal->jam_selesai) {
+                echo "error|Waktu absensi masuk untuk "
+                    . $jadwal->nama_mapel
+                    . " sudah berakhir pada pukul "
+                    . date('H:i', strtotime($jadwal->jam_selesai))
+                    . ".|jam";
+                return;
+            }
+
+            $ket = "in";
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI & SIMPAN FOTO
+        |--------------------------------------------------------------------------
+        */
+        $image = $request->image;
+
+        if (empty($image) || !str_contains($image, ';base64,')) {
+            echo "error|Foto absensi tidak valid. Silakan ulangi verifikasi wajah.|foto";
+            return;
+        }
+
+        $image_parts = explode(";base64,", $image, 2);
+
+        if (count($image_parts) !== 2) {
+            echo "error|Format foto absensi tidak valid.|foto";
+            return;
+        }
+
+        $image_base64 = base64_decode($image_parts[1], true);
+
+        if ($image_base64 === false) {
+            echo "error|Foto absensi tidak dapat diproses.|foto";
+            return;
+        }
+
+        $folderPath = "public/uploads/absensi/";
+        $format_name = $nis . '-' . $tgl_presensi . '-' . $jadwal->penugasan_id . '-' . $ket;
+        $filename = $format_name . '.png';
+        $file = $folderPath . $filename;
+
+        Storage::put($file, $image_base64);
+
+        /*
+        |--------------------------------------------------------------------------
+        | ABSEN PULANG
+        |--------------------------------------------------------------------------
+        */
+        if ($ket === "out") {
+
+            $data_pulang = [
+                'jam_out' => $jam,
+                'foto_out' => $filename,
+                'location_out' => $lokasi,
+            ];
+
+            $update = DB::table('attendance')
+                ->where('tgl_presensi', $tgl_presensi)
+                ->where('nis', $nis)
+                ->where('penugasan_id', $jadwal->penugasan_id)
+                ->whereNull('jam_out')
+                ->update($data_pulang);
+
+            if ($update) {
+
+                echo "success|Terima kasih. Absensi pulang "
+                    . $jadwal->nama_mapel
+                    . " berhasil.|out";
 
             } else {
-                $data = [
-                    'nis' => $nis,
-                    'tgl_presensi' => $tgl_presensi,
-                    'jam_in' => $jam,
-                    'foto_in' => $filename,
-                    'location_in' => $lokasi,
-                ];
-                $simpan = DB::table('attendance')->insert($data);
-                if ($simpan) {
-                    echo "success|Terimakasih Selamat Datang|in";
-                    Storage::put($file, $image_base64);
-                } else {
-                    echo "error|Maaf Gagal Absen, Silakan Hubungi Admin|out";
-                }
+
+                // Jika update gagal, hapus foto yang baru dibuat.
+                Storage::delete($file);
+
+                echo "error|Maaf gagal menyimpan absensi pulang. Silakan hubungi admin.|out";
             }
+
+            return;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | ABSEN MASUK
+        |--------------------------------------------------------------------------
+        */
+        $data = [
+            'nis' => $nis,
+            'penugasan_id' => $jadwal->penugasan_id,
+            'tgl_presensi' => $tgl_presensi,
+            'jam_in' => $jam,
+            'foto_in' => $filename,
+            'location_in' => $lokasi,
+        ];
+
+        $simpan = DB::table('attendance')->insert($data);
+
+        if ($simpan) {
+
+            $statusMasuk = ($jam <= $jadwal->batas_telat)
+                ? 'Tepat waktu'
+                : 'Terlambat';
+
+            if ($statusMasuk === 'Tepat waktu') {
+
+                echo "success|Terima kasih. Absensi masuk "
+                    . $jadwal->nama_mapel
+                    . " berhasil. Status: Tepat waktu.|in";
+
+            } else {
+
+                $menitTerlambat = floor(
+                    (strtotime($jam) - strtotime($jadwal->batas_telat)) / 60
+                );
+
+                echo "success|Absensi masuk "
+                    . $jadwal->nama_mapel
+                    . " berhasil. Status: Terlambat "
+                    . $menitTerlambat
+                    . " menit.|in";
+            }
+
+        } else {
+
+            Storage::delete($file);
+
+            echo "error|Maaf gagal menyimpan absensi masuk. Silakan hubungi admin.|in";
         }
     }
 
@@ -389,17 +805,62 @@ class AttendanceController extends Controller
         $status = $request->status ?? 'semua';
         $nis = Auth::guard('siswa')->user()->nis;
 
-        // Presensi
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil attendance berdasarkan penugasan
+        |--------------------------------------------------------------------------
+        | Tidak lagi keyBy tanggal, karena dalam satu hari siswa dapat
+        | mempunyai lebih dari satu mata pelajaran.
+        |--------------------------------------------------------------------------
+        */
         $presensi = DB::table('attendance')
-            ->whereMonth('tgl_presensi', $bulan)
-            ->whereYear('tgl_presensi', $tahun)
-            ->where('nis', $nis)
-            ->get()
-            ->keyBy(function ($item) {
-                return $item->tgl_presensi;
-            });
+            ->leftJoin(
+                'jadwal_pelajaran',
+                function ($join) {
+                    $join->on(
+                        'attendance.penugasan_id',
+                        '=',
+                        'jadwal_pelajaran.penugasan_id'
+                    )
+                        ->whereRaw(
+                            'jadwal_pelajaran.hari = WEEKDAY(attendance.tgl_presensi) + 1'
+                        );
+                }
+            )
+            ->leftJoin(
+                'guru_mata_pelajaran',
+                'attendance.penugasan_id',
+                '=',
+                'guru_mata_pelajaran.id'
+            )
+            ->leftJoin(
+                'mata_pelajaran',
+                'guru_mata_pelajaran.mata_pelajaran_id',
+                '=',
+                'mata_pelajaran.id'
+            )
+            ->whereMonth('attendance.tgl_presensi', $bulan)
+            ->whereYear('attendance.tgl_presensi', $tahun)
+            ->where('attendance.nis', $nis)
+            ->select(
+                'attendance.*',
+                'mata_pelajaran.nama_mapel',
+                'jadwal_pelajaran.jam_mulai',
+                'jadwal_pelajaran.jam_selesai',
+                'jadwal_pelajaran.jam_mulai_absen',
+                'jadwal_pelajaran.batas_telat'
+            )
+            ->orderByDesc('attendance.tgl_presensi')
+            ->orderBy('jadwal_pelajaran.jam_mulai')
+            ->get();
 
-        // Izin / Sakit yang disetujui
+        $presensiByTanggal = $presensi->groupBy('tgl_presensi');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Izin / Sakit yang disetujui
+        |--------------------------------------------------------------------------
+        */
         $izin = DB::table('pengajuan_izin')
             ->whereMonth('tanggal_izin', $bulan)
             ->whereYear('tanggal_izin', $tahun)
@@ -413,7 +874,6 @@ class AttendanceController extends Controller
         $histori = collect();
 
         $today = Carbon::today();
-
         $tanggalDipilih = Carbon::create($tahun, $bulan, 1);
 
         if ($tanggalDipilih->startOfMonth()->gt($today->copy()->startOfMonth())) {
@@ -431,53 +891,66 @@ class AttendanceController extends Controller
             $tanggal = Carbon::create($tahun, $bulan, $i)->format('Y-m-d');
             $hari = Carbon::create($tahun, $bulan, $i)->dayOfWeek;
 
-            // Lewati Sabtu (6) & Minggu (0)
+            // Lewati Sabtu & Minggu.
             if ($hari == Carbon::SATURDAY || $hari == Carbon::SUNDAY) {
                 continue;
             }
 
-            // Presensi
-            if ($presensi->has($tanggal)) {
+            /*
+            |--------------------------------------------------------------------------
+            | Presensi
+            |--------------------------------------------------------------------------
+            */
+            if ($presensiByTanggal->has($tanggal)) {
 
-                $data = $presensi[$tanggal];
-                $data->tipe = 'presensi';
+                foreach ($presensiByTanggal->get($tanggal) as $data) {
 
-                // ambil konfigurasi waktu hari tersebut
-                $hari = Carbon::parse($data->tgl_presensi)->dayOfWeekIso;
+                    $data->tipe = 'presensi';
 
-                $waktu = DB::table('konfigurasi_waktu')
-                    ->where('hari', $hari)
-                    ->first();
+                    if (!empty($data->jam_in) && !empty($data->batas_telat)) {
 
-                if ($waktu) {
+                        $jamMasuk = Carbon::parse($data->jam_in);
+                        $batasTelat = Carbon::parse($data->batas_telat);
 
-                    $jamMasuk = strtotime($data->jam_in);
-                    $batasTelat = strtotime($waktu->batas_telat);
+                        if ($jamMasuk->lessThanOrEqualTo($batasTelat)) {
 
-                    if ($jamMasuk <= $batasTelat) {
+                            $data->tepat_waktu = true;
+                            $data->terlambat = 0;
+                            $data->status = 'Tepat Waktu';
+                            $data->status_class = 'status-success';
 
-                        $data->tepat_waktu = true;
-                        $data->terlambat = 0;
+                        } else {
+
+                            $data->tepat_waktu = false;
+                            $data->terlambat =
+                                $batasTelat->diffInMinutes($jamMasuk);
+
+                            $data->status =
+                                'Terlambat ' . $data->terlambat . ' Menit';
+
+                            $data->status_class = 'status-warning';
+                        }
 
                     } else {
 
-                        $data->tepat_waktu = false;
-                        $data->terlambat = floor(($jamMasuk - $batasTelat) / 60);
-
+                        // Attendance lama yang belum mempunyai penugasan_id.
+                        $data->tepat_waktu = true;
+                        $data->terlambat = 0;
+                        $data->status = 'Tepat Waktu';
+                        $data->status_class = 'status-success';
                     }
 
-                } else {
-
-                    $data->tepat_waktu = true;
-                    $data->terlambat = 0;
-
+                    $histori->push($data);
                 }
 
-                $histori->push($data);
                 continue;
             }
 
-            // Izin / Sakit
+            /*
+            |--------------------------------------------------------------------------
+            | Izin / Sakit
+            |--------------------------------------------------------------------------
+            */
             if ($izin->has($tanggal)) {
 
                 $data = $izin[$tanggal];
@@ -488,27 +961,54 @@ class AttendanceController extends Controller
                     'jam_out' => null,
                     'foto_in' => null,
                     'foto_out' => null,
+                    'penugasan_id' => null,
+                    'nama_mapel' => null,
+                    'jam_mulai' => null,
+                    'jam_selesai' => null,
                     'tipe' => $data->status == 'i' ? 'izin' : 'sakit',
+                    'status' => $data->status == 'i' ? 'Izin' : 'Sakit',
+                    'status_class' => $data->status == 'i'
+                        ? 'status-info'
+                        : 'status-warning',
                 ]);
 
                 continue;
             }
 
-            // Alpa
+            /*
+            |--------------------------------------------------------------------------
+            | Alpa
+            |--------------------------------------------------------------------------
+            | Alpa masih dihitung satu kali per hari agar tetap kompatibel
+            | dengan tampilan histori lama. Untuk rekap alpa per mata pelajaran,
+            | perlu tabel/aturan khusus jadwal kehadiran yang akan kita buat
+            | terpisah.
+            |--------------------------------------------------------------------------
+            */
             $histori->push((object) [
                 'tgl_presensi' => $tanggal,
                 'jam_in' => null,
                 'jam_out' => null,
                 'foto_in' => null,
                 'foto_out' => null,
+                'penugasan_id' => null,
+                'nama_mapel' => null,
+                'jam_mulai' => null,
+                'jam_selesai' => null,
                 'tipe' => 'alpa',
+                'status' => 'Alpa',
+                'status_class' => 'status-danger',
             ]);
         }
 
-        $histori = $histori->sortByDesc('tgl_presensi');
+        $histori = $histori
+            ->sortByDesc('tgl_presensi')
+            ->values();
 
         if ($status != 'semua') {
-            $histori = $histori->where('tipe', $status);
+            $histori = $histori
+                ->where('tipe', $status)
+                ->values();
         }
 
         return view('attendance.gethistori', compact('histori'));
@@ -736,15 +1236,63 @@ class AttendanceController extends Controller
         $kelas = $request->kelas;
         $kode_jurusan = $request->kode_jurusan;
 
+        $hari = Carbon::parse($tanggal)->dayOfWeekIso;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ambil attendance + mata pelajaran + jadwal
+        |--------------------------------------------------------------------------
+        | Join jadwal dibatasi berdasarkan hari agar penugasan yang sama
+        | pada hari berbeda tidak menyebabkan data menjadi duplikat.
+        |--------------------------------------------------------------------------
+        */
         $presensi = DB::table('attendance')
             ->select(
                 'attendance.*',
-                'nama_lengkap',
-                'nama_jurusan',
-                'siswa.kelas'
+                'siswa.nama_lengkap',
+                'jurusan.nama_jurusan',
+                'siswa.kelas',
+                'mata_pelajaran.nama_mapel',
+                'jadwal_pelajaran.jam_mulai',
+                'jadwal_pelajaran.jam_selesai',
+                'jadwal_pelajaran.jam_mulai_absen',
+                'jadwal_pelajaran.batas_telat'
             )
-            ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
-            ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
+            ->join(
+                'siswa',
+                'attendance.nis',
+                '=',
+                'siswa.nis'
+            )
+            ->join(
+                'jurusan',
+                'siswa.kode_jurusan',
+                '=',
+                'jurusan.kode_jurusan'
+            )
+            ->leftJoin(
+                'jadwal_pelajaran',
+                function ($join) use ($hari) {
+                    $join->on(
+                        'attendance.penugasan_id',
+                        '=',
+                        'jadwal_pelajaran.penugasan_id'
+                    )
+                        ->where('jadwal_pelajaran.hari', '=', $hari);
+                }
+            )
+            ->leftJoin(
+                'guru_mata_pelajaran',
+                'jadwal_pelajaran.penugasan_id',
+                '=',
+                'guru_mata_pelajaran.id'
+            )
+            ->leftJoin(
+                'mata_pelajaran',
+                'guru_mata_pelajaran.mata_pelajaran_id',
+                '=',
+                'mata_pelajaran.id'
+            )
             ->where('attendance.tgl_presensi', $tanggal)
             ->where('siswa.kelas', $kelas);
 
@@ -752,50 +1300,49 @@ class AttendanceController extends Controller
             $presensi->where('siswa.kode_jurusan', $kode_jurusan);
         }
 
-        $presensi = $presensi->get();
+        $presensi = $presensi
+            ->orderBy('jadwal_pelajaran.jam_mulai')
+            ->orderBy('siswa.nama_lengkap')
+            ->get();
 
         /*
         |--------------------------------------------------------------------------
-        | Hitung Status Kehadiran (Tepat Waktu / Terlambat)
-        |--------------------------------------------------------------------------
-        | Logika ini dipindahkan ke Controller agar:
-        | - Blade hanya bertugas menampilkan data (sesuai konsep MVC).
-        | - Tidak ada query database di Blade.
-        | - Perhitungan keterlambatan konsisten dengan histori siswa.
-        | - Jika admin mengubah konfigurasi waktu, seluruh sistem otomatis mengikuti.
+        | Hitung status Tepat Waktu / Terlambat berdasarkan jadwal masing-masing.
         |--------------------------------------------------------------------------
         */
-
         $presensi->transform(function ($item) {
 
-            $hari = Carbon::parse($item->tgl_presensi)->dayOfWeekIso;
+            if (!empty($item->jam_in) && !empty($item->batas_telat)) {
 
-            $waktu = DB::table('konfigurasi_waktu')
-                ->where('hari', $hari)
-                ->first();
+                $jamMasuk = Carbon::parse($item->jam_in);
+                $batasTelat = Carbon::parse($item->batas_telat);
 
-            if ($waktu) {
-
-                $jamMasuk = strtotime($item->jam_in);
-                $batasTelat = strtotime($waktu->batas_telat);
-
-                if ($jamMasuk <= $batasTelat) {
+                if ($jamMasuk->lessThanOrEqualTo($batasTelat)) {
 
                     $item->tepat_waktu = true;
                     $item->terlambat = 0;
+                    $item->status = 'Tepat Waktu';
+                    $item->status_class = 'status-success';
 
                 } else {
 
                     $item->tepat_waktu = false;
-                    $item->terlambat = floor(($jamMasuk - $batasTelat) / 60);
+                    $item->terlambat =
+                        $batasTelat->diffInMinutes($jamMasuk);
 
+                    $item->status =
+                        'Terlambat ' . $item->terlambat . ' Menit';
+
+                    $item->status_class = 'status-warning';
                 }
 
             } else {
 
+                // Data attendance lama yang belum mempunyai jadwal.
                 $item->tepat_waktu = true;
                 $item->terlambat = 0;
-
+                $item->status = 'Tepat Waktu';
+                $item->status_class = 'status-success';
             }
 
             return $item;
@@ -803,6 +1350,7 @@ class AttendanceController extends Controller
 
         return view('attendance.getattendance', compact('presensi'));
     }
+
     public function tampilkanpeta(Request $request)
     {
         $id = $request->id;

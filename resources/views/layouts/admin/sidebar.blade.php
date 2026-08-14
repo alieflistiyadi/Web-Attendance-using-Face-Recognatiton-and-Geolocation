@@ -212,177 +212,172 @@
             </span>
           </a>
         </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false"
-            role="button" aria-expanded="false">
-            <span
-              class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-file-description">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
-                <path d="M9 17h6" />
-                <path d="M9 13h6" />
-              </svg>
-            </span>
-            <span class="nav-link-title">
-              Data Siswa
-            </span>
-          </a>
-          <div class="dropdown-menu">
-            <div class="dropdown-menu-columns">
-              <div class="dropdown-menu-column">
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/10-1') }}">
+        @if(Auth::guard('user')->user()->role === 'guru')
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false"
+              role="button" aria-expanded="false">
+              <span
+                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-file-description">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
+                  <path d="M9 17h6" />
+                  <path d="M9 13h6" />
+                </svg>
+              </span>
+              <span class="nav-link-title">
+                Data Siswa
+              </span>
+            </a>
+            <div class="dropdown-menu">
+              <div class="dropdown-menu-columns">
+                <div class="dropdown-menu-column">
+                  <a class="dropdown-item" href="{{ url('/siswa/kelas/10-1') }}">
                     Kelas 10-1
-                </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/10-2') }}">
+                  </a>
+                  <a class="dropdown-item" href="{{ url('/siswa/kelas/10-2') }}">
                     Kelas 10-2
-                </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/10-3') }}">
-                    Kelas 10-3
-                </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/11-1') }}">
+                  </a>
+
+                  <a class="dropdown-item" href="{{ url('/siswa/kelas/11-1') }}">
                     Kelas 11-1
-                </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/11-2') }}">
+                  </a>
+                  <a class="dropdown-item" href="{{ url('/siswa/kelas/11-2') }}">
                     Kelas 11-2
-                </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/11-3') }}">
-                    Kelas 11-3
-                </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/12-1') }}">
+                  </a>
+                  <a class="dropdown-item" href="{{ url('/siswa/kelas/12-1') }}">
                     Kelas 12-1
-                </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/12-2') }}">
+                  </a>
+                  <a class="dropdown-item" href="{{ url('/siswa/kelas/12-2') }}">
                     Kelas 12-2
-                </a>
-                <a class="dropdown-item" href="{{ url('/siswa/kelas/12-3') }}">
-                    Kelas 12-3
-                </a>
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url('jurusan') }}">
-            <span
-              class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-heart-rate-monitor">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1l0 -10" />
-                <path d="M7 20h10" />
-                <path d="M9 16v4" />
-                <path d="M15 16v4" />
-                <path d="M7 10h2l2 3l2 -6l1 3h3" />
-              </svg>
-            </span>
-            <span class="nav-link-title">
-              Jurusan
-            </span>
-          </a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#navbar-monitoring" data-bs-toggle="dropdown"
-            data-bs-auto-close="false" role="button" aria-expanded="false">
-            <span class="nav-link-icon d-md-none d-lg-inline-block">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-heart-rate-monitor">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1l0 -10" />
-                <path d="M7 20h10" />
-                <path d="M9 16v4" />
-                <path d="M15 16v4" />
-                <path d="M7 10h2l2 3l2 -6l1 3h3" />
-              </svg>
-            </span>
-            <span class="nav-link-title">Pemantauan Kehadiran</span>
-          </a>
-          <div class="dropdown-menu">
-            <div class="dropdown-menu-columns">
-              <div class="dropdown-menu-column">
-                <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/10') }}">
-                  Kelas 10
-                </a>
-                <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/11') }}">
-                  Kelas 11
-                </a>
-                <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/12') }}">
-                  Kelas 12
-                </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url('jurusan') }}">
+              <span
+                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-heart-rate-monitor">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1l0 -10" />
+                  <path d="M7 20h10" />
+                  <path d="M9 16v4" />
+                  <path d="M15 16v4" />
+                  <path d="M7 10h2l2 3l2 -6l1 3h3" />
+                </svg>
+              </span>
+              <span class="nav-link-title">
+                Jurusan
+              </span>
+            </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#navbar-monitoring" data-bs-toggle="dropdown"
+              data-bs-auto-close="false" role="button" aria-expanded="false">
+              <span class="nav-link-icon d-md-none d-lg-inline-block">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-heart-rate-monitor">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1l0 -10" />
+                  <path d="M7 20h10" />
+                  <path d="M9 16v4" />
+                  <path d="M15 16v4" />
+                  <path d="M7 10h2l2 3l2 -6l1 3h3" />
+                </svg>
+              </span>
+              <span class="nav-link-title">Pemantauan Kehadiran</span>
+            </a>
+            <div class="dropdown-menu">
+              <div class="dropdown-menu-columns">
+                <div class="dropdown-menu-column">
+                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/10') }}">
+                    Kelas 10
+                  </a>
+                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/11') }}">
+                    Kelas 11
+                  </a>
+                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/12') }}">
+                    Kelas 12
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#navbar-izin" data-bs-toggle="dropdown" data-bs-auto-close="false"
-            role="button" aria-expanded="false">
-            <span
-              class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-file-description">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
-                <path d="M9 17h6" />
-                <path d="M9 13h6" />
-              </svg>
-            </span>
-            <span class="nav-link-title">Data Izin / Sakit</span>
-          </a>
-          <div class="dropdown-menu">
-            <div class="dropdown-menu-columns">
-              <div class="dropdown-menu-column">
-                <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/10') }}">
-                  Kelas 10
-                </a>
-                <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/11') }}">
-                  Kelas 11
-                </a>
-                <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/12') }}">
-                  Kelas 12
-                </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#navbar-izin" data-bs-toggle="dropdown" data-bs-auto-close="false"
+              role="button" aria-expanded="false">
+              <span
+                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-file-description">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
+                  <path d="M9 17h6" />
+                  <path d="M9 13h6" />
+                </svg>
+              </span>
+              <span class="nav-link-title">Data Izin / Sakit</span>
+            </a>
+            <div class="dropdown-menu">
+              <div class="dropdown-menu-columns">
+                <div class="dropdown-menu-column">
+                  <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/10') }}">
+                    Kelas 10
+                  </a>
+                  <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/11') }}">
+                    Kelas 11
+                  </a>
+                  <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/12') }}">
+                    Kelas 12
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false"
-            role="button" aria-expanded="false">
-            <span
-              class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="icon icon-tabler icons-tabler-outline icon-tabler-file-description">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M14 3v4a1 1 0 0 0 1 1h4" />
-                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
-                <path d="M9 17h6" />
-                <path d="M9 13h6" />
-              </svg>
-            </span>
-            <span class="nav-link-title">
-              Laporan
-            </span>
-          </a>
-          <div class="dropdown-menu">
-            <div class="dropdown-menu-columns">
-              <div class="dropdown-menu-column">
-                <a class="dropdown-item" href="{{ route('attendance.laporan') }}">
-                  Presensi Siswa
-                </a>
-                <a class="dropdown-item" href="{{ route('attendance.rekap') }}">
-                  Rekap Presensi Bulanan
-                </a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false"
+              role="button" aria-expanded="false">
+              <span
+                class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="icon icon-tabler icons-tabler-outline icon-tabler-file-description">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+                  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2" />
+                  <path d="M9 17h6" />
+                  <path d="M9 13h6" />
+                </svg>
+              </span>
+              <span class="nav-link-title">
+                Laporan
+              </span>
+            </a>
+            <div class="dropdown-menu">
+              <div class="dropdown-menu-columns">
+                <div class="dropdown-menu-column">
+                  <a class="dropdown-item" href="{{ route('attendance.laporan') }}">
+                    Presensi Siswa
+                  </a>
+                  <a class="dropdown-item" href="{{ route('attendance.rekap') }}">
+                    Rekap Presensi Bulanan
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
-        </li>
+          </li>
+        @endif
+
 
         @if(Auth::guard('user')->user()->role === 'superadmin')
           <li class="nav-item dropdown">
@@ -409,8 +404,8 @@
                   <a class="dropdown-item" href="{{ route('konfigurasi.lokasisekolah') }}">
                     Konfigurasi Lokasi Sekolah
                   </a>
-                  <a class="dropdown-item" href="{{ route('konfigurasi.waktu') }}">
-                    Konfigurasi Waktu Presensi
+                  <a class="dropdown-item" href="{{ route('jadwal.index') }}">
+                    Jadwal Pelajaran
                   </a>
                 </div>
               </div>
