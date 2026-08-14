@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\MataPelajaran;
+use App\Models\GuruMataPelajaran;
 
 class GuruController extends Controller
 {
@@ -19,11 +20,21 @@ class GuruController extends Controller
             'guruMataPelajaran.mataPelajaran'
         ])
             ->whereIn('role', ['guru', 'superadmin'])
+
+            // Filter role
+            ->when($request->role, function ($query) use ($request) {
+                if (in_array($request->role, ['guru', 'superadmin'])) {
+                    $query->where('role', $request->role);
+                }
+            })
+
+            // Filter mata pelajaran
             ->when($request->mata_pelajaran_id, function ($query) use ($request) {
                 $query->whereHas('guruMataPelajaran', function ($q) use ($request) {
                     $q->where('mata_pelajaran_id', $request->mata_pelajaran_id);
                 });
             })
+
             ->orderBy('name')
             ->paginate(10)
             ->withQueryString();

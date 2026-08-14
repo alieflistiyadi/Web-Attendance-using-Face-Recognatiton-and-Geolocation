@@ -18,28 +18,63 @@
 
                     <div class="row mb-3">
 
-                        <div class="col-md-4">
+                        {{-- Filter Role --}}
+                        <div class="col-md-3">
+                            <form method="GET" action="{{ url('/guru') }}">
+                                <label class="form-label">Role</label>
 
-                            <label class="form-label">
-                                Filter Mata Pelajaran
-                            </label>
+                                <select name="role" class="form-select" onchange="this.form.submit()">
+                                    <option value="">Semua</option>
 
-                            <select id="filterMapel" class="form-select">
-
-                                <option value="all">
-                                    Semua Mata Pelajaran
-                                </option>
-
-                                @foreach($mapel as $m)
-
-                                    <option value="{{ $m->id }}">
-                                        {{ $m->kode_mapel }} - {{ $m->nama_mapel }}
+                                    <option value="guru"
+                                        {{ request('role') == 'guru' ? 'selected' : '' }}>
+                                        Guru
                                     </option>
 
-                                @endforeach
+                                    <option value="superadmin"
+                                        {{ request('role') == 'superadmin' ? 'selected' : '' }}>
+                                        Superadmin
+                                    </option>
+                                </select>
 
-                            </select>
+                                {{-- Pertahankan filter mapel --}}
+                                @if(request('mata_pelajaran_id'))
+                                    <input type="hidden"
+                                        name="mata_pelajaran_id"
+                                        value="{{ request('mata_pelajaran_id') }}">
+                                @endif
+                            </form>
+                        </div>
 
+
+                        {{-- Filter Mata Pelajaran --}}
+                        <div class="col-md-4">
+                            <form method="GET" action="{{ url('/guru') }}">
+                                <label class="form-label">Mata Pelajaran</label>
+
+                                <select name="mata_pelajaran_id" class="form-select"
+                                    onchange="this.form.submit()">
+
+                                    <option value="">Semua Mata Pelajaran</option>
+
+                                    @foreach($mapel as $m)
+                                        <option value="{{ $m->id }}"
+                                            {{ request('mata_pelajaran_id') == $m->id ? 'selected' : '' }}>
+
+                                            {{ $m->kode_mapel }} - {{ $m->nama_mapel }}
+
+                                        </option>
+                                    @endforeach
+
+                                </select>
+
+                                {{-- Pertahankan filter role --}}
+                                @if(request('role'))
+                                    <input type="hidden"
+                                        name="role"
+                                        value="{{ request('role') }}">
+                                @endif
+                            </form>
                         </div>
 
                     </div>
@@ -180,6 +215,24 @@
 
                     </table>
 
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+
+                        <div class="text-muted">
+                            Menampilkan
+                            {{ $guru->firstItem() ?? 0 }}
+                            sampai
+                            {{ $guru->lastItem() ?? 0 }}
+                            dari
+                            {{ $guru->total() }}
+                            akun
+                        </div>
+
+                        <div>
+                            {{ $guru->links('pagination::bootstrap-5') }}
+                        </div>
+
+                    </div>
+
                 </div>
 
             </div>
@@ -221,6 +274,24 @@
                             <option value="guru">Guru</option>
                             <option value="superadmin">Superadmin</option>
                         </select>
+                    </div>
+
+                    {{-- Mata Pelajaran --}}
+                    <div class="mb-3">
+                        <label>Mata Pelajaran</label>
+                        <select name="mata_pelajaran_id" class="form-select">
+                            <option value="">-- Pilih Mata Pelajaran --</option>
+
+                            @foreach($mapel as $m)
+                                <option value="{{ $m->id }}">
+                                    {{ $m->kode_mapel }} - {{ $m->nama_mapel }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <small class="text-muted">
+                            Kosongkan jika akun Superadmin atau belum ada mata pelajaran.
+                        </small>
                     </div>
 
                     <div class="mb-3">
