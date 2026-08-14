@@ -6,16 +6,29 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Models\MataPelajaran;
 
 class GuruController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $guru = DB::table('users')
-            ->whereIn('role', ['guru', 'superadmin'])
-            ->paginate(10);
+        $mapel = MataPelajaran::orderBy('nama_mapel')->get();
 
-        return view('guru.index', compact('guru'));
+        $guru = User::with([
+            'guruMataPelajaran.mataPelajaran'
+        ])
+            ->whereIn('role', ['guru', 'superadmin'])
+            ->when($request->mata_pelajaran_id, function ($query) use ($request) {
+                $query->whereHas('guruMataPelajaran', function ($q) use ($request) {
+                    $q->where('mata_pelajaran_id', $request->mata_pelajaran_id);
+                });
+            })
+            ->orderBy('name')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('guru.index', compact('guru', 'mapel'));
     }
 
     public function store(Request $request)
@@ -57,7 +70,24 @@ class GuruController extends Controller
             ->whereIn('role', ['guru', 'superadmin'])
             ->first();
 
-        return view('guru.edit', compact('guru'));
+        // Ambil semua mata pelajaran
+        $mapel = DB::table('mata_pelajaran')
+            ->orderBy('nama_mapel')
+            ->get();
+
+        // Ambil mata pelajaran yang sudah dimiliki guru
+        $mapelGuru = DB::table('guru_mata_pelajaran')
+            ->where('guru_id', $request->id)
+            ->pluck('mata_pelajaran_id')
+            ->unique()
+            ->values()
+            ->toArray();
+
+        return view('guru.edit', compact(
+            'guru',
+            'mapel',
+            'mapelGuru'
+        ));
     }
 
     public function update(Request $request, $id)

@@ -16,73 +16,167 @@
                         Tambah Akun
                     </a>
 
+                    <div class="row mb-3">
+
+                        <div class="col-md-4">
+
+                            <label class="form-label">
+                                Filter Mata Pelajaran
+                            </label>
+
+                            <select id="filterMapel" class="form-select">
+
+                                <option value="all">
+                                    Semua Mata Pelajaran
+                                </option>
+
+                                @foreach($mapel as $m)
+
+                                    <option value="{{ $m->id }}">
+                                        {{ $m->kode_mapel }} - {{ $m->nama_mapel }}
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
                     <table class="table table-bordered">
 
                         <tr>
                             <th>No</th>
                             <th>Nama</th>
                             <th>Email</th>
+                            <th>Mata Pelajaran</th>
                             <th width="120">Role</th>
-                            <th width="120">Aksi</th>
+                            <th class="text-center" style="width: 130px;">Aksi</th>
                         </tr>
 
                         @foreach($guru as $g)
 
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $g->name }}</td>
-                                <td>{{ $g->email }}</td>
-                                <td>
-                                    @if($g->role === 'superadmin')
-                                        <span class="badge bg-purple text-white">Superadmin</span>
+                        <tr data-mapel="
+                            @if($g->role === 'guru')
+                                {{ $g->guruMataPelajaran->pluck('mata_pelajaran_id')->implode(',') }}
+                            @endif
+                        ">
+                            <td>{{ $loop->iteration }}</td>
+
+                            <td>{{ $g->name }}</td>
+
+                            <td>{{ $g->email }}</td>
+
+                            <td>
+                                @if($g->role === 'guru')
+
+                                    @if($g->guruMataPelajaran->count())
+
+                                        @foreach($g->guruMataPelajaran->unique('mata_pelajaran_id') as $penugasan)
+
+                                            <span class="badge bg-blue-lt mb-1">
+                                                {{ $penugasan->mataPelajaran->nama_mapel }}
+                                            </span>
+
+                                        @endforeach
+
                                     @else
-                                        <span class="badge bg-blue text-white">Guru</span>
+
+                                        <span class="text-muted">
+                                            Belum ada mata pelajaran
+                                        </span>
+
                                     @endif
-                                </td>
 
-                                <td>
+                                @else
 
-                                    <div class="btn-group">
+                                    <span class="text-muted">-</span>
 
-                                        <a href="#" class="btn btn-info btn-sm edit" id="{{ $g->id }}"
+                                @endif
+                            </td>
+
+                            <td>
+                                @if($g->role === 'superadmin')
+
+                                    <span class="badge bg-purple text-white">
+                                        Superadmin
+                                    </span>
+
+                                @else
+
+                                    <span class="badge bg-blue text-white">
+                                        Guru
+                                    </span>
+
+                                @endif
+                            </td>
+
+                            <td class="text-center">
+
+                                <div class="d-flex justify-content-center align-items-center gap-1">
+
+                                    <a href="#"
+                                        class="btn btn-info btn-sm edit"
+                                        id="{{ $g->id }}"
+                                        style="width:38px;height:31px;">
+
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            width="20"
+                                            height="20"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round">
+
+                                            <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
+
+                                            <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" />
+
+                                        </svg>
+
+                                    </a>
+
+                                    <form action="/guru/{{ $g->id }}/delete"
+                                        method="POST"
+                                        class="m-0">
+
+                                        @csrf
+
+                                        <button type="submit"
+                                            class="btn btn-danger btn-sm delete-confirm"
                                             style="width:38px;height:31px;">
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                                fill="none" stroke="currentColor" stroke-width="2">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                width="20"
+                                                height="20"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round">
 
-                                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                                <path
-                                                    d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415" />
+                                                <path d="M4 7l16 0" />
+                                                <path d="M10 11l0 6" />
+                                                <path d="M14 11l0 6" />
+                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+
                                             </svg>
 
-                                        </a>
+                                        </button>
 
-                                        <form action="/guru/{{ $g->id }}/delete" method="POST" style="margin-left:5px">
+                                    </form>
 
-                                            @csrf
+                                </div>
 
-                                            <button class="btn btn-danger btn-sm delete-confirm">
+                            </td>
 
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        </tr>
 
-                                                    <path d="M4 7l16 0" />
-                                                    <path d="M10 11l0 6" />
-                                                    <path d="M14 11l0 6" />
-                                                    <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                                                </svg>
-
-                                            </button>
-
-                                        </form>
-
-                                    </div>
-
-                                </td>
-
-                            </tr>
-
-                        @endforeach
+                    @endforeach
 
                     </table>
 
@@ -200,6 +294,42 @@
 
     <script>
         $(function () {
+
+            $("#filterMapel").change(function () {
+
+                var mapelId = $(this).val();
+
+                $("table tbody tr").each(function () {
+
+                    var row = $(this);
+
+                    var dataMapel = row.attr("data-mapel") || "";
+
+                    // Kalau pilih semua
+                    if (mapelId === "all") {
+
+                        row.show();
+
+                        return;
+
+                    }
+
+                    // Cek apakah guru mengajar mapel yang dipilih
+                    var daftarMapel = dataMapel.split(",");
+
+                    if (daftarMapel.includes(mapelId)) {
+
+                        row.show();
+
+                    } else {
+
+                        row.hide();
+
+                    }
+
+                });
+
+            });
 
             $("#btnTambahGuru").click(function () {
                 $("#modal-inputguru").modal("show");

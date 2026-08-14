@@ -38,6 +38,31 @@
     <div class="row">
         <div class="col-12">
             <div class="mb-3">
+                <label class="form-label">Mata Pelajaran</label>
+
+                <select name="mata_pelajaran_id" id="mata_pelajaran_id" class="form-select">
+
+                    <option value="">
+                        -- Pilih Mata Pelajaran --
+                    </option>
+
+                    @foreach($mapel as $m)
+                        <option value="{{ $m->id }}"
+                            {{ $mapelGuru == $m->id ? 'selected' : '' }}>
+
+                            {{ $m->kode_mapel }} - {{ $m->nama_mapel }}
+
+                        </option>
+                    @endforeach
+
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="mb-3">
                 <label class="form-label">Role</label>
                 <select name="role" id="role" class="form-select">
                     <option value="guru" {{ $guru->role === 'guru' ? 'selected' : '' }}>Guru</option>
