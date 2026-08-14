@@ -94,6 +94,7 @@ function selisih($jam_masuk, $jam_keluar)
                 <td>
                     <span id="title">
                         LAPORAN PRESENSI SISWA <br>
+                        MATA PELAJARAN: {{ strtoupper($mataPelajaran->nama_mapel) }} <br>
                         PERIODE {{ strtoupper($namabulan[$bulan]) }} {{ $tahun }} <br>
                         SMK SMART CIKARANG <br>
                     </span>

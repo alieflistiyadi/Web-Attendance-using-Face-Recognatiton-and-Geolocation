@@ -56,11 +56,32 @@
                         <div class="row mt-2">
                             <div class="col-12">
                                 <div class="form-group">
+                                    <select name="mata_pelajaran_id" id="mata_pelajaran_id" class="form-select">
+                                        <option value="">Pilih Mata Pelajaran</option>
+
+                                        @foreach ($mapel as $m)
+                                            <option value="{{ $m->id }}">
+                                                {{ $m->kode_mapel }} - {{ $m->nama_mapel }}
+                                            </option>
+                                        @endforeach
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <div class="form-group">
                                     <select name="nis" id="nis" class="form-select">
                                         <option value="">Pilih Siswa</option>
+
                                         @foreach ($siswa as $d)
-                                            <option value="{{ $d->nis }}">{{ $d->nama_lengkap }}</option>
+                                            <option value="{{ $d->nis }}">
+                                                {{ $d->nama_lengkap }}
+                                            </option>
                                         @endforeach
+
                                     </select>
                                 </div>
                             </div>

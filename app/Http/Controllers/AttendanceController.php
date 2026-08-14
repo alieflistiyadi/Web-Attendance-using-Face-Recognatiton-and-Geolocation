@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Redirect;
 use Symfony\Component\HttpKernel\HttpCache\Store;
+use App\Models\MataPelajaran;
 
 
 class AttendanceController extends Controller
@@ -1363,9 +1364,33 @@ class AttendanceController extends Controller
 
     public function halamanlaporan()
     {
-        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        $siswa = DB::table('siswa')->orderBy('nama_lengkap')->get();
-        return view('attendance.laporan', compact('namabulan', 'siswa'));
+        $namabulan = [
+            "",
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember"
+        ];
+
+        $siswa = DB::table('siswa')
+            ->orderBy('nama_lengkap')
+            ->get();
+
+        $mapel = MataPelajaran::orderBy('nama_mapel')->get();
+
+        return view('attendance.laporan', compact(
+            'namabulan',
+            'siswa',
+            'mapel'
+        ));
     }
 
     public function cetaklaporan(Request $request)
@@ -1373,17 +1398,68 @@ class AttendanceController extends Controller
         $bulan = $request->bulan;
         $tahun = $request->tahun;
         $nis = $request->nis;
-        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        $siswa = DB::table('siswa')->where('nis', $nis)
-            ->join('jurusan', 'siswa.kode_jurusan', '=', 'jurusan.kode_jurusan')
+        $mataPelajaranId = $request->mata_pelajaran_id;
+
+        $namabulan = [
+            "",
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember"
+        ];
+
+        // Data siswa
+        $siswa = DB::table('siswa')
+            ->where('nis', $nis)
+            ->join(
+                'jurusan',
+                'siswa.kode_jurusan',
+                '=',
+                'jurusan.kode_jurusan'
+            )
             ->first();
 
+        // Data mata pelajaran yang dipilih
+        $mataPelajaran = MataPelajaran::findOrFail($mataPelajaranId);
+
+        // Data attendance berdasarkan siswa + bulan + tahun + mata pelajaran
         $attendance = DB::table('attendance')
-            ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
-            ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
-            ->where('nis', $nis)
+            ->join(
+                'guru_mata_pelajaran',
+                'attendance.penugasan_id',
+                '=',
+                'guru_mata_pelajaran.id'
+            )
+            ->where(
+                'guru_mata_pelajaran.mata_pelajaran_id',
+                $mataPelajaranId
+            )
+            ->whereMonth('attendance.tgl_presensi', $bulan)
+            ->whereYear('attendance.tgl_presensi', $tahun)
+            ->where('attendance.nis', $nis)
+            ->select('attendance.*')
+            ->orderBy('attendance.tgl_presensi')
             ->get();
-        return view('attendance.cetaklaporan', compact('bulan', 'tahun', 'namabulan', 'siswa', 'attendance'));
+
+        return view(
+            'attendance.cetaklaporan',
+            compact(
+                'bulan',
+                'tahun',
+                'namabulan',
+                'siswa',
+                'attendance',
+                'mataPelajaran'
+            )
+        );
     }
 
     public function rekap()
@@ -1404,64 +1480,253 @@ class AttendanceController extends Controller
             "Desember"
         ];
 
-        // ambil jurusan dari database (kalau kamu punya tabel jurusan)
-        $jurusan = DB::table('jurusan')->get();
+        $jurusan = DB::table('jurusan')
+            ->orderBy('nama_jurusan')
+            ->get();
 
-        // ambil kelas unik dari siswa
         $kelas = DB::table('siswa')
             ->select('kelas')
             ->groupBy('kelas')
             ->orderBy('kelas')
             ->get();
 
-        return view('attendance.rekap', compact('namabulan', 'jurusan', 'kelas'));
+        $mataPelajaran = MataPelajaran::orderBy('nama_mapel')
+            ->get();
+
+        return view('attendance.rekap', compact(
+            'namabulan',
+            'jurusan',
+            'kelas',
+            'mataPelajaran'
+        ));
     }
 
     public function cetakrekap(Request $request)
     {
         $bulan = $request->bulan;
         $tahun = $request->tahun;
-        $namabulan = ["", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-        $rekap = DB::table('attendance')
-            ->selectRaw('attendance.nis, nama_lengkap,
-                MAX(IF(DAY(tgl_presensi) = 1, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_1,
-                MAX(IF(DAY(tgl_presensi) = 2, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_2,
-                MAX(IF(DAY(tgl_presensi) = 3, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_3,
-                MAX(IF(DAY(tgl_presensi) = 4, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_4,
-                MAX(IF(DAY(tgl_presensi) = 5, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_5,
-                MAX(IF(DAY(tgl_presensi) = 6, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_6,
-                MAX(IF(DAY(tgl_presensi) = 7, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_7,
-                MAX(IF(DAY(tgl_presensi) = 8, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_8,
-                MAX(IF(DAY(tgl_presensi) = 9, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_9,
-                MAX(IF(DAY(tgl_presensi) = 10, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_10,
-                MAX(IF(DAY(tgl_presensi) = 11, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_11,
-                MAX(IF(DAY(tgl_presensi) = 12, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_12,
-                MAX(IF(DAY(tgl_presensi) = 13, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_13,
-                MAX(IF(DAY(tgl_presensi) = 14, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_14,
-                MAX(IF(DAY(tgl_presensi) = 15, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_15,
-                MAX(IF(DAY(tgl_presensi) = 16, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_16,
-                MAX(IF(DAY(tgl_presensi) = 17, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_17,
-                MAX(IF(DAY(tgl_presensi) = 18, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_18,
-                MAX(IF(DAY(tgl_presensi) = 19, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_19,
-                MAX(IF(DAY(tgl_presensi) = 20, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_20,
-                MAX(IF(DAY(tgl_presensi) = 21, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_21,
-                MAX(IF(DAY(tgl_presensi) = 22, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_22,
-                MAX(IF(DAY(tgl_presensi) = 23, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_23,
-                MAX(IF(DAY(tgl_presensi) = 24, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_24,
-                MAX(IF(DAY(tgl_presensi) = 25, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_25,
-                MAX(IF(DAY(tgl_presensi) = 26, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_26,
-                MAX(IF(DAY(tgl_presensi) = 27, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_27,
-                MAX(IF(DAY(tgl_presensi) = 28, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_28,
-                MAX(IF(DAY(tgl_presensi) = 29, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_29,
-                MAX(IF(DAY(tgl_presensi) = 30, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_30,
-                MAX(IF(DAY(tgl_presensi) = 31, CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),"")) as tgl_31')
-            ->join('siswa', 'attendance.nis', '=', 'siswa.nis')
-            ->whereRaw('MONTH(tgl_presensi)="' . $bulan . '"')
-            ->whereRaw('YEAR(tgl_presensi)="' . $tahun . '"')
-            ->groupByRaw('attendance.nis, nama_lengkap')
-            ->get();
-        return view('attendance.cetakrekap', compact('bulan', 'tahun', 'namabulan', 'rekap'));
+        $jurusan = $request->jurusan;
+        $kelas = $request->kelas;
+        $mataPelajaranId = $request->mata_pelajaran_id;
 
+        $namabulan = [
+            "",
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember"
+        ];
+
+        // Ambil nama mata pelajaran
+        $mataPelajaran = MataPelajaran::findOrFail($mataPelajaranId);
+
+        $rekap = DB::table('attendance')
+            ->selectRaw('
+                attendance.nis,
+                siswa.nama_lengkap,
+
+                MAX(IF(DAY(tgl_presensi) = 1,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_1,
+
+                MAX(IF(DAY(tgl_presensi) = 2,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_2,
+
+                MAX(IF(DAY(tgl_presensi) = 3,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_3,
+
+                MAX(IF(DAY(tgl_presensi) = 4,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_4,
+
+                MAX(IF(DAY(tgl_presensi) = 5,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_5,
+
+                MAX(IF(DAY(tgl_presensi) = 6,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_6,
+
+                MAX(IF(DAY(tgl_presensi) = 7,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_7,
+
+                MAX(IF(DAY(tgl_presensi) = 8,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_8,
+
+                MAX(IF(DAY(tgl_presensi) = 9,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_9,
+
+                MAX(IF(DAY(tgl_presensi) = 10,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_10,
+
+                MAX(IF(DAY(tgl_presensi) = 11,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_11,
+
+                MAX(IF(DAY(tgl_presensi) = 12,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_12,
+
+                MAX(IF(DAY(tgl_presensi) = 13,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_13,
+
+                MAX(IF(DAY(tgl_presensi) = 14,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_14,
+
+                MAX(IF(DAY(tgl_presensi) = 15,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_15,
+
+                MAX(IF(DAY(tgl_presensi) = 16,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_16,
+
+                MAX(IF(DAY(tgl_presensi) = 17,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_17,
+
+                MAX(IF(DAY(tgl_presensi) = 18,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_18,
+
+                MAX(IF(DAY(tgl_presensi) = 19,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_19,
+
+                MAX(IF(DAY(tgl_presensi) = 20,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_20,
+
+                MAX(IF(DAY(tgl_presensi) = 21,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_21,
+
+                MAX(IF(DAY(tgl_presensi) = 22,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_22,
+
+                MAX(IF(DAY(tgl_presensi) = 23,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_23,
+
+                MAX(IF(DAY(tgl_presensi) = 24,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_24,
+
+                MAX(IF(DAY(tgl_presensi) = 25,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_25,
+
+                MAX(IF(DAY(tgl_presensi) = 26,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_26,
+
+                MAX(IF(DAY(tgl_presensi) = 27,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_27,
+
+                MAX(IF(DAY(tgl_presensi) = 28,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_28,
+
+                MAX(IF(DAY(tgl_presensi) = 29,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_29,
+
+                MAX(IF(DAY(tgl_presensi) = 30,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_30,
+
+                MAX(IF(DAY(tgl_presensi) = 31,
+                    CONCAT(jam_in, "-", IFNULL(jam_out, "00:00:00")),
+                    ""
+                )) as tgl_31
+            ')
+            ->join(
+                'siswa',
+                'attendance.nis',
+                '=',
+                'siswa.nis'
+            )
+            ->join(
+                'guru_mata_pelajaran',
+                'attendance.penugasan_id',
+                '=',
+                'guru_mata_pelajaran.id'
+            )
+            ->where('siswa.kode_jurusan', $jurusan)
+            ->where('siswa.kelas', $kelas)
+            ->where(
+                'guru_mata_pelajaran.mata_pelajaran_id',
+                $mataPelajaranId
+            )
+            ->whereMonth('attendance.tgl_presensi', $bulan)
+            ->whereYear('attendance.tgl_presensi', $tahun)
+            ->groupBy(
+                'attendance.nis',
+                'siswa.nama_lengkap'
+            )
+            ->orderBy('siswa.nama_lengkap')
+            ->get();
+
+        return view(
+            'attendance.cetakrekap',
+            compact(
+                'bulan',
+                'tahun',
+                'namabulan',
+                'rekap',
+                'jurusan',
+                'kelas',
+                'mataPelajaran'
+            )
+        );
     }
 
     public function izinsakit(Request $request)

@@ -48,6 +48,19 @@
                 </select>
               </div>
 
+              {{-- MATA PELAJARAN --}}
+              <div class="mb-2">
+                  <select name="mata_pelajaran_id" id="mata_pelajaran_id" class="form-select" required>
+                      <option value="">Pilih Mata Pelajaran</option>
+
+                      @foreach($mataPelajaran as $m)
+                          <option value="{{ $m->id }}">
+                              {{ $m->kode_mapel }} - {{ $m->nama_mapel }}
+                          </option>
+                      @endforeach
+                  </select>
+              </div>
+
               {{-- BULAN --}}
               <div class="mb-2">
                 <select name="bulan" id="bulan" class="form-select" required>
