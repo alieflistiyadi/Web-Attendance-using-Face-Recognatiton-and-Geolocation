@@ -205,7 +205,7 @@
                 <!-- icon home kamu -->
               </span>
               <span class="nav-link-title">
-                Dashboard
+                Beranda
               </span>
             </a>
           </li>
@@ -354,7 +354,7 @@
               </span>
 
               <span class="nav-link-title">
-                Dashboard
+                Beranda
               </span>
 
             </a>
