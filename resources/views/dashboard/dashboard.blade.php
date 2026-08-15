@@ -14,8 +14,8 @@
         }
 
         /* =========================
-                                                                                                                                                                                                                        PROFILE HEADER
-                                                                                                                                                                                                                    ========================= */
+                                                                                                                                                                                                                                PROFILE HEADER
+                                                                                                                                                                                                                            ========================= */
         .profile-section {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             padding: 28px 18px 85px;
@@ -82,8 +82,8 @@
         }
 
         /* =========================
-                                                                                                                                                                                                                        MENU
-                                                                                                                                                                                                                    ========================= */
+                                                                                                                                                                                                                                MENU
+                                                                                                                                                                                                                            ========================= */
         .menu-wrapper {
             margin-top: -55px;
             padding: 0 16px;
@@ -145,8 +145,8 @@
         }
 
         /* =========================
-                                                                                                                                                                                                                        CONTENT
-                                                                                                                                                                                                                    ========================= */
+                                                                                                                                                                                                                                CONTENT
+                                                                                                                                                                                                                            ========================= */
         .content-wrapper {
             padding: 22px 16px 110px;
         }
@@ -159,9 +159,9 @@
         }
 
         /* =========================
-                                PRESENCE - PER SUBJECT
-                                MINIMAL / ELEGANT
-                                ========================= */
+                                        PRESENCE - PER SUBJECT
+                                        MINIMAL / ELEGANT
+                                        ========================= */
         .presence-grid {
             display: flex;
             flex-direction: column;
@@ -336,8 +336,8 @@
 
 
         /* =========================
-                                        REKAP KEHADIRAN
-                                        ========================= */
+                                                REKAP KEHADIRAN
+                                                ========================= */
         .rekap-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -414,8 +414,8 @@
         }
 
         /* =========================
-                                        REKAP PER MATA PELAJARAN
-                                        ========================= */
+                                                REKAP PER MATA PELAJARAN
+                                                ========================= */
         .subject-recap-list {
             display: flex;
             flex-direction: column;
@@ -497,8 +497,8 @@
         }
 
         /* =========================
-                                                    REKAP PER SUBJECT
-                                                    ========================= */
+                                                            REKAP PER SUBJECT
+                                                            ========================= */
         .subject-recap-list {
             display: flex;
             flex-direction: column;
@@ -558,8 +558,8 @@
         }
 
         /* =========================
-                                                                                                                                                                                                                        TABS
-                                                                                                                                                                                                                    ========================= */
+                                                                                                                                                                                                                                TABS
+                                                                                                                                                                                                                            ========================= */
         .custom-tabs {
             background: white;
             border-radius: 18px;
@@ -591,8 +591,8 @@
         }
 
         /* =========================
-                                                                                                                                                                                                                        HISTORY
-                                                                                                                                                                                                                    ========================= */
+                                                                                                                                                                                                                                HISTORY
+                                                                                                                                                                                                                            ========================= */
         .history-card {
             background: white;
             border-radius: 20px;
@@ -657,8 +657,8 @@
         }
 
         /* =========================
-                                                                                                                                                                                                                        MOBILE FIX
-                                                                                                                                                                                                                    ========================= */
+                                                                                                                                                                                                                                MOBILE FIX
+                                                                                                                                                                                                                            ========================= */
         @media (max-width: 380px) {
 
             .presence-time-value {
@@ -1105,8 +1105,6 @@
 
                                     <div class="history-time">
                                         {{ $d->kelas }}
-                                        -
-                                        {{ $d->kode_jurusan }}
                                     </div>
 
                                 </div>
