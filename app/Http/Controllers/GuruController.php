@@ -47,15 +47,20 @@ class GuruController extends Controller
         $request->validate([
             'name' => 'required|regex:/^[A-Za-z\s]+$/',
             'email' => [
-                'required',
-                'email',
-                'unique:users,email',
-                function ($attribute, $value, $fail) {
-                    if (!str_ends_with(strtolower($value), '@gmail.com')) {
-                        $fail('Email harus menggunakan domain @gmail.com.');
-                    }
-                },
-            ],
+            'required',
+            'email',
+            'unique:users,email',
+            function ($attribute, $value, $fail) {
+                $email = strtolower($value);
+
+                if (
+                    !str_ends_with($email, '@gmail.com') &&
+                    !str_ends_with($email, '@smksmart.sch.id')
+                ) {
+                    $fail('Email harus menggunakan domain @gmail.com atau @smksmart.sch.id.');
+                }
+            },
+        ],
             'password' => 'required|min:8',
             'role' => 'required|in:guru,superadmin',
         ], [
@@ -71,7 +76,8 @@ class GuruController extends Controller
             'updated_at' => now()
         ]);
 
-        return redirect('/guru')->with('success', 'Akun berhasil ditambahkan');
+        return redirect('/guru')
+            ->with('success', 'Akun berhasil ditambahkan');
     }
 
     public function edit(Request $request)
@@ -81,60 +87,52 @@ class GuruController extends Controller
             ->whereIn('role', ['guru', 'superadmin'])
             ->first();
 
-        // Ambil semua mata pelajaran
-        $mapel = DB::table('mata_pelajaran')
-            ->orderBy('nama_mapel')
-            ->get();
-
-        // Ambil mata pelajaran yang sudah dimiliki guru
-        $mapelGuru = DB::table('guru_mata_pelajaran')
-            ->where('guru_id', $request->id)
-            ->pluck('mata_pelajaran_id')
-            ->unique()
-            ->values()
-            ->toArray();
-
         return view('guru.edit', compact(
             'guru',
-            'mapel',
-            'mapelGuru'
         ));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required|regex:/^[A-Za-z\s]+$/',
-            'email' => [
-                'required',
-                'email',
-                'unique:users,email,' . $id,
-                function ($attribute, $value, $fail) {
-                    if (!str_ends_with(strtolower($value), '@gmail.com')) {
-                        $fail('Email harus menggunakan domain @gmail.com.');
-                    }
-                },
-            ],
-            'role' => 'required|in:guru,superadmin',
-            'password' => [
-                'nullable',
-                'min:8',
-                'regex:/[a-z]/',
-                'regex:/[A-Z]/',
-                'regex:/[0-9]/',
-                'regex:/[@$!%*#?&]/'
-            ]
-        ], [
-            'name.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
-            'password.min' => 'Password minimal 8 karakter.',
-            'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, angka, dan simbol.'
-        ]);
+        'name' => 'required|regex:/^[A-Za-z\s]+$/',
+        'email' => [
+            'required',
+            'email',
+            'unique:users,email,' . $id,
+            function ($attribute, $value, $fail) {
+                $email = strtolower($value);
 
-        // Proteksi: superadmin tidak boleh menurunkan role akunnya sendiri
+                if (
+                    !str_ends_with($email, '@gmail.com') &&
+                    !str_ends_with($email, '@smksmart.sch.id')
+                ) {
+                    $fail('Email harus menggunakan domain @gmail.com atau @smksmart.sch.id.');
+                }
+            },
+        ],
+        'role' => 'required|in:guru,superadmin',
+        'password' => [
+            'nullable',
+            'min:8',
+            'regex:/[a-z]/',
+            'regex:/[A-Z]/',
+            'regex:/[0-9]/',
+            'regex:/[@$!%*#?&]/'
+        ]
+    ], [
+        'name.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
+        'password.min' => 'Password minimal 8 karakter.',
+        'password.regex' => 'Password harus mengandung huruf besar, huruf kecil, angka, dan simbol.'
+    ]);
+
+        // Proteksi: superadmin tidak boleh menurunkan role akun sendiri
         $isSelf = (int) $id === (int) Auth::guard('user')->id();
 
         if ($isSelf) {
-            $currentUser = DB::table('users')->where('id', $id)->first();
+            $currentUser = DB::table('users')
+                ->where('id', $id)
+                ->first();
 
             if ($currentUser->role === 'superadmin' && $request->role !== 'superadmin') {
                 return redirect('/guru')
@@ -142,6 +140,7 @@ class GuruController extends Controller
             }
         }
 
+        // Data akun
         $data = [
             'name' => $request->name,
             'email' => $request->email,
@@ -149,14 +148,31 @@ class GuruController extends Controller
             'updated_at' => now()
         ];
 
+        // Kalau password diisi, update password
         if ($request->password != "") {
             $data['password'] = Hash::make($request->password);
         }
 
+        // Update data user
         DB::table('users')
             ->where('id', $id)
             ->whereIn('role', ['guru', 'superadmin'])
             ->update($data);
+
+        // Hapus mata pelajaran lama
+        DB::table('guru_mata_pelajaran')
+            ->where('guru_id', $id)
+            ->delete();
+
+        // Simpan mata pelajaran baru jika dipilih
+        if ($request->filled('mata_pelajaran_id')) {
+            DB::table('guru_mata_pelajaran')->insert([
+                'guru_id' => $id,
+                'mata_pelajaran_id' => $request->mata_pelajaran_id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         return redirect('/guru')
             ->with('success', 'Data berhasil diupdate');

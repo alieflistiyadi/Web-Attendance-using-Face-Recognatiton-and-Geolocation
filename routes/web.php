@@ -783,6 +783,23 @@ Route::middleware([
             '/konfigurasi/updatewaktu',
             [KonfigurasiController::class, 'updateWaktu']
         )->name('konfigurasi.updatewaktu');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Wali Kelas
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('
+            /konfigurasi/wali-kelas',
+            [KonfigurasiController::class, 'waliKelas']
+        )->name('konfigurasi.wali_kelas');
+
+        Route::post
+            ('/konfigurasi/update-wali-kelas',
+            [KonfigurasiController::class, 'updateWaliKelas']
+        )->name('konfigurasi.update_wali_kelas');
     });
 
 

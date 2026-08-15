@@ -70,46 +70,38 @@
                     </span>
                 <select name="kelas" id="kelas" class="form-select">
                     <option value="">Pilih Kelas</option>
-                    <optgroup label="Kelas 10">
-                        <option value="10-1"
-                            {{ $siswa->kelas == '10-1' ? 'selected' : '' }}>
-                            Kelas 10-1
+                    <optgroup label="Kelas X">
+                        <option value="X TJKT 1"
+                            {{ $siswa->kelas == 'X TJKT 1' ? 'selected' : '' }}>
+                            X TJKT 1
                         </option>
-                        <option value="10-2"
-                            {{ $siswa->kelas == '10-2' ? 'selected' : '' }}>
-                            Kelas 10-2
+                        <option value="X TJKT 2"
+                            {{ $siswa->kelas == 'X TJKT 2' ? 'selected' : '' }}>
+                            X TJKT 2
                         </option>
-                        <option value="10-3"
-                            {{ $siswa->kelas == '10-3' ? 'selected' : '' }}>
-                            Kelas 10-3
-                        </option>
-                    </optgroup>
-                    <optgroup label="Kelas 11">
-                        <option value="11-1"
-                            {{ $siswa->kelas == '11-1' ? 'selected' : '' }}>
-                            Kelas 11-1
-                        </option>
-                        <option value="11-2"
-                            {{ $siswa->kelas == '11-2' ? 'selected' : '' }}>
-                            Kelas 11-2
-                        </option>
-                        <option value="11-3"
-                            {{ $siswa->kelas == '11-3' ? 'selected' : '' }}>
-                            Kelas 11-3
+                        <option value="X TM"
+                            {{ $siswa->kelas == 'X TM' ? 'selected' : '' }}>
+                            X TM
                         </option>
                     </optgroup>
-                    <optgroup label="Kelas 12">
-                        <option value="12-1"
-                            {{ $siswa->kelas == '12-1' ? 'selected' : '' }}>
-                            Kelas 12-1
+                    <optgroup label="Kelas XI">
+                        <option value="XI TJKT"
+                            {{ $siswa->kelas == 'XI TJKT' ? 'selected' : '' }}>
+                            XI TJKT
                         </option>
-                        <option value="12-2"
-                            {{ $siswa->kelas == '12-2' ? 'selected' : '' }}>
-                            Kelas 12-2
+                        <option value="XI TM"
+                            {{ $siswa->kelas == 'XI TM' ? 'selected' : '' }}>
+                            XI TM
                         </option>
-                        <option value="12-3"
-                            {{ $siswa->kelas == '12-3' ? 'selected' : '' }}>
-                            Kelas 12-3
+                    </optgroup>
+                    <optgroup label="Kelas XII">
+                        <option value="XII TJKT"
+                            {{ $siswa->kelas == 'XII TJKT' ? 'selected' : '' }}>
+                            XII TJKT
+                        </option>
+                        <option value="XII TM"
+                            {{ $siswa->kelas == 'XII TM' ? 'selected' : '' }}>
+                            XII TM
                         </option>
                     </optgroup>
                 </select>

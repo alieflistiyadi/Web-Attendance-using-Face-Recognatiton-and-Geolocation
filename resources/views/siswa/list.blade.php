@@ -227,20 +227,18 @@
                     <label class="form-label">Kelas</label>
                     <select name="kelas" id="kelas" class="form-select" required>
                         <option value="">Pilih Kelas</option>
-                        <optgroup label="Kelas 10">
-                            <option value="10-1">Kelas 10-1</option>
-                            <option value="10-2">Kelas 10-2</option>
-                            <option value="10-3">Kelas 10-3</option>
+                        <optgroup label="Kelas X">
+                          <option value="X TJKT 1">X TJKT 1</option>
+                          <option value="X TJKT 2">X TJKT 2</option>
+                          <option value="X TM">X TM</option>
                         </optgroup>
-                        <optgroup label="Kelas 11">
-                            <option value="11-1">Kelas 11-1</option>
-                            <option value="11-2">Kelas 11-2</option>
-                            <option value="11-3">Kelas 11-3</option>
+                        <optgroup label="Kelas XI">
+                          <option value="XI TJKT">XI TJKT</option>
+                          <option value="XI TM">XI TM</option>
                         </optgroup>
-                        <optgroup label="Kelas 12">
-                            <option value="12-1">Kelas 12-1</option>
-                            <option value="12-2">Kelas 12-2</option>
-                            <option value="12-3">Kelas 12-3</option>
+                        <optgroup label="Kelas XII">
+                          <option value="XII TJKT">XII TJKT</option>
+                          <option value="XII TM">XII TM</option>
                         </optgroup>
                     </select>
                 </div>
@@ -357,52 +355,42 @@
 
           var mappingJurusan = {
 
-              "10-1": {
-                  kode: "MP",
-                  nama: "Manajemen Perkantoran"
-              },
+            "X TJKT 1": {
+                kode: "TJKT",
+                nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+            },
 
-              "10-2": {
-                  kode: "TJKT",
-                  nama: "Teknik Jaringan Komputer dan Telekomunikasi"
-              },
+            "X TJKT 2": {
+                kode: "TJKT",
+                nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+            },
 
-              "10-3": {
-                  kode: "TM",
-                  nama: "Teknik Mesin"
-              },
+            "X TM": {
+                kode: "TM",
+                nama: "Teknik Mesin"
+            },
 
-              "11-1": {
-                  kode: "MP",
-                  nama: "Manajemen Perkantoran"
-              },
+            "XI TJKT": {
+                kode: "TJKT",
+                nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+            },
 
-              "11-2": {
-                  kode: "TJKT",
-                  nama: "Teknik Jaringan Komputer dan Telekomunikasi"
-              },
+            "XI TM": {
+                kode: "TM",
+                nama: "Teknik Mesin"
+            },
 
-              "11-3": {
-                  kode: "TM",
-                  nama: "Teknik Mesin"
-              },
+            "XII TJKT": {
+                kode: "TJKT",
+                nama: "Teknik Jaringan Komputer dan Telekomunikasi"
+            },
 
-              "12-1": {
-                  kode: "MP",
-                  nama: "Manajemen Perkantoran"
-              },
-
-              "12-2": {
-                  kode: "TJKT",
-                  nama: "Teknik Jaringan Komputer dan Telekomunikasi"
-              },
-
-              "12-3": {
-                  kode: "TM",
-                  nama: "Teknik Mesin"
-              }
-
+            "XII TM": {
+                kode: "TM",
+                nama: "Teknik Mesin"
+            }
           };
+
           if (mappingJurusan[kelas]) {
               $("#kode_jurusan").val(mappingJurusan[kelas].kode);
               $("#nama_jurusan").val(mappingJurusan[kelas].nama

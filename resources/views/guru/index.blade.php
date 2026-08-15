@@ -47,37 +47,7 @@
                         </div>
 
 
-                        {{-- Filter Mata Pelajaran --}}
-                        <div class="col-md-4">
-                            <form method="GET" action="{{ url('/guru') }}">
-                                <label class="form-label">Mata Pelajaran</label>
-
-                                <select name="mata_pelajaran_id" class="form-select"
-                                    onchange="this.form.submit()">
-
-                                    <option value="">Semua Mata Pelajaran</option>
-
-                                    @foreach($mapel as $m)
-                                        <option value="{{ $m->id }}"
-                                            {{ request('mata_pelajaran_id') == $m->id ? 'selected' : '' }}>
-
-                                            {{ $m->kode_mapel }} - {{ $m->nama_mapel }}
-
-                                        </option>
-                                    @endforeach
-
-                                </select>
-
-                                {{-- Pertahankan filter role --}}
-                                @if(request('role'))
-                                    <input type="hidden"
-                                        name="role"
-                                        value="{{ request('role') }}">
-                                @endif
-                            </form>
-                        </div>
-
-                    </div>
+                        
 
                     <table class="table table-bordered">
 
@@ -85,7 +55,6 @@
                             <th>No</th>
                             <th>Nama</th>
                             <th>Email</th>
-                            <th>Mata Pelajaran</th>
                             <th width="120">Role</th>
                             <th class="text-center" style="width: 130px;">Aksi</th>
                         </tr>
@@ -102,34 +71,6 @@
                             <td>{{ $g->name }}</td>
 
                             <td>{{ $g->email }}</td>
-
-                            <td>
-                                @if($g->role === 'guru')
-
-                                    @if($g->guruMataPelajaran->count())
-
-                                        @foreach($g->guruMataPelajaran->unique('mata_pelajaran_id') as $penugasan)
-
-                                            <span class="badge bg-blue-lt mb-1">
-                                                {{ $penugasan->mataPelajaran->nama_mapel }}
-                                            </span>
-
-                                        @endforeach
-
-                                    @else
-
-                                        <span class="text-muted">
-                                            Belum ada mata pelajaran
-                                        </span>
-
-                                    @endif
-
-                                @else
-
-                                    <span class="text-muted">-</span>
-
-                                @endif
-                            </td>
 
                             <td>
                                 @if($g->role === 'superadmin')
@@ -276,23 +217,6 @@
                         </select>
                     </div>
 
-                    {{-- Mata Pelajaran --}}
-                    <div class="mb-3">
-                        <label>Mata Pelajaran</label>
-                        <select name="mata_pelajaran_id" class="form-select">
-                            <option value="">-- Pilih Mata Pelajaran --</option>
-
-                            @foreach($mapel as $m)
-                                <option value="{{ $m->id }}">
-                                    {{ $m->kode_mapel }} - {{ $m->nama_mapel }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <small class="text-muted">
-                            Kosongkan jika akun Superadmin atau belum ada mata pelajaran.
-                        </small>
-                    </div>
 
                     <div class="mb-3">
                         <label>Password</label>

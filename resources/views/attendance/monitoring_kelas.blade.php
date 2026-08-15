@@ -21,8 +21,16 @@
         <div class="container-xl">
             <div class="row g-2 align-items-center">
                 <div class="col">
+                    @php
+                        $tingkatRomawi = [
+                            10 => 'X',
+                            11 => 'XI',
+                            12 => 'XII',
+                        ];
+                    @endphp
+
                     <h2 class="page-title">
-                        Pemantauan Kehadiran - Kelas {{ $kelas }}
+                        Pemantauan Kehadiran - Kelas {{ $tingkatRomawi[$kelas] ?? $kelas }}
                     </h2>
                 </div>
             </div>

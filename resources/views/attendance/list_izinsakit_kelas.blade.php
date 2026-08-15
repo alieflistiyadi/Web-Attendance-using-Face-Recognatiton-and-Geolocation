@@ -158,16 +158,16 @@
 
 <td>{{ $d->keterangan }}</td>
                   <td>
-                    @if ($d->status_approved == 1)
-                      <span class="badge bg-success">Disetujui</span>
-                    @elseif ($d->status_approved == 2)
-                      <span class="badge bg-danger">Ditolak</span>
-                    @else
-                      <span class="badge bg-warning">Menunggu</span>
+                    @if ($d->detail_status_approved == 0)
+                        <span class="badge bg-warning">Menunggu</span>
+                    @elseif ($d->detail_status_approved == 1)
+                        <span class="badge bg-success">Disetujui</span>
+                    @elseif ($d->detail_status_approved == 2)
+                        <span class="badge bg-danger">Ditolak</span>
                     @endif
                   </td>
                   <td>
-                    @if ($d->status_approved == 0)
+                    @if ($d->detail_status_approved == 0)
                       @php
                           $dokumen = $d->status == 'i'
                               ? $d->surat_izin

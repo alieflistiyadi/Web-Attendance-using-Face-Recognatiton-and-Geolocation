@@ -4,7 +4,7 @@
 
 <div class="container-xl mt-3">
 
-    <h2>Dashboard Jurusan</h2>
+    <h2>Beranda Jurusan</h2>
 
     <div class="row mt-3">
 
