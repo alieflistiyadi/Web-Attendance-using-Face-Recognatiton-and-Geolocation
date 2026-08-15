@@ -14,8 +14,8 @@
         }
 
         /* =========================
-                                                                                                                                                                            PROFILE HEADER
-                                                                                                                                                                        ========================= */
+                                                                                                                                                                                                                        PROFILE HEADER
+                                                                                                                                                                                                                    ========================= */
         .profile-section {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             padding: 28px 18px 85px;
@@ -82,8 +82,8 @@
         }
 
         /* =========================
-                                                                                                                                                                            MENU
-                                                                                                                                                                        ========================= */
+                                                                                                                                                                                                                        MENU
+                                                                                                                                                                                                                    ========================= */
         .menu-wrapper {
             margin-top: -55px;
             padding: 0 16px;
@@ -145,8 +145,8 @@
         }
 
         /* =========================
-                                                                                                                                                                            CONTENT
-                                                                                                                                                                        ========================= */
+                                                                                                                                                                                                                        CONTENT
+                                                                                                                                                                                                                    ========================= */
         .content-wrapper {
             padding: 22px 16px 110px;
         }
@@ -159,130 +159,162 @@
         }
 
         /* =========================
-                                                                                                                                                                            PRESENCE
-                                                                                                                                                                        ========================= */
+                                PRESENCE - PER SUBJECT
+                                MINIMAL / ELEGANT
+                                ========================= */
         .presence-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .presence-card {
-            border-radius: 24px;
-            padding: 18px;
-            color: white;
+            min-height: 84px;
+            border-radius: 18px;
+            padding: 12px 13px;
+            color: #fff;
             position: relative;
             overflow: hidden;
-            min-height: 140px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.07);
         }
 
         .presence-card::before {
             content: "";
             position: absolute;
-            right: -20px;
-            top: -20px;
-            width: 90px;
-            height: 90px;
+            right: -38px;
+            top: -48px;
+            width: 105px;
+            height: 105px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.10);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         .presence-blue {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
         }
 
-        .presence-red {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
+        .presence-green {
+            background: linear-gradient(135deg, #10b981, #059669);
         }
 
-        .presence-icon img {
-            width: 50px;
-            height: 50px;
-            border-radius: 14px;
-            object-fit: cover;
-            border: 2px solid rgba(255, 255, 255, 0.25);
-            margin-bottom: 14px;
+        .presence-orange {
+            background: linear-gradient(135deg, #f97316, #ea580c);
         }
 
-        .presence-icon ion-icon {
-            font-size: 42px;
-            margin-bottom: 12px;
+        .presence-purple {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
         }
 
-        .presence-title {
-            font-size: 13px;
-            opacity: 0.9;
-            margin-bottom: 6px;
-        }
-
-        .presence-time {
-            font-size: 21px;
-            font-weight: 700;
-            line-height: 1.2;
-        }
-
-        /* =========================
-                                                                                                                                                REKAP MODERN
-                                                                                                                                            ========================= */
-        .rekap-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .rekap-card {
-            background: linear-gradient(145deg, #ffffff, #ffffff);
-            border-radius: 24px;
-            padding: 18px;
-            min-height: 120px;
-            position: relative;
-            overflow: hidden;
-            box-shadow:
-                0 8px 20px rgba(255, 255, 255, 0.18),
-                inset 0 1px 0 rgba(255, 255, 255, 0.03);
-        }
-
-        .rekap-card::before {
-            content: "";
-            position: absolute;
-            right: -25px;
-            bottom: -25px;
-            width: 90px;
-            height: 90px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 50%;
-        }
-
-        .rekap-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 24px;
-        }
-
-        .rekap-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
+        .presence-icon {
+            width: 42px;
+            height: 42px;
+            flex: 0 0 42px;
+            border-radius: 13px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            color: white;
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.17);
+            overflow: hidden;
         }
 
-        .rekap-number {
-            font-size: 42px;
+        .presence-icon img {
+            width: 42px;
+            height: 42px;
+            margin: 0;
+            border: none;
+            border-radius: 13px;
+            object-fit: cover;
+        }
+
+        .presence-icon ion-icon {
+            font-size: 22px;
+            margin: 0;
+        }
+
+        .presence-main {
+            min-width: 0;
+            flex: 1;
+            position: relative;
+            z-index: 1;
+            align-self: stretch;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .subject-name {
+            font-size: 13px;
             font-weight: 700;
-            color: black;
-            line-height: 1;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 2px;
         }
 
-        .rekap-label {
-            font-size: 16px;
+        .teacher-name {
+            font-size: 10px;
+            opacity: 0.82;
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .presence-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 7px;
+        }
+
+        .presence-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
             font-weight: 600;
-            color: black;
+            white-space: nowrap;
+        }
+
+        .presence-time span {
+            opacity: 0.7;
+            font-size: 8px;
+            font-weight: 500;
+        }
+
+        .presence-status {
+            position: relative;
+            z-index: 2;
+            flex: 0 0 auto;
+            align-self: center;
+            background: rgba(255, 255, 255, 0.17);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 8px;
+            line-height: 1;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .empty-presence {
+            background: white;
+            border-radius: 18px;
+            padding: 24px 16px;
+            text-align: center;
+            color: #6b7280;
+            box-shadow: 0 5px 16px rgba(0, 0, 0, .04);
+        }
+
+        .empty-presence ion-icon {
+            font-size: 38px;
+            margin-bottom: 8px;
         }
 
         /* ICON COLORS */
@@ -302,9 +334,232 @@
             background: #f59e0b;
         }
 
+
         /* =========================
-                                                                                                                                                                            TABS
-                                                                                                                                                                        ========================= */
+                                        REKAP KEHADIRAN
+                                        ========================= */
+        .rekap-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .rekap-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 15px;
+            min-height: 112px;
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(17, 24, 39, 0.04);
+        }
+
+        .rekap-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .rekap-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .rekap-number {
+            font-size: 27px;
+            line-height: 1;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .rekap-label {
+            margin-top: 13px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .rekap-unit {
+            font-size: 10px;
+            font-weight: 500;
+            color: #9ca3af;
+            margin-left: 2px;
+        }
+
+        .rekap-card:nth-child(1) .rekap-icon {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .rekap-card:nth-child(2) .rekap-icon {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .rekap-card:nth-child(3) .rekap-icon {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+        }
+
+        .rekap-card:nth-child(4) .rekap-icon {
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+        }
+
+        .rekap-card:nth-child(5) .rekap-icon {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        }
+
+        /* =========================
+                                        REKAP PER MATA PELAJARAN
+                                        ========================= */
+        .subject-recap-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .subject-recap-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(17, 24, 39, 0.04);
+        }
+
+        .subject-recap-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .subject-recap-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .subject-recap-teacher {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .subject-recap-stats {
+            display: flex;
+            gap: 8px;
+            margin-top: 13px;
+        }
+
+        .subject-stat {
+            flex: 1;
+            background: #f3f6fb;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .subject-stat-number {
+            font-size: 18px;
+            font-weight: 800;
+            color: #111827;
+        }
+
+        .subject-stat-label {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+        @media (max-width: 380px) {
+            .rekap-grid {
+                gap: 9px;
+            }
+
+            .rekap-card {
+                padding: 13px;
+                min-height: 105px;
+            }
+
+            .rekap-icon {
+                width: 42px;
+                height: 42px;
+                font-size: 20px;
+            }
+
+            .rekap-number {
+                font-size: 24px;
+            }
+        }
+
+        /* =========================
+                                                    REKAP PER SUBJECT
+                                                    ========================= */
+        .subject-recap-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .subject-recap-card {
+            background: white;
+            border-radius: 18px;
+            padding: 15px;
+            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.04);
+        }
+
+        .subject-recap-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .subject-recap-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .subject-recap-teacher {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+        .subject-recap-stats {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .subject-stat {
+            flex: 1;
+            background: #f3f6fb;
+            border-radius: 12px;
+            padding: 9px;
+            text-align: center;
+        }
+
+        .subject-stat-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .subject-stat-label {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        /* =========================
+                                                                                                                                                                                                                        TABS
+                                                                                                                                                                                                                    ========================= */
         .custom-tabs {
             background: white;
             border-radius: 18px;
@@ -336,8 +591,8 @@
         }
 
         /* =========================
-                                                                                                                                                                            HISTORY
-                                                                                                                                                                        ========================= */
+                                                                                                                                                                                                                        HISTORY
+                                                                                                                                                                                                                    ========================= */
         .history-card {
             background: white;
             border-radius: 20px;
@@ -402,12 +657,20 @@
         }
 
         /* =========================
-                                                                                                                                                                            MOBILE FIX
-                                                                                                                                                                        ========================= */
+                                                                                                                                                                                                                        MOBILE FIX
+                                                                                                                                                                                                                    ========================= */
         @media (max-width: 380px) {
 
-            .presence-time {
-                font-size: 17px;
+            .presence-time-value {
+                font-size: 16px;
+            }
+
+            .presence-times {
+                gap: 18px;
+            }
+
+            .subject-name {
+                font-size: 16px;
             }
 
             .menu-icon {
@@ -502,66 +765,125 @@
 
     <div class="content-wrapper">
 
-        {{-- PRESENCE --}}
+        {{-- PRESENCE HARI INI PER SUBJECT --}}
         <div class="section-title">
             Presensi Hari Ini
         </div>
 
         <div class="presence-grid">
 
-            {{-- MASUK --}}
-            <div class="presence-card presence-blue">
+            @forelse ($attendanceHariIni as $attendance)
 
-                <div class="presence-icon">
-                    @if ($attendancehariini != null)
-                        @php
-                            $path = Storage::url('/uploads/absensi/' . $attendancehariini->foto_in);
-                        @endphp
+                @php
+                    $colors = [
+                        'presence-blue',
+                        'presence-green',
+                        'presence-orange',
+                        'presence-purple'
+                    ];
 
-                        <img src="{{ asset($path) }}">
-                    @else
-                        <ion-icon name="camera-outline"></ion-icon>
-                    @endif
+                    $colorClass =
+                        $colors[$loop->index % count($colors)];
+
+                    $jamIn = $attendance->jam_in
+                        ? date('H:i', strtotime($attendance->jam_in))
+                        : '-';
+
+                    $jamOut = $attendance->jam_out
+                        ? date('H:i', strtotime($attendance->jam_out))
+                        : '-';
+
+                    $fotoIn = null;
+
+                    if (!empty($attendance->foto_in)) {
+                        $fotoIn = Storage::url(
+                            '/uploads/absensi/' . $attendance->foto_in
+                        );
+                    }
+
+                    $isLate = false;
+
+                    if (
+                        !empty($attendance->jam_in) &&
+                        !empty($attendance->batas_telat)
+                    ) {
+                        $isLate =
+                            strtotime($attendance->jam_in) >
+                            strtotime($attendance->batas_telat);
+                    }
+                @endphp
+
+                <div class="presence-card {{ $colorClass }}">
+
+                    <div class="presence-icon">
+                        @if ($fotoIn)
+                            <img src="{{ asset($fotoIn) }}" alt="Foto Presensi">
+                        @else
+                            <ion-icon name="book-outline"></ion-icon>
+                        @endif
+                    </div>
+
+                    <div class="presence-main">
+
+                        <div class="subject-name">
+                            {{ $attendance->nama_mapel }}
+                        </div>
+
+                        <div class="teacher-name">
+                            {{ $attendance->nama_guru }}
+                            @if (!empty($attendance->nama_kelas))
+                                • {{ $attendance->nama_kelas }}
+                            @endif
+                        </div>
+
+                        <div class="presence-meta">
+                            <div class="presence-time">
+                                <span>Masuk</span>
+                                {{ $jamIn }}
+                            </div>
+
+                            <div class="presence-time">
+                                <span>Pulang</span>
+                                {{ $jamOut }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="presence-status">
+                        @if ($isLate)
+                            ⚠ Telat
+                        @elseif ($attendance->jam_out)
+                            ✓ Selesai
+                        @else
+                            ✓ Hadir
+                        @endif
+                    </div>
+
                 </div>
 
-                <div class="presence-title">
-                    Jam Masuk
+            @empty
+
+                <div class="empty-presence">
+                    <ion-icon name="calendar-outline"></ion-icon>
+
+                    <div style="font-weight:600;">
+                        Belum ada presensi hari ini
+                    </div>
+
+                    <div style="font-size:12px; margin-top:4px;">
+                        Presensi setiap mata pelajaran akan muncul di sini.
+                    </div>
                 </div>
 
-                <div class="presence-time">
-                    {{ $attendancehariini != null ? $attendancehariini->jam_in : 'Belum Absen' }}
-                </div>
-
-            </div>
-
-            {{-- PULANG --}}
-            <div class="presence-card presence-red">
-
-                <div class="presence-icon">
-                    @if ($attendancehariini != null && $attendancehariini->jam_out != null)
-                        @php
-                            $path = Storage::url('/uploads/absensi/' . $attendancehariini->foto_out);
-                        @endphp
-
-                        <img src="{{ asset($path) }}">
-                    @else
-                        <ion-icon name="camera-outline"></ion-icon>
-                    @endif
-                </div>
-
-                <div class="presence-title">
-                    Jam Pulang
-                </div>
-
-                <div class="presence-time">
-                    {{ $attendancehariini != null && $attendancehariini->jam_out != null ? $attendancehariini->jam_out : 'Belum Absen' }}
-                </div>
-
-            </div>
+            @endforelse
 
         </div>
 
-        {{-- REKAP --}}
+        {{-- REKAP BULANAN
+        Hadir/Izin/Sakit/Alpa = per hari
+        Telat = per subject/session
+        --}}
         <div class="section-title mt-4">
             Rekap {{ $namabulan[$bulanini] }} {{ $tahunini }}
         </div>
@@ -664,6 +986,7 @@
             </div>
 
         </div>
+
         {{-- TABS --}}
         <div class="mt-4">
 
@@ -685,41 +1008,79 @@
 
             <div class="tab-content">
 
-                {{-- HISTORI --}}
+                {{-- HISTORI PER SUBJECT --}}
                 <div class="tab-pane fade show active" id="home">
 
-                    @foreach ($historibulanini as $d)
+                    @forelse ($historibulanini as $d)
+
+                        @php
+                            $jamIn = $d->jam_in
+                                ? date('H:i', strtotime($d->jam_in))
+                                : '-';
+
+                            $jamOut = $d->jam_out
+                                ? date('H:i', strtotime($d->jam_out))
+                                : '-';
+
+                            $isLate = false;
+
+                            if (
+                                !empty($d->jam_in) &&
+                                !empty($d->batas_telat)
+                            ) {
+                                $isLate =
+                                    strtotime($d->jam_in) >
+                                    strtotime($d->batas_telat);
+                            }
+                        @endphp
 
                         <div class="history-card">
 
                             <div class="history-left">
 
                                 <div class="history-icon">
-                                    <ion-icon name="calendar-outline"></ion-icon>
+                                    <ion-icon name="book-outline"></ion-icon>
                                 </div>
 
                                 <div>
+
                                     <div class="history-date">
                                         {{ date('d M Y', strtotime($d->tgl_presensi)) }}
                                     </div>
 
                                     <div class="history-time">
-                                        Masuk:
-                                        {{ $d->jam_in }}
+                                        {{ $d->nama_mapel }}
                                     </div>
+
+                                    <div class="history-time">
+                                        {{ $d->nama_guru }}
+                                    </div>
+
+                                    <div class="history-time">
+                                        Masuk: {{ $jamIn }}
+                                        &nbsp; • &nbsp;
+                                        Pulang: {{ $jamOut }}
+                                    </div>
+
                                 </div>
 
                             </div>
 
                             <div>
-                                <span class="badge-custom badge-success">
-                                    {{ $d->jam_in }}
+                                <span class="badge-custom {{ $isLate ? 'badge-danger' : 'badge-success' }}">
+                                    {{ $isLate ? 'Telat' : 'Hadir' }}
                                 </span>
                             </div>
 
                         </div>
 
-                    @endforeach
+                    @empty
+
+                        <div class="empty-presence">
+                            Belum ada histori presensi bulan ini.
+                        </div>
+
+                    @endforelse
 
                 </div>
 
