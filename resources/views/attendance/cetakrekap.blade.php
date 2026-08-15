@@ -95,7 +95,7 @@
             <td>
                 <span id="title">
                     REKAP PRESENSI SISWA <br>
-                    MATA PELAJARAN: {{ $mataPelajaran->nama_mapel ?? '-' }} <br>
+                    MATA PELAJARA   N: {{ $mataPelajaran->nama_mapel ?? '-' }} <br>
                     PERIODE {{ strtoupper($namabulan[$bulan]) }} {{ $tahun }} <br>
                     SMK SMART CIKARANG <br>
                 </span>
