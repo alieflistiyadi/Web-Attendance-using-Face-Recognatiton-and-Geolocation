@@ -18,31 +18,82 @@ class SiswaImport implements ToCollection
     {
         foreach ($rows->skip(1) as $row) {
 
-            // Cek apakah jumlah kolom lengkap
+            // ===========================
+            // Cek jumlah kolom
+            // ===========================
+
             if (count($row) < 5) {
                 $this->failed++;
                 $this->errors[] = "Format data tidak lengkap.";
                 continue;
             }
 
+            // ===========================
+            // Ambil data dari Excel
+            // ===========================
+
+            $nis = trim((string) $row[0]);
+            $nama = trim((string) $row[1]);
+            $kelas = trim((string) $row[2]);
+            $kodeJurusan = strtoupper(trim((string) $row[3]));
+            $noHpExcel = trim((string) $row[4]);
+
+            // ===========================
             // Lewati baris kosong
-            if (empty($row[0])) {
+            // ===========================
+
+            if ($nis === '') {
                 continue;
             }
 
-            // Cek apakah NIS sudah ada
-            if (Siswa::where('nis', $row[0])->exists()) {
+            // ===========================
+            // Format NIS
+            // ===========================
+
+            /*
+             * Kalau Excel membaca:
+             * 00123456
+             *
+             * menjadi:
+             * 123456
+             *
+             * maka tambahkan kembali angka 0
+             * sampai maksimal 8 digit.
+             */
+
+            if (ctype_digit($nis)) {
+                $nis = str_pad($nis, 8, '0', STR_PAD_LEFT);
+            }
+
+            // Batasi maksimal 10 karakter
+            if (strlen($nis) > 10) {
                 $this->failed++;
-                $this->errors[] = "NIS {$row[0]} sudah terdaftar.";
+                $this->errors[] = "NIS {$nis} maksimal 10 karakter.";
                 continue;
             }
 
+            // ===========================
+            // Cek NIS sudah ada
+            // ===========================
+
+            if (Siswa::where('nis', $nis)->exists()) {
+                $this->failed++;
+                $this->errors[] = "NIS {$nis} sudah terdaftar.";
+                continue;
+            }
+
+            // ===========================
             // Cek jurusan
-            $jurusan = Jurusan::where('kode_jurusan', $row[3])->first();
+            // ===========================
+
+            $jurusan = Jurusan::where(
+                'kode_jurusan',
+                $kodeJurusan
+            )->first();
 
             if (!$jurusan) {
                 $this->failed++;
-                $this->errors[] = "Kode jurusan {$row[3]} tidak ditemukan.";
+                $this->errors[] = "Kode jurusan {$kodeJurusan} tidak ditemukan.";
                 continue;
             }
 
@@ -51,19 +102,19 @@ class SiswaImport implements ToCollection
             // ===========================
 
             // Ambil angka saja
-            $hp = preg_replace('/\D/', '', (string) $row[4]);
+            $hp = preg_replace('/\D/', '', $noHpExcel);
 
-            // Jika diawali 620 -> ubah menjadi 62
+            // Jika diawali 620
             if (str_starts_with($hp, '620')) {
                 $hp = '62' . substr($hp, 3);
             }
 
-            // Jika diawali 0 -> ubah menjadi 62
+            // Jika diawali 0
             elseif (str_starts_with($hp, '0')) {
                 $hp = '62' . substr($hp, 1);
             }
 
-            // Jika belum diawali 62 -> tambahkan 62
+            // Jika belum diawali 62
             elseif (!str_starts_with($hp, '62')) {
                 $hp = '62' . $hp;
             }
@@ -71,24 +122,25 @@ class SiswaImport implements ToCollection
             // Validasi nomor HP
             if (!preg_match('/^62\d{9,13}$/', $hp)) {
                 $this->failed++;
-                $this->errors[] = "Nomor HP {$row[4]} tidak valid.";
+                $this->errors[] = "Nomor HP {$noHpExcel} tidak valid.";
                 continue;
             }
 
-            // Tambahkan tanda +
+            // Tambahkan +
             $hp = '+' . $hp;
 
             // ===========================
             // Simpan Data
             // ===========================
+
             Siswa::create([
-                'nis'                  => $row[0],
-                'nama_lengkap'         => $row[1],
-                'kelas'                => $row[2],
-                'kode_jurusan'         => $row[3],
-                'no_hp'                => $hp,
-                'password'             => Hash::make('12345678'),
-                'is_default_password'  => 1,
+                'nis' => $nis,
+                'nama_lengkap' => $nama,
+                'kelas' => $kelas,
+                'kode_jurusan' => $kodeJurusan,
+                'no_hp' => $hp,
+                'password' => Hash::make('12345678'),
+                'is_default_password' => 1,
             ]);
 
             $this->success++;

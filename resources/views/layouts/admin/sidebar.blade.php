@@ -286,9 +286,9 @@
             <div class="dropdown-menu">
               <div class="dropdown-menu-columns">
                 <div class="dropdown-menu-column">
-                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/10') }}">Kelas 10</a>
-                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/11') }}">Kelas 11</a>
-                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/12') }}">Kelas 12</a>
+                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/10') }}">Kelas X</a>
+                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/11') }}">Kelas XI</a>
+                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/12') }}">Kelas XII</a>
                 </div>
               </div>
             </div>
@@ -314,9 +314,9 @@
             <div class="dropdown-menu">
               <div class="dropdown-menu-columns">
                 <div class="dropdown-menu-column">
-                  <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/10') }}">Kelas 10</a>
-                  <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/11') }}">Kelas 11</a>
-                  <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/12') }}">Kelas 12</a>
+                  <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/10') }}">Kelas X</a>
+                  <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/11') }}">Kelas XI</a>
+                  <a class="dropdown-item" href="{{ url('/attendance/izinsakit/kelas/12') }}">Kelas XII</a>
                 </div>
               </div>
             </div>

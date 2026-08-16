@@ -44,10 +44,11 @@ class ImportController extends Controller
         $sheet->setCellValue('D1', 'Kode Jurusan');
         $sheet->setCellValue('E1', 'No HP');
 
+        // Contoh data
         $sheet->setCellValue('A2', '00123456');
         $sheet->setCellValue('B2', 'Budi Santoso');
-        $sheet->setCellValue('C2', '10');
-        $sheet->setCellValue('D2', 'TM');
+        $sheet->setCellValue('C2', 'X TJKT 1');
+        $sheet->setCellValue('D2', 'TJKT');
         $sheet->setCellValue('E2', '081234567890');
 
         // Header bold
@@ -70,13 +71,16 @@ class ImportController extends Controller
         // Lebar kolom
         $sheet->getColumnDimension('A')->setWidth(20);
         $sheet->getColumnDimension('B')->setWidth(35);
-        $sheet->getColumnDimension('C')->setWidth(12);
+        $sheet->getColumnDimension('C')->setWidth(20);
         $sheet->getColumnDimension('D')->setWidth(18);
         $sheet->getColumnDimension('E')->setWidth(20);
 
         // Format TEXT untuk NIS & No HP
-        $sheet->getStyle('A:A')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
-        $sheet->getStyle('E:E')->getNumberFormat()->setFormatCode(NumberFormat::FORMAT_TEXT);
+        $sheet->getStyle('A:A')->getNumberFormat()
+            ->setFormatCode(NumberFormat::FORMAT_TEXT);
+
+        $sheet->getStyle('E:E')->getNumberFormat()
+            ->setFormatCode(NumberFormat::FORMAT_TEXT);
 
         $writer = new Xlsx($spreadsheet);
 
