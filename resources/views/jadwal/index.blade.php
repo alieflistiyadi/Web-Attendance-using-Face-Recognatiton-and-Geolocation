@@ -946,11 +946,7 @@
 
                                     <option value="{{ $k->id }}">
 
-                                        {{ $k->tingkat }}
-                                        -
                                         {{ $k->nama_kelas }}
-                                        -
-                                        {{ $k->kode_jurusan }}
 
                                     </option>
 
