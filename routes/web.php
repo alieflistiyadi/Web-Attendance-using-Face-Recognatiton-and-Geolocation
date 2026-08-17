@@ -606,15 +606,8 @@ Route::middleware([
 
         Route::get(
             '/attendance/monitoring',
-            [AttendanceController::class, 'monitoring']
-        )->name('monitoring');
-
-
-        Route::get(
-            '/attendance/monitoring/kelas/{kelas}',
             [AttendanceController::class, 'monitoringKelas']
-        )->name('monitoring.kelas');
-
+        )->name('monitoring');
 
         /*
         |--------------------------------------------------------------------------
@@ -797,7 +790,8 @@ Route::middleware([
         )->name('konfigurasi.wali_kelas');
 
         Route::post
-            ('/konfigurasi/update-wali-kelas',
+        (
+            '/konfigurasi/update-wali-kelas',
             [KonfigurasiController::class, 'updateWaliKelas']
         )->name('konfigurasi.update_wali_kelas');
     });

@@ -1141,15 +1141,7 @@ class AttendanceController extends Controller
         // =========================
         // SIMPAN PENGAJUAN + DETAIL
         // =========================
-        DB::transaction(function () use (
-            $nis,
-            $tanggal_izin,
-            $status,
-            $keterangan,
-            $surat_izin,
-            $surat_sakit,
-            $waliKelasId
-        ) {
+        DB::transaction(function () use ($nis, $tanggal_izin, $status, $keterangan, $surat_izin, $surat_sakit, $waliKelasId) {
 
             // Pengajuan utama
             $pengajuanId = DB::table('pengajuan_izin')
@@ -1306,135 +1298,530 @@ class AttendanceController extends Controller
             ->with('success', 'Pengajuan berhasil dihapus.');
     }
 
-    public function monitoringKelas($kelas)
+    public function monitoringKelas()
     {
-        $jurusan = DB::table('jurusan')->get();
+        /*
+        |--------------------------------------------------------------------------
+        | GURU YANG SEDANG LOGIN
+        |--------------------------------------------------------------------------
+        */
+        $guruId = Auth::guard('user')->id();
 
-        return view('attendance.monitoring_kelas', compact(
-            'kelas',
-            'jurusan'
-        ));
+        if (!$guruId) {
+            abort(403, 'Akun guru tidak ditemukan.');
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL SEMUA PENUGASAN GURU
+        |--------------------------------------------------------------------------
+        |
+        | Sistem hanya mengambil kelas dan mata pelajaran
+        | yang memang dimiliki oleh guru yang sedang login.
+        |
+        | Tidak lagi menggunakan parameter tingkat X, XI, XII
+        | dari URL.
+        |
+        */
+        $penugasan = DB::table('guru_mata_pelajaran as gmp')
+            ->join(
+                'kelas as k',
+                'gmp.kelas_id',
+                '=',
+                'k.id'
+            )
+            ->join(
+                'mata_pelajaran as mp',
+                'gmp.mata_pelajaran_id',
+                '=',
+                'mp.id'
+            )
+            ->where(
+                'gmp.guru_id',
+                $guruId
+            )
+            ->select(
+                'gmp.id as penugasan_id',
+                'gmp.kelas_id',
+                'gmp.mata_pelajaran_id',
+                'k.nama_kelas',
+                'k.kode_jurusan',
+                'k.tingkat',
+                'mp.nama_mapel'
+            )
+            ->orderBy('k.tingkat')
+            ->orderBy('k.nama_kelas')
+            ->orderBy('mp.nama_mapel')
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DAFTAR KELAS GURU
+        |--------------------------------------------------------------------------
+        |
+        | Satu kelas hanya ditampilkan satu kali.
+        |
+        */
+        $kelasList = $penugasan
+            ->unique('kelas_id')
+            ->values();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA PENUGASAN BERDASARKAN KELAS
+        |--------------------------------------------------------------------------
+        |
+        | Digunakan oleh Blade untuk menampilkan
+        | mata pelajaran sesuai kelas yang dipilih.
+        |
+        */
+        $penugasanByKelas = $penugasan
+            ->groupBy('kelas_id')
+            ->map(function ($items) {
+
+                return $items
+                    ->values()
+                    ->map(function ($item) {
+
+                        return [
+                            'penugasan_id' => $item->penugasan_id,
+                            'kelas_id' => $item->kelas_id,
+                            'mata_pelajaran_id' => $item->mata_pelajaran_id,
+                            'nama_mapel' => $item->nama_mapel,
+                        ];
+
+                    });
+
+            });
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TINGKAT
+        |--------------------------------------------------------------------------
+        |
+        | Tidak lagi dipakai sebagai parameter URL.
+        | Variabel tetap dikirim ke Blade agar Blade lama
+        | yang masih menggunakan $tingkat / $tingkatNama
+        | tidak langsung error.
+        |
+        */
+        $tingkat = null;
+        $tingkatNama = null;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN VIEW
+        |--------------------------------------------------------------------------
+        */
+        return view(
+            'attendance.monitoring_kelas',
+            compact(
+                'tingkat',
+                'tingkatNama',
+                'kelasList',
+                'penugasanByKelas'
+            )
+        );
     }
 
     public function getattendancekelas(Request $request)
     {
-        $tanggal = date('Y-m-d', strtotime($request->tanggal));
-        $kelas = $request->kelas;
-        $kode_jurusan = $request->kode_jurusan;
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDASI
+        |--------------------------------------------------------------------------
+        */
 
-        $hari = Carbon::parse($tanggal)->dayOfWeekIso;
+        $request->validate([
+            'tanggal' => 'required',
+            'kelas_id' => 'required|integer',
+            'penugasan_id' => 'required|integer',
+        ]);
+
 
         /*
         |--------------------------------------------------------------------------
-        | Ambil attendance + mata pelajaran + jadwal
-        |--------------------------------------------------------------------------
-        | Join jadwal dibatasi berdasarkan hari agar penugasan yang sama
-        | pada hari berbeda tidak menyebabkan data menjadi duplikat.
+        | GURU LOGIN
         |--------------------------------------------------------------------------
         */
-        $presensi = DB::table('attendance')
-            ->select(
-                'attendance.*',
-                'siswa.nama_lengkap',
-                'jurusan.nama_jurusan',
-                'siswa.kelas',
-                'mata_pelajaran.nama_mapel',
-                'jadwal_pelajaran.jam_mulai',
-                'jadwal_pelajaran.jam_selesai',
-                'jadwal_pelajaran.jam_mulai_absen',
-                'jadwal_pelajaran.batas_telat'
-            )
-            ->join(
-                'siswa',
-                'attendance.nis',
-                '=',
-                'siswa.nis'
-            )
-            ->join(
-                'jurusan',
-                'siswa.kode_jurusan',
-                '=',
-                'jurusan.kode_jurusan'
-            )
-            ->leftJoin(
-                'jadwal_pelajaran',
-                function ($join) use ($hari) {
-                    $join->on(
-                        'attendance.penugasan_id',
-                        '=',
-                        'jadwal_pelajaran.penugasan_id'
-                    )
-                        ->where('jadwal_pelajaran.hari', '=', $hari);
-                }
-            )
-            ->leftJoin(
-                'guru_mata_pelajaran',
-                'jadwal_pelajaran.penugasan_id',
-                '=',
-                'guru_mata_pelajaran.id'
-            )
-            ->leftJoin(
-                'mata_pelajaran',
-                'guru_mata_pelajaran.mata_pelajaran_id',
-                '=',
-                'mata_pelajaran.id'
-            )
-            ->where('attendance.tgl_presensi', $tanggal)
-            ->where('siswa.kelas', $kelas);
 
-        if (!empty($kode_jurusan)) {
-            $presensi->where('siswa.kode_jurusan', $kode_jurusan);
+        $guruId = Auth::guard('user')->id();
+
+        if (!$guruId) {
+
+            return response(
+                '<tr>
+                <td colspan="10"
+                    class="text-center text-danger py-5">
+                    Akun guru tidak ditemukan.
+                </td>
+            </tr>',
+                403
+            );
         }
 
-        $presensi = $presensi
-            ->orderBy('jadwal_pelajaran.jam_mulai')
-            ->orderBy('siswa.nama_lengkap')
-            ->get();
 
         /*
         |--------------------------------------------------------------------------
-        | Hitung status Tepat Waktu / Terlambat berdasarkan jadwal masing-masing.
+        | FORMAT TANGGAL
         |--------------------------------------------------------------------------
         */
-        $presensi->transform(function ($item) {
 
-            if (!empty($item->jam_in) && !empty($item->batas_telat)) {
+        try {
 
-                $jamMasuk = Carbon::parse($item->jam_in);
-                $batasTelat = Carbon::parse($item->batas_telat);
+            $tanggal = Carbon::createFromFormat(
+                'd-m-Y',
+                $request->tanggal
+            )->format('Y-m-d');
 
-                if ($jamMasuk->lessThanOrEqualTo($batasTelat)) {
+        } catch (\Exception $e) {
+
+            return response(
+                '<tr>
+                <td colspan="10"
+                    class="text-center text-danger py-4">
+                    Format tanggal tidak valid.
+                </td>
+            </tr>',
+                422
+            );
+        }
+
+
+        $kelasId = (int) $request->kelas_id;
+
+        $penugasanId = (int) $request->penugasan_id;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PASTIKAN PENUGASAN MILIK GURU LOGIN
+        |--------------------------------------------------------------------------
+        |
+        | Ini penting supaya guru tidak bisa melihat
+        | attendance guru lain hanya dengan mengubah request.
+        |
+        */
+
+        $penugasan = DB::table('guru_mata_pelajaran as gmp')
+
+            ->join(
+                'kelas as k',
+                'gmp.kelas_id',
+                '=',
+                'k.id'
+            )
+
+            ->join(
+                'mata_pelajaran as mp',
+                'gmp.mata_pelajaran_id',
+                '=',
+                'mp.id'
+            )
+
+            ->where(
+                'gmp.id',
+                $penugasanId
+            )
+
+            ->where(
+                'gmp.guru_id',
+                $guruId
+            )
+
+            ->where(
+                'gmp.kelas_id',
+                $kelasId
+            )
+
+            ->select(
+                'gmp.id as penugasan_id',
+                'gmp.kelas_id',
+                'gmp.mata_pelajaran_id',
+                'k.nama_kelas',
+                'k.kode_jurusan',
+                'k.tingkat',
+                'mp.nama_mapel'
+            )
+
+            ->first();
+
+
+        if (!$penugasan) {
+
+            return response(
+                '<tr>
+                <td colspan="10"
+                    class="text-center text-danger py-5">
+
+                    Anda tidak memiliki akses untuk melihat
+                    mata pelajaran atau kelas tersebut.
+
+                </td>
+            </tr>',
+                403
+            );
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HARI
+        |--------------------------------------------------------------------------
+        */
+
+        $hari = Carbon::parse($tanggal)
+            ->dayOfWeekIso;
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL JADWAL UNTUK PENUGASAN TERSEBUT
+        |--------------------------------------------------------------------------
+        */
+
+        $jadwal = DB::table('jadwal_pelajaran')
+
+            ->where(
+                'penugasan_id',
+                $penugasanId
+            )
+
+            ->where(
+                'hari',
+                $hari
+            )
+
+            ->where(
+                'status',
+                1
+            )
+
+            ->orderBy('jam_mulai')
+
+            ->first();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | AMBIL SEMUA SISWA DALAM KELAS
+        |--------------------------------------------------------------------------
+        |
+        | Bukan berdasarkan jurusan lagi.
+        |
+        | Kelas ditentukan dari:
+        | kelas.id
+        |
+        */
+
+        $presensi = DB::table('siswa as s')
+
+            ->join(
+                'kelas as k',
+                function ($join) {
+
+                    $join->on(
+                        's.kelas',
+                        '=',
+                        'k.nama_kelas'
+                    );
+
+                    $join->on(
+                        's.kode_jurusan',
+                        '=',
+                        'k.kode_jurusan'
+                    );
+
+                }
+            )
+
+            ->leftJoin(
+                'jurusan as j',
+                's.kode_jurusan',
+                '=',
+                'j.kode_jurusan'
+            )
+
+            ->leftJoin(
+                'attendance as a',
+                function ($join) use ($tanggal, $penugasanId) {
+
+                    $join->on(
+                        's.nis',
+                        '=',
+                        'a.nis'
+                    );
+
+                    $join->where(
+                        'a.tgl_presensi',
+                        '=',
+                        $tanggal
+                    );
+
+                    $join->where(
+                        'a.penugasan_id',
+                        '=',
+                        $penugasanId
+                    );
+
+                }
+            )
+
+            ->where(
+                'k.id',
+                $kelasId
+            )
+
+            ->select(
+                'a.id',
+                'a.nis as attendance_nis',
+                'a.penugasan_id',
+                'a.tgl_presensi',
+                'a.jam_in',
+                'a.jam_out',
+                'a.foto_in',
+                'a.foto_out',
+                'a.location_in',
+                'a.location_out',
+
+                's.nis',
+                's.nama_lengkap',
+                's.kelas',
+                's.kode_jurusan',
+
+                'j.nama_jurusan'
+            )
+
+            ->orderBy(
+                's.nama_lengkap'
+            )
+
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HITUNG STATUS KEHADIRAN
+        |--------------------------------------------------------------------------
+        */
+
+        $presensi->transform(
+            function ($item) use ($jadwal) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | BELUM ABSEN
+                |--------------------------------------------------------------------------
+                */
+
+                if (empty($item->jam_in)) {
+
+                    $item->tepat_waktu = false;
+
+                    $item->terlambat = 0;
+
+                    $item->status = 'Belum Absen';
+
+                    $item->status_class = 'status-danger';
+
+                    return $item;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | JADWAL TIDAK DITEMUKAN
+                |--------------------------------------------------------------------------
+                */
+
+                if (
+                    !$jadwal ||
+                    empty($jadwal->batas_telat)
+                ) {
 
                     $item->tepat_waktu = true;
+
                     $item->terlambat = 0;
+
                     $item->status = 'Tepat Waktu';
+
                     $item->status_class = 'status-success';
+
+                    return $item;
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | HITUNG TERLAMBAT
+                |--------------------------------------------------------------------------
+                */
+
+                $jamMasuk = Carbon::parse(
+                    $item->jam_in
+                );
+
+                $batasTelat = Carbon::parse(
+                    $jadwal->batas_telat
+                );
+
+
+                if (
+                    $jamMasuk->lessThanOrEqualTo(
+                        $batasTelat
+                    )
+                ) {
+
+                    $item->tepat_waktu = true;
+
+                    $item->terlambat = 0;
+
+                    $item->status = 'Tepat Waktu';
+
+                    $item->status_class =
+                        'status-success';
 
                 } else {
 
                     $item->tepat_waktu = false;
+
                     $item->terlambat =
-                        $batasTelat->diffInMinutes($jamMasuk);
+                        $batasTelat->diffInMinutes(
+                            $jamMasuk
+                        );
 
                     $item->status =
-                        'Terlambat ' . $item->terlambat . ' Menit';
+                        'Terlambat '
+                        . $item->terlambat
+                        . ' Menit';
 
-                    $item->status_class = 'status-warning';
+                    $item->status_class =
+                        'status-warning';
                 }
 
-            } else {
 
-                // Data attendance lama yang belum mempunyai jadwal.
-                $item->tepat_waktu = true;
-                $item->terlambat = 0;
-                $item->status = 'Tepat Waktu';
-                $item->status_class = 'status-success';
+                return $item;
             }
+        );
 
-            return $item;
-        });
 
-        return view('attendance.getattendance', compact('presensi'));
+        /*
+        |--------------------------------------------------------------------------
+        | RETURN VIEW AJAX
+        |--------------------------------------------------------------------------
+        */
+
+        return view(
+            'attendance.getattendance',
+            compact(
+                'presensi'
+            )
+        );
     }
 
     public function tampilkanpeta(Request $request)

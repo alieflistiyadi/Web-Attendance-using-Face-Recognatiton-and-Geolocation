@@ -266,32 +266,37 @@
           </li>
 
           {{-- PEMANTAUAN KEHADIRAN --}}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#navbar-monitoring" data-bs-toggle="dropdown"
-              data-bs-auto-close="false" role="button" aria-expanded="false">
+          <li class="nav-item">
+
+            <a class="nav-link" href="{{ url('/attendance/monitoring') }}">
+
               <span class="nav-link-icon d-md-none d-lg-inline-block">
+
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
                   <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+
                   <path d="M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z" />
+
                   <path d="M7 20h10" />
+
                   <path d="M9 16v4" />
+
                   <path d="M15 16v4" />
+
                   <path d="M7 10h2l2 3l2 -6l1 3h3" />
+
                 </svg>
+
               </span>
-              <span class="nav-link-title">Pemantauan Kehadiran</span>
+
+              <span class="nav-link-title">
+                Pemantauan Kehadiran
+              </span>
+
             </a>
 
-            <div class="dropdown-menu">
-              <div class="dropdown-menu-columns">
-                <div class="dropdown-menu-column">
-                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/10') }}">Kelas X</a>
-                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/11') }}">Kelas XI</a>
-                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/12') }}">Kelas XII</a>
-                </div>
-              </div>
-            </div>
           </li>
 
           {{-- DATA IZIN / SAKIT --}}
@@ -482,32 +487,37 @@
           </li>
 
           {{-- PEMANTAUAN KEHADIRAN --}}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#navbar-monitoring-guru" data-bs-toggle="dropdown"
-              data-bs-auto-close="false" role="button" aria-expanded="false">
+          <li class="nav-item">
+
+            <a class="nav-link" href="{{ url('/attendance/monitoring') }}">
+
               <span class="nav-link-icon d-md-none d-lg-inline-block">
+
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+
                   <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+
                   <path d="M3 5a1 1 0 0 1 1 -1h16a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-16a1 1 0 0 1 -1 -1z" />
+
                   <path d="M7 20h10" />
+
                   <path d="M9 16v4" />
+
                   <path d="M15 16v4" />
+
                   <path d="M7 10h2l2 3l2 -6l1 3h3" />
+
                 </svg>
+
               </span>
-              <span class="nav-link-title">Pemantauan Kehadiran</span>
+
+              <span class="nav-link-title">
+                Pemantauan Kehadiran
+              </span>
+
             </a>
 
-            <div class="dropdown-menu">
-              <div class="dropdown-menu-columns">
-                <div class="dropdown-menu-column">
-                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/10') }}">Kelas X</a>
-                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/11') }}">Kelas XI</a>
-                  <a class="dropdown-item" href="{{ url('/attendance/monitoring/kelas/12') }}">Kelas XII</a>
-                </div>
-              </div>
-            </div>
           </li>
 
           {{-- DATA IZIN / SAKIT --}}

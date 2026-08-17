@@ -245,13 +245,9 @@
 
                                                     <span class="badge bg-blue-lt">
 
-                                                        {{ $item->kelas->tingkat }}
-                                                        -
+
                                                         {{ $item->kelas->nama_kelas }}
 
-                                                        @if($item->kelas->kode_jurusan)
-                                                            {{ $item->kelas->kode_jurusan }}
-                                                        @endif
 
                                                     </span>
 
