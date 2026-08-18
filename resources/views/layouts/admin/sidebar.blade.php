@@ -438,36 +438,33 @@
             </a>
           </li>
 
-          {{-- DATA SISWA --}}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#navbar-siswa-guru" data-bs-toggle="dropdown"
-              data-bs-auto-close="false" role="button" aria-expanded="false">
+          {{-- DATA SISWA GURU --}}
+          <li class="nav-item">
+
+            <a class="nav-link" href="{{ route('siswa.guru') }}">
+
               <span class="nav-link-icon d-md-none d-lg-inline-block">
+
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                   stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+
                   <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+
                   <path d="M12 3l8 4l-8 4l-8 -4l8 -4" />
+
                   <path d="M4 10v6c0 2 4 4 8 4s8 -2 8 -4v-6" />
+
                 </svg>
+
               </span>
-              <span class="nav-link-title">Data Siswa</span>
+
+              <span class="nav-link-title">
+                Data Siswa
+              </span>
+
             </a>
 
-            <div class="dropdown-menu">
-              <div class="dropdown-menu-columns">
-                <div class="dropdown-menu-column">
-                  <a class="dropdown-item" href="{{ url('/siswa/kelas/X TJKT 1') }}">X TJKT 1</a>
-                  <a class="dropdown-item" href="{{ url('/siswa/kelas/X TJKT 2') }}">X TJKT 2</a>
-                  <a class="dropdown-item" href="{{ url('/siswa/kelas/X TM') }}">X TM</a>
-                  <a class="dropdown-item" href="{{ url('/siswa/kelas/XI TJKT') }}">XI TJKT</a>
-                  <a class="dropdown-item" href="{{ url('/siswa/kelas/XI TM') }}">XI TM</a>
-                  <a class="dropdown-item" href="{{ url('/siswa/kelas/XII TJKT') }}">XII TJKT</a>
-                  <a class="dropdown-item" href="{{ url('/siswa/kelas/XII TM') }}">XII TM</a>
-                </div>
-              </div>
-            </div>
           </li>
-
           {{-- JURUSAN --}}
           <li class="nav-item">
             <a class="nav-link" href="{{ url('jurusan') }}">

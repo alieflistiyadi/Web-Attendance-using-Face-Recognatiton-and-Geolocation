@@ -34,11 +34,17 @@ Route::middleware('guest:siswa')->group(function () {
         return view('auth.login');
     })->name('login');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Login Siswa
+    |--------------------------------------------------------------------------
+    */
+
     Route::post(
         '/process-login',
         [AuthController::class, 'proseslogin']
     )->name('process-login');
-
 
 
     /*
@@ -402,72 +408,53 @@ Route::middleware([
 
     /*
     |--------------------------------------------------------------------------
-    | DATA SISWA
+    | JURUSAN
     |--------------------------------------------------------------------------
     |
-    | Untuk sementara tetap berada di auth:user seperti kode sebelumnya.
-    | Pembatasan lebih detail dapat dilakukan setelah struktur kelas
-    | dan mata pelajaran selesai.
+    | Bisa digunakan oleh user yang memiliki akses sesuai middleware.
     |
     */
 
     Route::get(
-        '/siswa/kelas/{kelas}',
-        [SiswaController::class, 'indexKelas']
-    )->name('siswa.kelas');
-
-    Route::get(
-        '/siswa',
-        [SiswaController::class, 'index']
+        '/jurusan',
+        [JurusanController::class, 'index']
     );
 
     Route::post(
-        '/siswa/store',
-        [SiswaController::class, 'store']
+        '/jurusan/store',
+        [JurusanController::class, 'store']
     );
 
     Route::post(
-        '/siswa/edit',
-        [SiswaController::class, 'edit']
+        '/jurusan/edit',
+        [JurusanController::class, 'edit']
     );
 
     Route::post(
-        '/siswa/{nis}/update',
-        [SiswaController::class, 'update']
+        '/jurusan/{kode_jurusan}/update',
+        [JurusanController::class, 'update']
     );
 
     Route::post(
-        '/siswa/{nis}/delete',
-        [SiswaController::class, 'delete']
+        '/jurusan/{kode_jurusan}/delete',
+        [JurusanController::class, 'delete']
     );
-
-    Route::post(
-        '/siswa/import',
-        [ImportController::class, 'import']
-    )->name('siswa.import');
-
-    Route::get(
-        '/siswa/template',
-        [ImportController::class, 'downloadTemplate']
-    )->name('siswa.template');
 
 
     /*
     |--------------------------------------------------------------------------
-    | GURU MANAGEMENT - KHUSUS SUPERADMIN
+    | JADWAL PELAJARAN
     |--------------------------------------------------------------------------
+    |
+    | Penugasan Guru + Mata Pelajaran + Kelas
+    |
     */
-    // ================================
-// JADWAL PELAJARAN
-// ================================
 
     Route::get(
         '/jadwal-pelajaran',
         [App\Http\Controllers\JadwalPelajaranController::class, 'index']
     )->name('jadwal.index');
 
-
-    // Penugasan Guru + Mapel + Kelas
     Route::post(
         '/jadwal-pelajaran/penugasan',
         [App\Http\Controllers\JadwalPelajaranController::class, 'storePenugasan']
@@ -499,100 +486,120 @@ Route::middleware([
         '/jadwal-pelajaran/{id}',
         [App\Http\Controllers\JadwalPelajaranController::class, 'deleteJadwal']
     )->name('jadwal.delete');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA SISWA - KHUSUS SUPERADMIN
+    |--------------------------------------------------------------------------
+    |
+    | Superadmin dapat melihat seluruh siswa dan seluruh kelas.
+    |
+    */
+
     Route::middleware('role:superadmin')->group(function () {
-
-        Route::get(
-            '/guru',
-            [GuruController::class, 'index']
-        );
-
-        Route::post(
-            '/guru/store',
-            [GuruController::class, 'store']
-        );
-
-        Route::post(
-            '/guru/edit',
-            [GuruController::class, 'edit']
-        );
-
-        Route::post(
-            '/guru/{id}/update',
-            [GuruController::class, 'update']
-        );
-
-        Route::post(
-            '/guru/{id}/delete',
-            [GuruController::class, 'delete']
-        );
-
 
         /*
         |--------------------------------------------------------------------------
-        | PERMINTAAN RESET PASSWORD - KHUSUS SUPERADMIN
+        | Data Siswa Semua
         |--------------------------------------------------------------------------
         */
 
         Route::get(
-            '/panel/reset-requests',
-            [PasswordResetRequestController::class, 'index']
-        )->name('reset-requests.index');
+            '/siswa',
+            [SiswaController::class, 'index']
+        )->name('siswa.index');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Data Siswa Per Kelas
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/siswa/kelas/{kelas}',
+            [SiswaController::class, 'indexKelas']
+        )->name('siswa.kelas');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Tambah Siswa
+        |--------------------------------------------------------------------------
+        */
 
         Route::post(
-            '/panel/reset-requests/{id}/approve',
-            [PasswordResetRequestController::class, 'approve']
-        )->name('reset-requests.approve');
+            '/siswa/store',
+            [SiswaController::class, 'store']
+        )->name('siswa.store');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Edit Siswa
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/siswa/edit',
+            [SiswaController::class, 'edit']
+        )->name('siswa.edit');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Update Siswa
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/siswa/{nis}/update',
+            [SiswaController::class, 'update']
+        )->name('siswa.update');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delete Siswa
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/siswa/{nis}/delete',
+            [SiswaController::class, 'delete']
+        )->name('siswa.delete');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Import Siswa
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/siswa/import',
+            [ImportController::class, 'import']
+        )->name('siswa.import');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Download Template Siswa
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/siswa/template',
+            [ImportController::class, 'downloadTemplate']
+        )->name('siswa.template');
     });
 
 
     /*
     |--------------------------------------------------------------------------
-    | JURUSAN
+    | MENU KHUSUS GURU
     |--------------------------------------------------------------------------
-    */
-
-    Route::get(
-        '/jurusan',
-        [JurusanController::class, 'index']
-    );
-
-    Route::post(
-        '/jurusan/store',
-        [JurusanController::class, 'store']
-    );
-
-    Route::post(
-        '/jurusan/edit',
-        [JurusanController::class, 'edit']
-    );
-
-    Route::post(
-        '/jurusan/{kode_jurusan}/update',
-        [JurusanController::class, 'update']
-    );
-
-    Route::post(
-        '/jurusan/{kode_jurusan}/delete',
-        [JurusanController::class, 'delete']
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ================================================================
-    | ATTENDANCE MONITORING - KHUSUS GURU
-    | ================================================================
-    |--------------------------------------------------------------------------
-    |
-    | POINT 4 REVISI:
-    |
-    | "The one who checked the attendance is the teacher not the operator"
-    |
-    | Dengan middleware role:guru:
-    |
-    | Guru       -> BOLEH
-    | Superadmin -> DITOLAK
-    |
     */
 
     Route::middleware('role:guru')->group(function () {
@@ -600,14 +607,118 @@ Route::middleware([
 
         /*
         |--------------------------------------------------------------------------
-        | Monitoring Attendance
+        | DATA SISWA GURU
         |--------------------------------------------------------------------------
+        |
+        | Guru hanya melihat siswa dari kelas dan mata pelajaran
+        | yang ditugaskan kepadanya.
+        |
+        */
+
+        Route::get(
+            '/siswa/guru',
+            [SiswaController::class, 'guruDataSiswa']
+        )->name('siswa.guru');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DATA SISWA GURU PER PENUGASAN
+        |--------------------------------------------------------------------------
+        |
+        | Digunakan apabila guru memilih kelas / mata pelajaran tertentu.
+        |
+        */
+
+        Route::get(
+            '/siswa/guru/{kelasId}/{penugasanId}',
+            [SiswaController::class, 'guruDataSiswaKelas']
+        )->name('siswa.guru.kelas');
+
+        /*
+|--------------------------------------------------------------------------
+| TAMBAH SISWA - KHUSUS GURU
+|--------------------------------------------------------------------------
+*/
+
+        Route::post(
+            '/siswa/guru/store',
+            [SiswaController::class, 'storeGuru']
+        )->name('siswa.guru.store');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | IMPORT SISWA - KHUSUS GURU
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/siswa/guru/import',
+            [ImportController::class, 'importGuru']
+        )->name('siswa.guru.import');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DOWNLOAD TEMPLATE - GURU
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/siswa/guru/template',
+            [ImportController::class, 'downloadTemplateGuru']
+        )->name('siswa.guru.template');
+
+        /*
+|--------------------------------------------------------------------------
+| EDIT SISWA - KHUSUS GURU
+|--------------------------------------------------------------------------
+*/
+
+        Route::post(
+            '/siswa/guru/edit',
+            [SiswaController::class, 'editGuru']
+        )->name('siswa.guru.edit');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE SISWA - KHUSUS GURU
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/siswa/guru/{nis}/update',
+            [SiswaController::class, 'updateGuru']
+        )->name('siswa.guru.update');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DELETE SISWA - KHUSUS GURU
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/siswa/guru/{nis}/delete',
+            [SiswaController::class, 'deleteGuru']
+        )->name('siswa.guru.delete');
+        /*
+        |--------------------------------------------------------------------------
+        | ATTENDANCE MONITORING
+        |--------------------------------------------------------------------------
+        |
+        | Guru hanya dapat memantau attendance berdasarkan
+        | kelas dan mata pelajaran yang ditugaskan.
+        |
         */
 
         Route::get(
             '/attendance/monitoring',
             [AttendanceController::class, 'monitoringKelas']
         )->name('monitoring');
+
 
         /*
         |--------------------------------------------------------------------------
@@ -674,8 +785,8 @@ Route::middleware([
         | IZIN / SAKIT - KHUSUS GURU
         |--------------------------------------------------------------------------
         |
-        | Guru memeriksa pengajuan izin/sakit siswa sebelum memberikan
-        | persetujuan.
+        | Guru memeriksa pengajuan izin/sakit siswa sebelum
+        | memberikan persetujuan.
         |
         */
 
@@ -706,32 +817,68 @@ Route::middleware([
 
     /*
     |--------------------------------------------------------------------------
-    | UPDATE PASSWORD
+    | MANAJEMEN AKUN GURU
     |--------------------------------------------------------------------------
     |
-    | Tetap dapat digunakan oleh user yang sudah login.
+    | Hanya Superadmin.
     |
     */
 
-    Route::post(
-        '/attendance/updatePassword',
-        [AttendanceController::class, 'updatePassword']
-    )->name('attendance.updatePassword');
+    Route::middleware('role:superadmin')->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Guru
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/guru',
+            [GuruController::class, 'index']
+        )->name('guru.index');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CEK PENGAJUAN IZIN
-    |--------------------------------------------------------------------------
-    |
-    | Route ini dipertahankan sesuai kode sebelumnya.
-    |
-    */
+        Route::post(
+            '/guru/store',
+            [GuruController::class, 'store']
+        )->name('guru.store');
 
-    Route::post(
-        '/attendance/cekpengajuanizin',
-        [AttendanceController::class, 'cekpengajuanizin']
-    )->name('attendance.cekpengajuanizin');
+
+        Route::post(
+            '/guru/edit',
+            [GuruController::class, 'edit']
+        )->name('guru.edit');
+
+
+        Route::post(
+            '/guru/{id}/update',
+            [GuruController::class, 'update']
+        )->name('guru.update');
+
+
+        Route::post(
+            '/guru/{id}/delete',
+            [GuruController::class, 'delete']
+        )->name('guru.delete');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PERMINTAAN RESET PASSWORD
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/panel/reset-requests',
+            [PasswordResetRequestController::class, 'index']
+        )->name('reset-requests.index');
+
+
+        Route::post(
+            '/panel/reset-requests/{id}/approve',
+            [PasswordResetRequestController::class, 'approve']
+        )->name('reset-requests.approve');
+    });
 
 
     /*
@@ -780,21 +927,48 @@ Route::middleware([
 
         /*
         |--------------------------------------------------------------------------
-        | Wali Kelas
+        | Jadwal / Wali Kelas
         |--------------------------------------------------------------------------
         */
 
-        Route::get('
-            /konfigurasi/wali-kelas',
+        Route::get(
+            '/konfigurasi/wali-kelas',
             [KonfigurasiController::class, 'waliKelas']
         )->name('konfigurasi.wali_kelas');
 
-        Route::post
-        (
+
+        Route::post(
             '/konfigurasi/update-wali-kelas',
             [KonfigurasiController::class, 'updateWaliKelas']
         )->name('konfigurasi.update_wali_kelas');
     });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE PASSWORD
+    |--------------------------------------------------------------------------
+    |
+    | Dapat digunakan oleh user yang sudah login.
+    |
+    */
+
+    Route::post(
+        '/attendance/updatePassword',
+        [AttendanceController::class, 'updatePassword']
+    )->name('attendance.updatePassword');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CEK PENGAJUAN IZIN
+    |--------------------------------------------------------------------------
+    */
+
+    Route::post(
+        '/attendance/cekpengajuanizin',
+        [AttendanceController::class, 'cekpengajuanizin']
+    )->name('attendance.cekpengajuanizin');
 
 
     /*
@@ -813,5 +987,3 @@ Route::middleware([
         [AdminController::class, 'updateSetting']
     );
 });
-
-// <!-- ini kode web.php -->
