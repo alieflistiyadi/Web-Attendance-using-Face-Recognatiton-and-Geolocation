@@ -1956,10 +1956,9 @@ class AttendanceController extends Controller
             ->orderBy('nama_jurusan')
             ->get();
 
-        $kelas = DB::table('siswa')
-            ->select('kelas')
-            ->groupBy('kelas')
-            ->orderBy('kelas')
+        $kelasList = DB::table('kelas')
+            ->orderBy('tingkat')
+            ->orderBy('nama_kelas')
             ->get();
 
         $mataPelajaran = MataPelajaran::orderBy('nama_mapel')
@@ -1968,7 +1967,7 @@ class AttendanceController extends Controller
         return view('attendance.rekap', compact(
             'namabulan',
             'jurusan',
-            'kelas',
+            'kelasList',
             'mataPelajaran'
         ));
     }

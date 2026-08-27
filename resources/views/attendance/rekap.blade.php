@@ -40,12 +40,25 @@
 
               {{-- KELAS --}}
               <div class="mb-2">
-                <select name="kelas" id="kelas" class="form-select" required>
-                    <option value="">Pilih Kelas</option>
-                    @for ($i = 10; $i <= 12; $i++)
-                        <option value="{{ $i }}">Kelas {{ $i }}</option>
-                    @endfor
-                </select>
+                <select
+                                class="form-select"
+                                id="kelas_id">
+
+                                <option value="">
+                                    Pilih Kelas
+                                </option>
+
+                                @foreach ($kelasList as $item)
+
+                                    <option value="{{ $item->id }}">
+
+                                        {{ $item->nama_kelas }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
               </div>
 
               {{-- MATA PELAJARAN --}}
